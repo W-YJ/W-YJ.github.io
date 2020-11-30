@@ -1,0 +1,21 @@
+languageCode = "en-us"
+contentdir = "content"
+publishdir = "public"
+builddrafts = false
+baseUrl = "https://w-yj.github.io"
+canonifyurls = true
+title = "WYJ's Notes"
+author = "admin"
+theme = "pixyll"
+disqusShortname = "sitename"
+hasCJKLanguage = true
+
+[indexes]
+  category = "categories"
+  tag = "tags"
+
+[params]
+  google_analytics_id = "XX-XXXXXXXX-X"
+  twitter_username = "username"
+  paginate = 8
+  tags = ["blog", "personal", "search", "responsive", "minimal"]
