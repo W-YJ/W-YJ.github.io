@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>DesignPattern on WYJ&#39;s Notes</title>
+    <link>https://w-yj.github.io/tags/designpattern/</link>
+    <description>Recent content in DesignPattern on WYJ&#39;s Notes</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 12 Mar 2018 09:42:15 +0000</lastBuildDate>
+    
+	<atom:link href="https://w-yj.github.io/tags/designpattern/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>正确实现看似简单的Singleton</title>
+      <link>https://w-yj.github.io/post/singleton/</link>
+      <pubDate>Mon, 12 Mar 2018 09:42:15 +0000</pubDate>
+      
+      <guid>https://w-yj.github.io/post/singleton/</guid>
+      <description>Singleton的实现似乎十分容易，其实不然，因为java中有许多潜在的因素很容易会破坏单例模式有且只有一个实例的原则!</description>
+    </item>
+    
+  </channel>
+</rss>

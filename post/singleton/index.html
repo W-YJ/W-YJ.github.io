@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>正确实现看似简单的Singleton - WYJ&#39;s Notes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="keywords" content="">
+    <link rel="canonical" href="https://w-yj.github.io/post/singleton/">
+
+    
+    
+    <link rel="stylesheet" type="text/css" href="https://w-yj.github.io/sass/pixyll.min.30e55e9fcc01694c576be315e114e0449103a0df1fb91cec0c2ada477ba30f6b.css">
+
+    
+    <link rel='stylesheet' type='text/css' href='//fonts.googleapis.com/css?family=Merriweather:900,900italic,300,300italic' >
+    <link rel='stylesheet' type='text/css' href='//fonts.googleapis.com/css?family=Lato:900,300'>
+</head>
+
+<body class="site">
+    <div class="site-wrap">
+        <header class="site-header px2 px-responsive">
+    <div class="mt2 wrap">
+        <div class="measure">
+            <a href="https://w-yj.github.io" class="site-title">WYJ&#39;s Notes</a>
+            <nav class="site-nav">
+                
+<div class="right">
+<a href="https://w-yj.github.io/about/">About</a>
+<a href="https://w-yj.github.io/tags/">Tags</a>
+<a href="https://w-yj.github.io/contact/">Contact</a>
+</div>
+            </nav>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</header>
+
+        <div class="post p2 p-responsive wrap" role="main">
+            <div class="measure">
+                
+<div class="post-header mb2">
+    <h1 class="py2">正确实现看似简单的Singleton</h1>
+    <span class="post-meta">
+        Mar 12, 2018
+        
+        by WYJ
+        
+    </span>
+    <br>
+    
+</div>
+<article class="post-content">
+    <!-- raw HTML omitted -->
+<ul>
+<li>Introduction</li>
+<li>Implementation</li>
+<li>⚠️Vulnerability
+<ul>
+<li>Reflection Mechanism</li>
+<li>Serialization/Deserialization</li>
+<li>Cloneable</li>
+<li>Multi-thread Access</li>
+<li>Multiple Class Loaders</li>
+<li>Garbage Collection</li>
+</ul>
+</li>
+<li>Other Implementation Methods
+<ul>
+<li>Static Inner Class</li>
+<li>Enum</li>
+</ul>
+</li>
+</ul>
+<!-- raw HTML omitted -->
+<h2 id="introduction">Introduction</h2>
+<p>Singleton ensure that a class has only one instance and provide a global point of access to it:</p>
+<ul>
+<li>Controlled access</li>
+<li>Reduced namespace - ie. Encapsulate global configuration</li>
+<li>Flexibility(Can be subclassed - well!) - avoid tight coupling from classes that provides static users</li>
+</ul>
+<p>单例模式会给一个类添加许多的职责，这可能违反面向对象设计中的Single Responsibility Principle，该原则要求 &ldquo;A class should have only one single incentive change in terms of functionality&rdquo;，给一个单例类添加过多的功能就会违反该原则，但这只是一个 Principle 不是 Rule，虽然会有与之相关的问题，但依旧可以明智的使用单例设计模式。</p>
+<p>当希望贯穿应用中体现有且仅有一个的概念时，使用单例模式。Singleton是GOF(Gang of Four)设计模式中运用非常广泛的一个模式。例如:</p>
+<ul>
+<li>JDK Runtime类使用了Singleton，该类封装了运行时的环境，因此每个java应用程序都只有一个通过getRuntime()方法可获取的Runtime实例，使应用程序能够与其运行的环境相连接，当修改了Runtime中的某个值对于全局都是可见的。</li>
+<li>实际的应用场景中，日志管理类使用单例模式，日志的配置信息应当是全局可获得的以便日志模式能够统一。</li>
+<li>此外，像是数据库的连接不希望每次做连接数据库操作时就创建新的实例而使用单例模式，并且同时操作多个数据库连接池也会导致程序混乱。</li>
+</ul>
+<h2 id="implementation">Implementation</h2>
+<ul>
+<li>确保有且只有一个实例: 限制构造函数 —— 将构造函数设置为私有，并且让此类管理自己的实例</li>
+<li>提供全局访问的方法: 提供一个静态方法去获取这唯一的实例</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Singleton</span> <span style="color:#f92672">{</span>
+    <span style="color:#75715e">// Eagerly initialization: 该类被加载时，就会创建此对象
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> Singleton soleInstance <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Singleton<span style="color:#f92672">();</span>
+
+    <span style="color:#75715e">// 私有构造器使其他类无法直接通过new创建该类的实例
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">Singleton</span><span style="color:#f92672">(){</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Creating...&#34;</span><span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> Singleton <span style="color:#a6e22e">getInstance</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> soleInstance<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+ 
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Test</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        Singleton s1 <span style="color:#f92672">=</span> Singleton<span style="color:#f92672">.</span><span style="color:#a6e22e">getInstance</span><span style="color:#f92672">();</span>
+        Singleton s2 <span style="color:#f92672">=</span> Singleton<span style="color:#f92672">.</span><span style="color:#a6e22e">getInstance</span><span style="color:#f92672">();</span>
+        print<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;s1&#34;</span><span style="color:#f92672">,</span> s1<span style="color:#f92672">);</span>
+        print<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;s2&#34;</span><span style="color:#f92672">,</span> s2<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">print</span><span style="color:#f92672">(</span>String name<span style="color:#f92672">,</span> Singleton object<span style="color:#f92672">){</span>
+        <span style="color:#75715e">// Hashcode相同说明是同一个instance
+</span><span style="color:#75715e"></span>        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>String<span style="color:#f92672">.</span><span style="color:#a6e22e">format</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Object : %s, HashCode : %d&#34;</span><span style="color:#f92672">,</span> name<span style="color:#f92672">,</span> object<span style="color:#f92672">.</span><span style="color:#a6e22e">hashCode</span><span style="color:#f92672">());</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>同一个instance：
+<img src="singleton/implementation_test.png" alt="测试结果"></p>
+<h2 id="vulnerability">⚠️Vulnerability</h2>
+<p>Singleton的实现似乎十分容易，其实不然，因为java中有许多潜在的因素很容易会破坏单例模式有且只有一个实例的原则，主要体现在以下几个方面：</p>
+<h3 id="reflection-mechanism">Reflection Mechanism</h3>
+<p>Reflection API可以让我们使用 Introspection 的方式调用构造器或该类的其他方法，因此不通过 new 或者其他类似的方式也可以创建实例：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Test</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> Exception <span style="color:#f92672">{</span>
+        Singleton s1 <span style="color:#f92672">=</span> Singleton<span style="color:#f92672">.</span><span style="color:#a6e22e">getInstance</span><span style="color:#f92672">();</span>
+        Singleton s2 <span style="color:#f92672">=</span> Singleton<span style="color:#f92672">.</span><span style="color:#a6e22e">getInstance</span><span style="color:#f92672">();</span>
+        print<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;s1&#34;</span><span style="color:#f92672">,</span> s1<span style="color:#f92672">);</span>
+        print<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;s2&#34;</span><span style="color:#f92672">,</span> s2<span style="color:#f92672">);</span>
+
+        <span style="color:#75715e">// reflection
+</span><span style="color:#75715e"></span>        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;\nUsing Reflection&#34;</span><span style="color:#f92672">);</span>
+        <span style="color:#75715e">// load class
+</span><span style="color:#75715e"></span>        Class clazz <span style="color:#f92672">=</span> Class<span style="color:#f92672">.</span><span style="color:#a6e22e">forName</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;patterns.Singleton&#34;</span><span style="color:#f92672">);</span>
+        Constructor<span style="color:#f92672">&lt;</span>Singleton<span style="color:#f92672">&gt;</span> ctor <span style="color:#f92672">=</span> clazz<span style="color:#f92672">.</span><span style="color:#a6e22e">getDeclaredConstructor</span><span style="color:#f92672">();</span>
+        <span style="color:#75715e">// this api let you violate encapsulation in java and change the access modifier
+</span><span style="color:#75715e"></span>        ctor<span style="color:#f92672">.</span><span style="color:#a6e22e">setAccessible</span><span style="color:#f92672">(</span><span style="color:#66d9ef">true</span><span style="color:#f92672">);</span>
+
+        Singleton s3 <span style="color:#f92672">=</span> ctor<span style="color:#f92672">.</span><span style="color:#a6e22e">newInstance</span><span style="color:#f92672">();</span>
+        print<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;s3&#34;</span><span style="color:#f92672">,</span> s3<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">print</span><span style="color:#f92672">(</span>String name<span style="color:#f92672">,</span> Singleton object<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>String<span style="color:#f92672">.</span><span style="color:#a6e22e">format</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Object : %s, HashCode : %d&#34;</span><span style="color:#f92672">,</span> name<span style="color:#f92672">,</span> object<span style="color:#f92672">.</span><span style="color:#a6e22e">hashCode</span><span style="color:#f92672">()));</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>单例已被破坏：
+<img src="singleton/reflection_test.png" alt="测试结果"></p>
+<p>利用反射机制破坏单例模式的原因在于<code>ctor.setAccessible(true);</code>方法，即把私有的构造器设置为accessible，所以优化的点在构造器，在constructor中检查soleInstance是否已被创建，如果已经创建，则不允许Reflection继续执行并抛出异常。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Singleton</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> Singleton soleInstance <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+
+    <span style="color:#75715e">// 修改后的构造方法
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">Singleton</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>soleInstance <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> RuntimeException<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Cannot create! Please use method getInstance&#34;</span><span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#75715e">// proceed with creation
+</span><span style="color:#75715e"></span>        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Creating...&#34;</span><span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> Singleton <span style="color:#a6e22e">getInstance</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>soleInstance <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            soleInstance <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Singleton<span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#66d9ef">return</span> soleInstance<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>结果如预期：
+<img src="singleton/reflection_fix.png" alt="测试结果"></p>
+<p>但是如果在test类中修改执行顺序，单例模式依旧被破坏</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> Exception <span style="color:#f92672">{</span>
+    <span style="color:#75715e">// reflection
+</span><span style="color:#75715e"></span>    System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;\nUsing Reflection&#34;</span><span style="color:#f92672">);</span>
+    <span style="color:#75715e">// load class
+</span><span style="color:#75715e"></span>    Class clazz <span style="color:#f92672">=</span> Class<span style="color:#f92672">.</span><span style="color:#a6e22e">forName</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;patterns.Singleton&#34;</span><span style="color:#f92672">);</span>
+    Constructor<span style="color:#f92672">&lt;</span>Singleton<span style="color:#f92672">&gt;</span> ctor <span style="color:#f92672">=</span> clazz<span style="color:#f92672">.</span><span style="color:#a6e22e">getDeclaredConstructor</span><span style="color:#f92672">();</span>
+    <span style="color:#75715e">// this api let you violate encapsulation in java and change the access modifier
+</span><span style="color:#75715e"></span>    ctor<span style="color:#f92672">.</span><span style="color:#a6e22e">setAccessible</span><span style="color:#f92672">(</span><span style="color:#66d9ef">true</span><span style="color:#f92672">);</span>
+
+    Singleton s3 <span style="color:#f92672">=</span> ctor<span style="color:#f92672">.</span><span style="color:#a6e22e">newInstance</span><span style="color:#f92672">();</span>
+    print<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;s3&#34;</span><span style="color:#f92672">,</span> s3<span style="color:#f92672">);</span>
+
+    Singleton s1 <span style="color:#f92672">=</span> Singleton<span style="color:#f92672">.</span><span style="color:#a6e22e">getInstance</span><span style="color:#f92672">();</span>
+    Singleton s2 <span style="color:#f92672">=</span> Singleton<span style="color:#f92672">.</span><span style="color:#a6e22e">getInstance</span><span style="color:#f92672">();</span>
+    print<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;s1&#34;</span><span style="color:#f92672">,</span> s1<span style="color:#f92672">);</span>
+    print<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;s2&#34;</span><span style="color:#f92672">,</span> s2<span style="color:#f92672">);</span>
+
+<span style="color:#f92672">}</span>
+</code></pre></div><p><img src="singleton/reflection_fix_bug.png" alt="测试结果"></p>
+<h3 id="serializationdeserialization">Serialization/Deserialization</h3>
+<p>序列化是一个将对象的状态信息写入流的过程，反序列化则相反。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">// 在Singleton类实现Serailizable接口，代码略
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Singleton</span> <span style="color:#66d9ef">implements</span> Serializable <span style="color:#f92672">{}</span>
+
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Test</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> Exception <span style="color:#f92672">{</span>
+        Singleton s1 <span style="color:#f92672">=</span> Singleton<span style="color:#f92672">.</span><span style="color:#a6e22e">getInstance</span><span style="color:#f92672">();</span>
+        Singleton s2 <span style="color:#f92672">=</span> Singleton<span style="color:#f92672">.</span><span style="color:#a6e22e">getInstance</span><span style="color:#f92672">();</span>
+        print<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;s1&#34;</span><span style="color:#f92672">,</span> s1<span style="color:#f92672">);</span>
+        print<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;s2&#34;</span><span style="color:#f92672">,</span> s2<span style="color:#f92672">);</span>
+
+        <span style="color:#75715e">// Serialization
+</span><span style="color:#75715e"></span>        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;\nUsing Serialization&#34;</span><span style="color:#f92672">);</span>
+        ObjectOutputStream oos <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ObjectOutputStream<span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> FileOutputStream<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;/tmp/s2.ser&#34;</span><span style="color:#f92672">));</span>
+        oos<span style="color:#f92672">.</span><span style="color:#a6e22e">writeObject</span><span style="color:#f92672">(</span>s2<span style="color:#f92672">);</span>
+
+        <span style="color:#75715e">//deserialization
+</span><span style="color:#75715e"></span>        ObjectInputStream ois <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ObjectInputStream<span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> FileInputStream<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;/tmp/s2.ser&#34;</span><span style="color:#f92672">));</span>
+        Singleton s3 <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>Singleton<span style="color:#f92672">)</span> ois<span style="color:#f92672">.</span><span style="color:#a6e22e">readObject</span><span style="color:#f92672">();</span>
+        print<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;s3&#34;</span><span style="color:#f92672">,</span> s3<span style="color:#f92672">);</span>
+
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">print</span><span style="color:#f92672">(</span>String name<span style="color:#f92672">,</span> Singleton object<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>String<span style="color:#f92672">.</span><span style="color:#a6e22e">format</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Object : %s, HashCode : %d&#34;</span><span style="color:#f92672">,</span> name<span style="color:#f92672">,</span> object<span style="color:#f92672">.</span><span style="color:#a6e22e">hashCode</span><span style="color:#f92672">()));</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>单例已被破坏：      <br>
+<img src="singleton/serialization_test.png" alt="测试结果"></p>
+<p>此类问题可以通过在 Singleton 中实现 readResolver 方法解决。当反序列化操作完成时，Java 会在此基础上立即调用你重写的readResolve方法，通过这个机制可以改变反序列化的执行结果。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">private</span> Object <span style="color:#a6e22e">readResolve</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> ObjectStreamException <span style="color:#f92672">{</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;.. read resolve.&#34;</span><span style="color:#f92672">);</span>
+        <span style="color:#75715e">// change the behavior of deserialization. this will overide deserialization
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">return</span> soleInstance<span style="color:#f92672">;</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p><img src="singleton/serialization_fix.png" alt="测试结果"></p>
+<h3 id="cloneable">Cloneable</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">// 在Singleton类实现Cloneable接口，并实现默认的clone方法，代码略
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Singleton</span> <span style="color:#66d9ef">implements</span> Cloneable <span style="color:#f92672">{}</span>
+
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Test</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> Exception <span style="color:#f92672">{</span>
+        Singleton s1 <span style="color:#f92672">=</span> Singleton<span style="color:#f92672">.</span><span style="color:#a6e22e">getInstance</span><span style="color:#f92672">();</span>
+        Singleton s2 <span style="color:#f92672">=</span> Singleton<span style="color:#f92672">.</span><span style="color:#a6e22e">getInstance</span><span style="color:#f92672">();</span>
+        print<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;s1&#34;</span><span style="color:#f92672">,</span> s1<span style="color:#f92672">);</span>
+        print<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;s2&#34;</span><span style="color:#f92672">,</span> s2<span style="color:#f92672">);</span>
+
+        <span style="color:#75715e">// clone
+</span><span style="color:#75715e"></span>        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;\nUsing clone&#34;</span><span style="color:#f92672">);</span>
+        Singleton s3 <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>Singleton<span style="color:#f92672">)</span> s2<span style="color:#f92672">.</span><span style="color:#a6e22e">clone</span><span style="color:#f92672">();</span>
+        print<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;s3&#34;</span><span style="color:#f92672">,</span> s3<span style="color:#f92672">);</span>
+
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">print</span><span style="color:#f92672">(</span>String name<span style="color:#f92672">,</span> Singleton object<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>String<span style="color:#f92672">.</span><span style="color:#a6e22e">format</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Object : %s, HashCode : %d&#34;</span><span style="color:#f92672">,</span> name<span style="color:#f92672">,</span> object<span style="color:#f92672">.</span><span style="color:#a6e22e">hashCode</span><span style="color:#f92672">()));</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>单例已被破坏：<br>
+<img src="singleton/clone_test.png" alt="测试结果"></p>
+<p>在给单例添加clone机制时就添加了创建多个实例的特性，所以避免它最简单方法就是不支持它，即在clone方法中抛出CloneNotSupportedException。类似序列化与反序列化中可以通过返回soleInstance的方式解决，但是更加推荐抛出异常的方法，因为这两个设计思想本身就是相悖的。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@Override</span>
+<span style="color:#66d9ef">protected</span> Object <span style="color:#a6e22e">clone</span><span style="color:#f92672">()</span>  <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> CloneNotSupportedException<span style="color:#f92672">();</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p><img src="singleton/clone_fix.png" alt="测试结果"></p>
+<h3 id="multi-thread-access">Multi-thread Access</h3>
+<p>当多个线程同时去创建实例时很容易造成混乱，尤其是出于性能考虑以延迟加载的方式创建时。延迟加载主要有两个优点：</p>
+<ul>
+<li>推迟对象创建时间，等直到需要时再创建，这样可以节省资源。</li>
+<li>在类加载时创建对象在创建失败时没有机会重新创建，除非重新加载该类，但是使用延迟加载的方式则可以。</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Singleton</span> <span style="color:#f92672">{</span>
+
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> Singleton soleInstance <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+
+    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">Singleton</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Creating...&#34;</span><span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> Singleton <span style="color:#a6e22e">getInstance</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#75715e">// lazy initialization
+</span><span style="color:#75715e"></span>        <span style="color:#75715e">// check-then-act操作
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>soleInstance <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span> <span style="color:#75715e">// 操作1
+</span><span style="color:#75715e"></span>            soleInstance <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Singleton<span style="color:#f92672">();</span> <span style="color:#75715e">// 操作2
+</span><span style="color:#75715e"></span>        <span style="color:#f92672">}</span>
+        <span style="color:#66d9ef">return</span> soleInstance<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Test</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">useSingleton</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        Singleton singleton <span style="color:#f92672">=</span> Singleton<span style="color:#f92672">.</span><span style="color:#a6e22e">getInstance</span><span style="color:#f92672">();</span>
+        print<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;singleton&#34;</span><span style="color:#f92672">,</span> singleton<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> Exception <span style="color:#f92672">{</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;\nmulti-threaded access&#34;</span><span style="color:#f92672">);</span>
+        ExecutorService service <span style="color:#f92672">=</span> Executors<span style="color:#f92672">.</span><span style="color:#a6e22e">newFixedThreadPool</span><span style="color:#f92672">(</span>2<span style="color:#f92672">);</span>
+        <span style="color:#75715e">// use java 8 lambda expression
+</span><span style="color:#75715e"></span>        service<span style="color:#f92672">.</span><span style="color:#a6e22e">submit</span><span style="color:#f92672">(</span>Test<span style="color:#f92672">::</span>useSingleton<span style="color:#f92672">);</span>
+        service<span style="color:#f92672">.</span><span style="color:#a6e22e">submit</span><span style="color:#f92672">(</span>Test<span style="color:#f92672">::</span>useSingleton<span style="color:#f92672">);</span>
+        service<span style="color:#f92672">.</span><span style="color:#a6e22e">shutdown</span><span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">print</span><span style="color:#f92672">(</span>String name<span style="color:#f92672">,</span> Singleton object<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>String<span style="color:#f92672">.</span><span style="color:#a6e22e">format</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Object : %s, HashCode : %d&#34;</span><span style="color:#f92672">,</span> name<span style="color:#f92672">,</span> object<span style="color:#f92672">.</span><span style="color:#a6e22e">hashCode</span><span style="color:#f92672">()));</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>从单线程应用程序的角度看延迟加载没有问题，但是在多线程环境下，getInstance 方法中的 if 语句形成一个 Check-Then-Act 操作，这不是一个原子操作并且代码中未使用任何同步机制，因此当多线程交错运行时可能出现竞态。</p>
+<p>当 soleInstance 值还是 null 的时候，T1 线程和 T2 线程同时执行到操作1，接着 T1 执行操作2前 T2 已率先执行完操作2，因此当 T1 执行到操作2时，尽管 soleInstance 实际已经不为 null，但是 T1 此时仍然会再创建一个实例，因为T1执行操作1时 soleInstance 为 null，这就导致了多个实例的创建，从而破坏单例模式。</p>
+<p>测试结果如预期有Work和Not Work两种情况：<br>
+<img src="singleton/thread_work.png" alt="测试结果"><br>
+<img src="singleton/thread_not.png" alt="测试结果"></p>
+<p>这类问题不难想到通过加同步锁可快速解决：当多个线程同时调用 getInstance 方法时会意识到该方法不可并发执行，所以当第一个线程获得该锁时，其他的线程只能等待并直到第一个线程执行完成，其他线程才可陆续获得该锁，但此时 soleInstance 已被初始化，所以给调用者返回唯一实例。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> Singleton <span style="color:#a6e22e">getInstance</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+    <span style="color:#75715e">// 使用同步块相比同步方法可以缩小同步的范围
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">synchronized</span><span style="color:#f92672">(</span>Singleton<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">){</span>
+        <span style="color:#75715e">// lazy initialization
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>soleInstance <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            soleInstance <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Singleton<span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">return</span> soleInstance<span style="color:#f92672">;</span>        
+<span style="color:#f92672">}</span> 
+</code></pre></div><p>以上固然是线程安全的，但意味着 getInstance 方法的任何一个执行线程都需要申请锁。为了避免锁的开销，可以尝试使用 Double-Checked Locking 进行改进：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"> <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> Singleton <span style="color:#a6e22e">getInstance</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+    <span style="color:#75715e">// lazy initialization
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">// double checked locking
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>soleInstance <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span> <span style="color:#75715e">// check1
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">synchronized</span> <span style="color:#f92672">(</span>Singleton<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>soleInstance <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#75715e">// check2
+</span><span style="color:#75715e"></span>                soleInstance <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Singleton<span style="color:#f92672">();</span> <span style="color:#75715e">// 操作3
+</span><span style="color:#75715e"></span>        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">return</span> soleInstance<span style="color:#f92672">;</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>尽管 check1 对变量 soleInstance 的访问没有加锁使竞态仍然存在，但它既可以避免锁的开销又能保障线程安全：</p>
+<p>T1 线程执行到 check1 时发现soleInstance为null，接着 T1 成功获得锁后继而执行临界区代码，check2 会再次判断soleInstance是否为null，此时由于该线程是在临界区内读取共享变量 soleInstance 的，因此 T1 可以发现此刻soleInstance值不为 null，因此 T1 不会再创建新的实例，从而避免破坏单例模式。</p>
+<p>以上从可见性的角度分析结论确实如此，但是考虑到重排序的因素还是可能会出现新的问题无法保障线程安全。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//操作3创建对象的语句可以分解为以下伪代码所示的几个独立子操作：
+</span><span style="color:#75715e">//子操作1:分配A实例所需的内存空间，并获得一个指向该空间的引用
+</span><span style="color:#75715e"></span>objRef <span style="color:#f92672">=</span> allocate<span style="color:#f92672">(</span>Singleton<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+<span style="color:#75715e">//子操作2:调用A类的构造器初始化objRef引用指向的A实例
+</span><span style="color:#75715e"></span>invokeConstructor<span style="color:#f92672">(</span>objRef<span style="color:#f92672">);</span>
+<span style="color:#75715e">//子操作3:将A实例objRef赋值给实例变量a
+</span><span style="color:#75715e"></span>soleInstance <span style="color:#f92672">=</span> objRef<span style="color:#f92672">;</span>
+</code></pre></div><p>根据临界区内的操作可以在临界区内被重排序的规则，JIT编译器可能将上述的子操作重排序为：子操作1 ——&gt; 子操作3 ——&gt; 子操作2，即在初始化之前将对象的引用写入实例变量soleInstance。</p>
+<p>由于锁对有序性的保障是有条件的，而 check1 读取 soleInstance 变量时没有加锁，并且 Java 编译器规范允许应用程序在 Runtime 发布已经初始化的变量供其他线程使用，因此上述重排序对操作1的重排序是有影响的：</p>
+<ul>
+<li>该线程可能看到一个未初始化或未初始化完毕的实例，即变量 soleInstance 的值不为 null，但是该变量所引用的对象中的某些实例变量的变量值仍然可能是默认值，而非构造器中设置的初始值。</li>
+<li>此时当一个线程在执行操作1的时候发现 soleInstance 不为 null，于是该线程就直接返回这个 soleInstance 变量所引用的实例，而这个实例可能是未初始化完毕的，这就可能导致程序出错。</li>
+</ul>
+<p>事实上，Double-Checked Locking目前已经被视为 Anti-Pattern，但是不少现有框架如 Spring 还在使用这种方法，因此知道此方法的相关问题具有实际意义。解决上述问题的方法是通过使用  volatile 关键字修饰 soleInstance 变量。这利用了 volatile 关键字的以下两个作用：</p>
+<ul>
+<li>保障可见性：一个线程通过执行操作3修改了soleInstance变量值，其他线程可以读取到相应值（执行check2）</li>
+<li>保障有序性：由于volatile能够禁止volatile变量写操作与该操作之前的任何读、写操作进行重排序，因此用volatile修饰的soleInstance相当于禁止JIT编译器以及处理器将子操作2（对对象进行子操作的写操作）重排序到子操作3（将对象引用写入共享变量的写操作）之后，这就保障了一个线程读取到的soleInstance变量所引用的实例时该实例已经初始化完毕。</li>
+</ul>
+<p>通过 volatile 关键字对以上两点的保障，Double-Checked Locking 才可正确实现。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Singleton</span> <span style="color:#f92672">{</span>
+
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">volatile</span> Singleton soleInstance <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+
+    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">Singleton</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Creating...&#34;</span><span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> Singleton <span style="color:#a6e22e">getInstance</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#75715e">// lazy initialization
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>soleInstance <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">synchronized</span> <span style="color:#f92672">(</span>Singleton<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                soleInstance <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Singleton<span style="color:#f92672">();</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#66d9ef">return</span> soleInstance<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h3 id="multiple-class-loaders">Multiple Class Loaders</h3>
+<p>在多 Class Loader 情况下，很难控制单例实例的数量，实现全局的单例。例如:</p>
+<ul>
+<li>在 Web 容器中有一个应用程序类加载器和另外一个 Enterprise Archive 类加载器，当这两个类加载器各自独立也非父子关系，如果你试图自己加载此类，并且此时你正在启动你的容器，在 Web 容器下使用的单例，Webapp Class Loader 将会加载这个单例，与此同时你也正在引用你的单例，将也会加载这个单例并且得到一个新的实例，这样你将会在同一个 JVM 创建两个独立的单例实例，从而破坏单例定义。</li>
+<li>这也是单例最难修复的问题之一，大多数情况下虽然在理论上已经违反但仅仅也只是 ”Leave it alone and don‘t bother“。在 Single JVM 下，多个 Class Loaders 将会在它们各自的 Class Loading Environment 装载单例的不同的实例，这是很难去避免，网上搜索相关的解决办法是可以在 Singleton 的构造器中添加写代码去“Take certain things in the Class Loader”，但这不是一劳永逸error-free的解决办法，可能在某些特定的情况下不 Work，目前未发现完美的解决方法。</li>
+<li>至于为何不使用一个包含静态方法与静态变量的类去创建单例，答案是可以，不过单例有它自己的使用场景，《设计模式》也提及“Sole instance being extensible by subclassing and clients should be able to use an extended instance without modifying their code&rdquo;。</li>
+</ul>
+<h3 id="garbage-collection">Garbage Collection</h3>
+<p>Java 1.2发布后此问题已被解决，在之前更老的版本中，当你再次 new 一个对象时，某些时候已经创建的单例模式的静态实例可能会被垃圾回收器当垃圾回收，并且 new instance API 会返回新的实例。</p>
+<h2 id="other-implementation-methods">Other Implementation Methods</h2>
+<h3 id="static-inner-class">Static Inner Class</h3>
+<p>考虑到 Double-Checked Locking 实现上容易出错，可以采用另外一种同样可以使用实现 Lazy Initialization 且比较简单的方法：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">// 基于静态内部类(Static Holder)的单例模式实现
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Singleton</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">Singleton</span><span style="color:#f92672">()</span> <span style="color:#f92672">{}</span>
+
+    <span style="color:#75715e">// singleton holder.
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Holder</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">static</span> Singleton INSTANCE <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Singleton<span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span>
+    
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> Singleton <span style="color:#a6e22e">getInstance</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> Holder<span style="color:#f92672">.</span><span style="color:#a6e22e">INSTANCE</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>类的静态变量被初次访问会触发 JVM 对该类进行初始化，即该类的静态变量的值会变成其初始值而不是默认值。因此静态方法getInstance()被调用的时候 JVM 会初始化这个方法所访问的内部静态类 Holder，这使得 Holder 的静态变量 INSTANCE 被初始化，从而使 Singleton 类的唯一实例得以创建。由于类的静态变量只会创建一次，因此 Singleton 也只会被创建一次。</p>
+<h3 id="enum">Enum</h3>
+<p>在《Effective Java》书中建议使用 Enum 实现单例，对于正确实现延迟加载的 Singleton，这是最简单、最robust、最stylish，与此同时或许有些许争议的方法。虽然与 Enum 设计初衷大相径庭，但是它可以解决上诉所有的问题，所以使用enum去创建单例并没有什么错，就日常开发而言，或许可能会让一些不明所以的同学一头雾水吧。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">enum</span> Singleton <span style="color:#f92672">{</span>
+    INSTANCE<span style="color:#f92672">;</span>
+    <span style="color:#75715e">// 私有构造器
+</span><span style="color:#75715e"></span>    Singleton<span style="color:#f92672">(){}</span>
+
+    <span style="color:#66d9ef">public</span> String <span style="color:#a6e22e">getConfiguration</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;balabala...&#34;</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">someService</span><span style="color:#f92672">(){}</span>
+<span style="color:#f92672">}</span>
+
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Test</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">useSingleton</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        Singleton singleton <span style="color:#f92672">=</span> Singleton<span style="color:#f92672">.</span><span style="color:#a6e22e">INSTANCE</span><span style="color:#f92672">;</span>
+        print<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;singleton&#34;</span><span style="color:#f92672">,</span> singleton<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> Exception <span style="color:#f92672">{</span>
+        ExecutorService service <span style="color:#f92672">=</span> Executors<span style="color:#f92672">.</span><span style="color:#a6e22e">newFixedThreadPool</span><span style="color:#f92672">(</span>2<span style="color:#f92672">);</span>
+        service<span style="color:#f92672">.</span><span style="color:#a6e22e">submit</span><span style="color:#f92672">(</span>Test<span style="color:#f92672">::</span>useSingleton<span style="color:#f92672">);</span>
+        service<span style="color:#f92672">.</span><span style="color:#a6e22e">submit</span><span style="color:#f92672">(</span>Test<span style="color:#f92672">::</span>useSingleton<span style="color:#f92672">);</span>
+        service<span style="color:#f92672">.</span><span style="color:#a6e22e">shutdown</span><span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">print</span><span style="color:#f92672">(</span>String name<span style="color:#f92672">,</span> Singleton object<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>String<span style="color:#f92672">.</span><span style="color:#a6e22e">format</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Object : %s, HashCode : %d&#34;</span><span style="color:#f92672">,</span> name<span style="color:#f92672">,</span> object<span style="color:#f92672">.</span><span style="color:#a6e22e">hashCode</span><span style="color:#f92672">()));</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>枚举类型Singleton相当于一个单例类，其字段 INSTANCE 相当于该类的唯一实例。此实例是在 Singleton.INSTANCE 初次被引用时才被初始化的。仅访问 Singleton 本身如Singleton.class.getName() 并不会导致 Singleton 的唯一实例被初始化。</p>
+
+</article>
+
+
+<p class="post-meta">
+    Tags:&nbsp;
+    
+    
+    <a href="https://w-yj.github.io/tags/DesignPattern">DesignPattern</a>
+    
+</p>
+
+
+
+            </div>
+        </div>
+    </div>
+    <footer class="center">
+    <div class="p2 wrap">
+        <div class="measure mt1 center">
+            <small>
+                Copyright &#169; 2017<br>
+                Powered by <a href="http://gohugo.io/" target="_blank">Hugo</a> &amp; <a
+                    href="https://github.com/azmelanar/hugo-theme-pixyll" target="_blank">Pixyll</a>
+            </small>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>
