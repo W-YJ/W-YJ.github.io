@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Java String - WYJ&#39;s Notes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="keywords" content="">
+    <link rel="canonical" href="https://w-yj.github.io/post/javastring/">
+
+    
+    
+    <link rel="stylesheet" type="text/css" href="https://w-yj.github.io/sass/pixyll.min.30e55e9fcc01694c576be315e114e0449103a0df1fb91cec0c2ada477ba30f6b.css">
+
+    
+    <link rel='stylesheet' type='text/css' href='//fonts.googleapis.com/css?family=Merriweather:900,900italic,300,300italic' >
+    <link rel='stylesheet' type='text/css' href='//fonts.googleapis.com/css?family=Lato:900,300'>
+</head>
+
+<body class="site">
+    <div class="site-wrap">
+        <header class="site-header px2 px-responsive">
+    <div class="mt2 wrap">
+        <div class="measure">
+            <a href="https://w-yj.github.io" class="site-title">WYJ&#39;s Notes</a>
+            <nav class="site-nav">
+                
+<div class="right">
+<a href="https://w-yj.github.io/about/">About</a>
+<a href="https://w-yj.github.io/tags/">Tags</a>
+<a href="https://w-yj.github.io/contact/">Contact</a>
+</div>
+            </nav>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</header>
+
+        <div class="post p2 p-responsive wrap" role="main">
+            <div class="measure">
+                
+<div class="post-header mb2">
+    <h1 class="py2">Java String</h1>
+    <span class="post-meta">
+        Mar 19, 2017
+        
+    </span>
+    <br>
+    
+</div>
+<article class="post-content">
+    <h1 id="java-string">Java String</h1>
+<blockquote>
+<p>Objects backed by char array</p>
+</blockquote>
+<!-- raw HTML omitted -->
+<ul>
+<li>Immutable and final Characteristics
+<ul>
+<li>Immutable Benefits</li>
+</ul>
+</li>
+<li>String APIs
+<ul>
+<li><code>+</code> opreator vs StringBuilder.append() vs concat</li>
+</ul>
+</li>
+<li>String &amp; StringTokenizer &amp; String Buffer &amp; String Builder
+<ul>
+<li>StringBuffer VS StringBuilder VS String</li>
+</ul>
+</li>
+<li>A word on &lsquo;best practice&rsquo;
+<ul>
+<li>Storing passwords</li>
+</ul>
+</li>
+</ul>
+<!-- raw HTML omitted -->
+<h2 id="immutable-and-final-characteristics">Immutable and final Characteristics</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Example1</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        String s1 <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Hello&#34;</span><span style="color:#f92672">;</span>
+        String s2 <span style="color:#f92672">=</span> s1<span style="color:#f92672">.</span><span style="color:#a6e22e">toUpperCase</span><span style="color:#f92672">();</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>s2<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h3 id="immutable-benefits">Immutable Benefits</h3>
+<ul>
+<li>Use with StringPool/intern for caching(java 1.7后StringPool就不储存在MethodArea/PermGen，而是Main Heap)</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Example1</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#75715e">// cashed in the string pool use string.intern()to create a string
+</span><span style="color:#75715e"></span>        String s1 <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Hello&#34;</span><span style="color:#f92672">;</span> 
+
+        <span style="color:#75715e">// now s2 will also point to the same string object in the string pool
+</span><span style="color:#75715e"></span>        String s2 <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Hello&#34;</span><span style="color:#f92672">;</span> 
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Are the same ref?&#34;</span> <span style="color:#f92672">+</span> <span style="color:#f92672">(</span>s1 <span style="color:#f92672">==</span> s2<span style="color:#f92672">));</span><span style="color:#75715e">// true
+</span><span style="color:#75715e"></span>
+        <span style="color:#75715e">// use constructor to create a string
+</span><span style="color:#75715e"></span>        <span style="color:#75715e">/* The string is not interned and it means jvm does not search
+</span><span style="color:#75715e">         string  pool for this &#34;Hello&#34; and assign it back to s3 */</span>
+        String s3 <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> String<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Hello&#34;</span><span style="color:#f92672">);</span><span style="color:#75715e">// new object in the heap
+</span><span style="color:#75715e"></span>        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>s1 <span style="color:#f92672">==</span> s3<span style="color:#f92672">);</span> <span style="color:#75715e">// false
+</span><span style="color:#75715e"></span>
+        String s4 <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> String<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Hello&#34;</span><span style="color:#f92672">).</span><span style="color:#a6e22e">intern</span><span style="color:#f92672">();</span> <span style="color:#75715e">// now it is interned
+</span><span style="color:#75715e"></span>        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>s1 <span style="color:#f92672">==</span> s4<span style="color:#f92672">);</span> <span style="color:#75715e">// true
+</span><span style="color:#75715e"></span>
+        <span style="color:#75715e">/* 如果String是mutable的话，那么string pool中的“hello”值也会变成大写，
+</span><span style="color:#75715e">         从而s2（有相同的reference）的值也被修改了，这样就无法使用string pool进行缓存了*/</span>    
+        s1<span style="color:#f92672">.</span><span style="color:#a6e22e">toUpperCase</span><span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><ul>
+<li>thread safe</li>
+<li>caches hashcodes - 有了缓存机制，每次调用hashcode方法就不需要重新计算</li>
+</ul>
+<h2 id="string-apis">String APIs</h2>
+<ul>
+<li>indexOf, lastIndexOf, contains, matches（for regular expression）</li>
+<li>regular expressions</li>
+<li>substring - memory leak up until JDK 7.</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> exapmles<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> java.util.regex.Matcher<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> java.util.regex.Pattern<span style="color:#f92672">;</span>
+
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Example1</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        String s1 <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Hello&#34;</span><span style="color:#f92672">;</span>
+        String s2 <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Hello lo lo&#34;</span><span style="color:#f92672">;</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>s1<span style="color:#f92672">.</span><span style="color:#a6e22e">indexOf</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;lo&#34;</span><span style="color:#f92672">));</span> <span style="color:#75715e">//输出3
+</span><span style="color:#75715e"></span>        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>s2<span style="color:#f92672">.</span><span style="color:#a6e22e">lastIndexOf</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;lo&#34;</span><span style="color:#f92672">));</span><span style="color:#75715e">//输出9
+</span><span style="color:#75715e"></span>        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>s2<span style="color:#f92672">.</span><span style="color:#a6e22e">contains</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Hello&#34;</span><span style="color:#f92672">));</span> <span style="color:#75715e">//输出true
+</span><span style="color:#75715e"></span>
+        String s3 <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Hello world&#34;</span><span style="color:#f92672">;</span>
+        <span style="color:#75715e">// anything followed by &#34;word&#34;
+</span><span style="color:#75715e"></span>        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>s3<span style="color:#f92672">.</span><span style="color:#a6e22e">matches</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;(.) world&#34;</span><span style="color:#f92672">));</span> <span style="color:#75715e">//输出true
+</span><span style="color:#75715e"></span>
+        <span style="color:#75715e">//Regex
+</span><span style="color:#75715e"></span>        <span style="color:#75715e">//Count matches of a specific substring in a string
+</span><span style="color:#75715e"></span>        String s4 <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;hellofafshellofafsdfhellofadf&#34;</span><span style="color:#f92672">;</span>
+        Pattern pattern <span style="color:#f92672">=</span> Pattern<span style="color:#f92672">.</span><span style="color:#a6e22e">compile</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;hello&#34;</span><span style="color:#f92672">);</span>
+        Matcher matcher <span style="color:#f92672">=</span> pattern<span style="color:#f92672">.</span><span style="color:#a6e22e">matcher</span><span style="color:#f92672">(</span>s4<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">int</span> occurances <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">while</span> <span style="color:#f92672">(</span>matcher<span style="color:#f92672">.</span><span style="color:#a6e22e">find</span><span style="color:#f92672">()){</span>
+            occurances<span style="color:#f92672">++;</span>
+        <span style="color:#f92672">}</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>occurances<span style="color:#f92672">);</span> <span style="color:#75715e">//输出3
+</span><span style="color:#75715e"></span>
+        String s5 <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;sfjslkdfjskfjjflkasjflksfjlkd&#34;</span><span style="color:#f92672">;</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>s5<span style="color:#f92672">.</span><span style="color:#a6e22e">substring</span><span style="color:#f92672">(</span>5<span style="color:#f92672">,</span> 8<span style="color:#f92672">));</span>
+
+        <span style="color:#75715e">//System.out.println(s5.substring(50)); //报错：IndexOutOfBoundException
+</span><span style="color:#75715e"></span>        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>s5<span style="color:#f92672">.</span><span style="color:#a6e22e">substring</span><span style="color:#f92672">(</span>s5<span style="color:#f92672">.</span><span style="color:#a6e22e">length</span><span style="color:#f92672">()));</span> <span style="color:#75715e">// 输出为空
+</span><span style="color:#75715e"></span>
+        <span style="color:#75715e">//before java 1.7 substring - source of memory leak
+</span><span style="color:#75715e"></span>        <span style="color:#75715e">// 主要原因在String构造方法，改进后使用copyof
+</span><span style="color:#75715e"></span>        String s6 <span style="color:#f92672">=</span> s5<span style="color:#f92672">.</span><span style="color:#a6e22e">substring</span><span style="color:#f92672">(</span>5<span style="color:#f92672">,</span> 8<span style="color:#f92672">);</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>s6<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h3 id="-opreator-vs-stringbuilderappend-vs-concat"><code>+</code> opreator vs StringBuilder.append() vs concat</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> examples<span style="color:#f92672">;</span>
+
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Example1</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#75715e">// There used to produce a lot of intermediate strings. Less efficient in terms of memory execution
+</span><span style="color:#75715e"></span>        <span style="color:#75715e">// Nowadays the jvm itself will invoke StringBuilder.append() to concat string
+</span><span style="color:#75715e"></span>        String s <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;This &#34;</span><span style="color:#f92672">+</span>20<span style="color:#f92672">+</span><span style="color:#e6db74">&#34; is &#34;</span><span style="color:#f92672">+</span>Boolean<span style="color:#f92672">.</span><span style="color:#a6e22e">valueOf</span><span style="color:#f92672">(</span><span style="color:#66d9ef">true</span><span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">new</span> StringBuilder<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;This&#34;</span><span style="color:#f92672">).</span><span style="color:#a6e22e">append</span><span style="color:#f92672">(</span>20<span style="color:#f92672">).</span><span style="color:#a6e22e">append</span><span style="color:#f92672">(</span><span style="color:#66d9ef">true</span><span style="color:#f92672">);</span>
+        <span style="color:#75715e">// 以上执行的两个操作相同
+</span><span style="color:#75715e"></span>        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>s<span style="color:#f92672">);</span>
+
+        <span style="color:#75715e">// concat
+</span><span style="color:#75715e"></span>        String s1 <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;ab &#34;</span><span style="color:#f92672">;</span>
+        String s2 <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34; cd&#34;</span><span style="color:#f92672">;</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>s1<span style="color:#f92672">.</span><span style="color:#a6e22e">concat</span><span style="color:#f92672">(</span>s2<span style="color:#f92672">));</span> <span style="color:#75715e">//输出ab cd
+</span><span style="color:#75715e"></span>        <span style="color:#75715e">// main difference: the concat operation only visit string type.
+</span><span style="color:#75715e"></span>        <span style="color:#75715e">// small amount of strings concat use concat can be more efficient.
+</span><span style="color:#75715e"></span>        <span style="color:#75715e">// large amount of strings use StringBuilder
+</span><span style="color:#75715e"></span>    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>Take a look how implement:<br>
+<img src="https://w-yj.github.io/img/JavaString/1.png" alt="反汇编">
+可见JVM会自己调用StringBuilder.append()方法去拼接字符串。</p>
+<h2 id="string--stringtokenizer--string-buffer--string-builder">String &amp; StringTokenizer &amp; String Buffer &amp; String Builder</h2>
+<ul>
+<li>String字符串常量</li>
+<li>StringBuffer字符串变量（线程安全）</li>
+<li>StringBuilder字符串变量（线程不安全）</li>
+<li>StringTokenizer（废弃不用）</li>
+</ul>
+<p><strong>String</strong></p>
+<p>作为常量，String对象是不可变的，具有只读特性，所以任何引用都不可能改变它的值。String类中每一个看起来会修改String值的方法，实际上都是创建一个全新的对象，以包含修改后的字符串内容，而最初的String对象则丝毫不动。经常改变内容的字符串不要使用String，因为每次生成对象都会对系统性能产生影响，当内存中无引用对象对了，JVM的GC就会开始工作，从而造成速度很慢。</p>
+<p><strong>StringBuffer</strong></p>
+<p>作为变量，StringBuffer类的对象能够被多次的修改，并且不产生新的未使用对象。所以当字符串需要经常变化的话，例如重载“+” ，推荐使用 StringBuffer。</p>
+<p><strong>StringBuilder</strong></p>
+<p>它与StringBuffer类功能基本类似，区别在于StringBuffer是线程安全的（能同步访问），而StringBuilder不是，但是StringBuilder 相较于 StringBuffer 有速度优势，所以多数情况下建议使用 StringBuilder 类。然而在应用程序要求线程安全的情况下，则必须使用 StringBuffer 类。</p>
+<p><strong>StringTokenizer</strong></p>
+<p>在Java引入正则表达式（J2SE1.4）和Scanner类（Java SE5）之前，分割字符串的唯一方法是使用StringTokenizer来分词。使用正则表达式过Scanner对象，我们能以更加复杂的模式来分割一个字符串，而这对于StringTokenizer来说就很困难了。基本上，我们可以放心的说，StringTokenizer已经可以废弃不用了。</p>
+<h3 id="stringbuffer-vs-stringbuilder-vs-string">StringBuffer VS StringBuilder VS String</h3>
+<ul>
+<li>StringBuffer/StringBuilder are similar to string except mutable</li>
+<li>StringBuffer is synchronized implememtation that means every method in StringBuffer has a synchronized key word on its public api, and StringBuilder is not.</li>
+<li>String buffer is thread-safe implementation, and String builder is not.</li>
+</ul>
+<h2 id="a-word-on-best-practice">A word on &lsquo;best practice&rsquo;</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Example1</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> String SUCCESS <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;success&#34;</span><span style="color:#f92672">;</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        String s <span style="color:#f92672">=</span> someOperation<span style="color:#f92672">();</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>s<span style="color:#f92672">.</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span>SUCCESS<span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+            System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Operation was successful&#34;</span><span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+            System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Operation failed&#34;</span><span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> String <span style="color:#a6e22e">someOperation</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p><strong>运行结果</strong>：
+<img src="https://w-yj.github.io/img/JavaString/2.png" alt="运行结果"></p>
+<p><strong>Instead</strong>：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> examples<span style="color:#f92672">;</span>
+
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Example1</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> String SUCCESS <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;success&#34;</span><span style="color:#f92672">;</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        String s <span style="color:#f92672">=</span> someOperation<span style="color:#f92672">();</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>SUCCESS<span style="color:#f92672">.</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span>s<span style="color:#f92672">))</span> <span style="color:#f92672">{</span> <span style="color:#75715e">// if(s !=null &amp;&amp; s.equals(SUCCESS)
+</span><span style="color:#75715e"></span>            System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Operation was successful&#34;</span><span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+            System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Operation failed&#34;</span><span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> String <span style="color:#a6e22e">someOperation</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h3 id="storing-passwords">Storing passwords</h3>
+<p>String is not the best way to store password, instead use char[], because string is created in the string pool, and they are maintain for certain period because they are cached for certain period.
+So use char[] to store password and then set the char[] back to null or store elements to char[] to zeros. So the actual value get gc collecteds</p>
+
+</article>
+
+
+<p class="post-meta">
+    Tags:&nbsp;
+    
+    
+    <a href="https://w-yj.github.io/tags/Java">Java</a>
+    
+</p>
+
+
+
+            </div>
+        </div>
+    </div>
+    <footer class="center">
+    <div class="p2 wrap">
+        <div class="measure mt1 center">
+            <small>
+                Copyright &#169; 2017<br>
+                Powered by <a href="http://gohugo.io/" target="_blank">Hugo</a> &amp; <a
+                    href="https://github.com/azmelanar/hugo-theme-pixyll" target="_blank">Pixyll</a>
+            </small>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

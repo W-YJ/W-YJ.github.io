@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Cookie &amp; Session - WYJ&#39;s Notes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="keywords" content="">
+    <link rel="canonical" href="https://w-yj.github.io/post/cookiesession/">
+
+    
+    
+    <link rel="stylesheet" type="text/css" href="https://w-yj.github.io/sass/pixyll.min.30e55e9fcc01694c576be315e114e0449103a0df1fb91cec0c2ada477ba30f6b.css">
+
+    
+    <link rel='stylesheet' type='text/css' href='//fonts.googleapis.com/css?family=Merriweather:900,900italic,300,300italic' >
+    <link rel='stylesheet' type='text/css' href='//fonts.googleapis.com/css?family=Lato:900,300'>
+</head>
+
+<body class="site">
+    <div class="site-wrap">
+        <header class="site-header px2 px-responsive">
+    <div class="mt2 wrap">
+        <div class="measure">
+            <a href="https://w-yj.github.io" class="site-title">WYJ&#39;s Notes</a>
+            <nav class="site-nav">
+                
+<div class="right">
+<a href="https://w-yj.github.io/about/">About</a>
+<a href="https://w-yj.github.io/tags/">Tags</a>
+<a href="https://w-yj.github.io/contact/">Contact</a>
+</div>
+            </nav>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</header>
+
+        <div class="post p2 p-responsive wrap" role="main">
+            <div class="measure">
+                
+<div class="post-header mb2">
+    <h1 class="py2">Cookie &amp; Session</h1>
+    <span class="post-meta">
+        Jul 12, 2017
+        
+    </span>
+    <br>
+    
+</div>
+<article class="post-content">
+    <h1 id="cookie--session">Cookie &amp; Session</h1>
+<blockquote>
+<p>Cookie 和 Session 都是会话技术的一种，因为http协议是无状态的，每次都是基于一个请求和一个响应，新的请求和响应都与之前请求和响应没有关系，因此在客户端（浏览器）使用Cookie技术保存之前的对话信息。服务器要求浏览器保存一些键值对，浏览器在适当的时机就会发送给服务器。</p>
+</blockquote>
+<!-- raw HTML omitted -->
+<ul>
+<li>Cookie
+<ul>
+<li>Usage</li>
+<li>Notes</li>
+<li>Application</li>
+</ul>
+</li>
+<li>Session
+<ul>
+<li>Notes</li>
+<li>Usages</li>
+<li>Application</li>
+</ul>
+</li>
+</ul>
+<!-- raw HTML omitted -->
+<h2 id="cookie">Cookie</h2>
+<blockquote>
+<p>Cookie是客户端保存会话信息的技术</p>
+</blockquote>
+<h3 id="usage">Usage</h3>
+<p>服务器使用response发送响应头让浏览器记住键值对，服务器保存cookie的响应头：<code>Set-Cookie:name=tom;</code></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">response<span style="color:#f92672">.</span><span style="color:#a6e22e">addHeader</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Set-Cookie&#34;</span><span style="color:#f92672">,</span><span style="color:#e6db74">&#34;name=tom&#34;</span><span style="color:#f92672">);</span>
+response<span style="color:#f92672">.</span><span style="color:#a6e22e">addHeader</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Set-Cookie&#34;</span><span style="color:#f92672">,</span><span style="color:#e6db74">&#34;sex=male&#34;</span><span style="color:#f92672">);</span>
+</code></pre></div><p>当浏览器请求服务器时，会把该服务器保存的Cookie随请求发送给服务器，即在请求头中添加以下信息：<code>Cookie: name=tom; sex=male</code>，多个键值对间用分号隔开。</p>
+<ul>
+<li>
+<p>原始方式</p>
+<ul>
+<li>使用response发送Set-Cookie响应头</li>
+<li>使用request获取请求头</li>
+</ul>
+</li>
+<li>
+<p>便捷方式</p>
+<ul>
+<li>使用response.addCookie()方法向浏览器保存Cookie</li>
+<li>使用request.getCookies()方法获取浏览器归还的Cookie，返回的对象为Cookie数组，若没有则返回nul</li>
+</ul>
+</li>
+<li>
+<p>添加Cookie</p>
+</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> cookie<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> java.io.IOException<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> javax.servlet.ServletException<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.servlet.http.Cookie<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.servlet.http.HttpServlet<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.servlet.http.HttpServletRequest<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.servlet.http.HttpServletResponse<span style="color:#f92672">;</span>
+
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CookieAdd</span> <span style="color:#66d9ef">extends</span> HttpServlet <span style="color:#f92672">{</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">doGet</span><span style="color:#f92672">(</span>HttpServletRequest request<span style="color:#f92672">,</span> HttpServletResponse response<span style="color:#f92672">)</span>
+            <span style="color:#66d9ef">throws</span> ServletException<span style="color:#f92672">,</span> IOException <span style="color:#f92672">{</span>
+                <span style="color:#75715e">//向浏览器保存
+</span><span style="color:#75715e"></span>            Cookie cookie <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Cookie<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;name&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;tom&#34;</span><span style="color:#f92672">);</span>
+            response<span style="color:#f92672">.</span><span style="color:#a6e22e">addCookie</span><span style="color:#f92672">(</span>cookie<span style="color:#f92672">);</span>
+            response<span style="color:#f92672">.</span><span style="color:#a6e22e">getWriter</span><span style="color:#f92672">().</span><span style="color:#a6e22e">print</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;send cookie successed!&#34;</span><span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><ul>
+<li>获取cookie</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> cookie<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> java.io.IOException<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.servlet.ServletException<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.servlet.http.Cookie<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.servlet.http.HttpServlet<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.servlet.http.HttpServletRequest<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.servlet.http.HttpServletResponse<span style="color:#f92672">;</span>
+
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CookieGet</span> <span style="color:#66d9ef">extends</span> HttpServlet <span style="color:#f92672">{</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">doGet</span><span style="color:#f92672">(</span>HttpServletRequest request<span style="color:#f92672">,</span> HttpServletResponse response<span style="color:#f92672">)</span>
+            <span style="color:#66d9ef">throws</span> ServletException<span style="color:#f92672">,</span> IOException <span style="color:#f92672">{</span>
+        <span style="color:#75715e">//获取浏览器归还的cookie   
+</span><span style="color:#75715e"></span>        Cookie<span style="color:#f92672">[]</span> cookies  <span style="color:#f92672">=</span> request<span style="color:#f92672">.</span><span style="color:#a6e22e">getCookies</span><span style="color:#f92672">();</span>
+        <span style="color:#75715e">//遍历并判断我们要找的cookie
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>cookies<span style="color:#f92672">!=</span><span style="color:#66d9ef">null</span> <span style="color:#f92672">&amp;&amp;</span> cookies<span style="color:#f92672">.</span><span style="color:#a6e22e">length</span><span style="color:#f92672">&gt;</span>0<span style="color:#f92672">){</span>
+            <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span>Cookie c <span style="color:#f92672">:</span> cookies<span style="color:#f92672">){</span>
+                    <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>c<span style="color:#f92672">.</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">().</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;name&#34;</span><span style="color:#f92672">)){</span>
+                        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;获得的cookie:&#34;</span><span style="color:#f92672">+</span>c<span style="color:#f92672">.</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">()+</span><span style="color:#e6db74">&#34;:&#34;</span><span style="color:#f92672">+</span>c<span style="color:#f92672">.</span><span style="color:#a6e22e">getValue</span><span style="color:#f92672">());</span>
+                    <span style="color:#f92672">}</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+
+</code></pre></div><h3 id="notes">Notes</h3>
+<ul>
+<li>1个Cookie最大4kb;</li>
+<li>1个服务器最多向一个浏览器保存20个Cookie；</li>
+<li>1个浏览器最多保存300个Cookie。</li>
+<li>浏览器保存Cookie时间：默认是在会话期间有效(关闭浏览器,cookie就被删除)(即设置有效时间为-1)</li>
+<li>有效时间如何设置?
+<ul>
+<li>设置最大有效时间：Cookie.setMaxAge(int);</li>
+<li>设置一个正数,表示最大有效时间,单位是秒(保存到硬盘中)；</li>
+<li>设置为-1,就是相当于默认有效时间, 浏览器关闭就消失(cookie保存在浏览器内存中)；</li>
+<li>设置为0，发送到浏览器就消失了。利用有效时间为0，我们可以做删除cookie的操作，把之前的cookie覆盖，覆盖要保证cookie的路径和键相同，因为同一个路径，不能存在相同的cookie(键相同)，我们可以通过覆盖的方式,设置有效时间为0，删除cookie。</li>
+</ul>
+</li>
+<li>浏览器在什么情况下发送cookie(路径)
+<ul>
+<li>Cookie如果不设置路径，默认路径取当前路径，Cookie的默认路径就是发送Cookie的servlet所在目录/cookiedemo/abc/xxxServlet；</li>
+<li>cookie 会把键值对带给自己路径下的所有子路径；</li>
+<li>访问路径如果是cookie路径的子路径，那么浏览器就会把该cookie告诉服务器.</li>
+<li>设置给某个具体servlet使用：</li>
+</ul>
+</li>
+</ul>
+<p>示例：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> cookie.c_OtherDetails<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> javax.servlet.ServletException<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.servlet.http.Cookie<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.servlet.http.HttpServlet<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.servlet.http.HttpServletRequest<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.servlet.http.HttpServletResponse<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> java.io.IOException<span style="color:#f92672">;</span>
+
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CookiePath</span> <span style="color:#66d9ef">extends</span> HttpServlet <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">doGet</span><span style="color:#f92672">(</span>HttpServletRequest request<span style="color:#f92672">,</span> HttpServletResponse response<span style="color:#f92672">)</span>
+            <span style="color:#66d9ef">throws</span> ServletException<span style="color:#f92672">,</span> IOException <span style="color:#f92672">{</span>
+        Cookie cookie <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Cookie<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;haha&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;gaga&#34;</span><span style="color:#f92672">);</span>
+        cookie<span style="color:#f92672">.</span><span style="color:#a6e22e">setPath</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;/Cookie/CookiePath&#34;</span><span style="color:#f92672">);</span>
+        response<span style="color:#f92672">.</span><span style="color:#a6e22e">addCookie</span><span style="color:#f92672">(</span>cookie<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> cookie.c_OtherDetails<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> javax.servlet.ServletException<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.servlet.http.Cookie<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.servlet.http.HttpServlet<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.servlet.http.HttpServletRequest<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.servlet.http.HttpServletResponse<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> java.io.IOException<span style="color:#f92672">;</span>
+
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CookieTime</span> <span style="color:#66d9ef">extends</span> HttpServlet <span style="color:#f92672">{</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">doGet</span><span style="color:#f92672">(</span>HttpServletRequest request<span style="color:#f92672">,</span> HttpServletResponse response<span style="color:#f92672">)</span>
+            <span style="color:#66d9ef">throws</span> ServletException<span style="color:#f92672">,</span> IOException <span style="color:#f92672">{</span>
+        Cookie cookie <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Cookie<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;age&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;18&#34;</span><span style="color:#f92672">);</span>
+        <span style="color:#75715e">// 设置cookie的最大有效时间
+</span><span style="color:#75715e"></span>        <span style="color:#75715e">// cookie.setMaxAge(60*60);
+</span><span style="color:#75715e"></span>
+        <span style="color:#75715e">// 设置为-1 , 就是相当于默认有效时间, 浏览器关闭就消失.
+</span><span style="color:#75715e"></span>        <span style="color:#75715e">// cookie.setMaxAge(-1);
+</span><span style="color:#75715e"></span>
+        <span style="color:#75715e">// 设置cookie的有效时间为0则发送到浏览器就消失。
+</span><span style="color:#75715e"></span>        <span style="color:#75715e">// 使用此方式可以做删除cookie的操作，因为同一个路径，不能存在相同的cookie(键相同)，因此可以通过覆盖的方式，设置有效时间为0从而删除cookie
+</span><span style="color:#75715e"></span>        <span style="color:#75715e">// cookie.setMaxAge(0);
+</span><span style="color:#75715e"></span>        response<span style="color:#f92672">.</span><span style="color:#a6e22e">addCookie</span><span style="color:#f92672">(</span>cookie<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><ul>
+<li>了解cookie中的域：跨主机访问cookie(不常用):想要以下三个主机和主机下的项目能共享一个cookie：www.baidu.com、 music.baidu.com、map.baidu.com，完成两步即可:
+<ol>
+<li>设置cookie的domain域为 &ldquo;.baidu.com&rdquo;;</li>
+<li>设置cookie路径 为: &ldquo;/&rdquo;</li>
+</ol>
+</li>
+</ul>
+<h3 id="application">Application</h3>
+<ul>
+<li>服务器使用Cookie来跟踪客户端状态；</li>
+<li>保存购物车</li>
+</ul>
+<blockquote>
+<p>购物车中商品不能使用request域来保存，因为它是一个用户向服务器发送的多个请求信息</p>
+</blockquote>
+<ul>
+<li>显示上次登录的用户名</li>
+</ul>
+<p>login.jsp</p>
+<pre><code class="language-jsp" data-lang="jsp">&lt;%@ page language=&quot;java&quot; pageEncoding=&quot;UTF-8&quot; %&gt;
+&lt;%
+    String path = request.getContextPath();
+    String basePath = request.getScheme() + &quot;://&quot; + request.getServerName() + &quot;:&quot; + request.getServerPort() + path + &quot;/&quot;;
+%&gt;
+
+&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.01 Transitional//EN&quot;&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;base href=&quot;&lt;%=basePath%&gt;&quot;&gt;
+
+    &lt;title&gt;My JSP 'login.jsp' starting page&lt;/title&gt;
+    &lt;meta http-equiv=&quot;pragma&quot; content=&quot;no-cache&quot;&gt;
+    &lt;meta http-equiv=&quot;cache-control&quot; content=&quot;no-cache&quot;&gt;
+    &lt;meta http-equiv=&quot;expires&quot; content=&quot;0&quot;&gt;
+    &lt;meta http-equiv=&quot;keywords&quot; content=&quot;keyword1,keyword2,keyword3&quot;&gt;
+    &lt;meta http-equiv=&quot;description&quot; content=&quot;This is my page&quot;&gt;
+&lt;/head&gt;
+
+&lt;%
+    //1.获得浏览器发送 过来的cookie
+    Cookie[] cookies = request.getCookies();
+    //2.遍历找到保存用户名的
+    Cookie remember = null;
+    if (cookies != null &amp;&amp; cookies.length &gt; 0) {
+        for (Cookie c : cookies) {
+            //3.如果找到取得它的值，把值设置到用户名所在input
+            if (c.getName().equals(&quot;remember&quot;)) {
+                remember = c;
+            }
+        }
+    }
+%&gt;
+
+&lt;body&gt;
+&lt;form action=&quot;/cookie/RememberUserInfo&quot; method=&quot;post&quot;&gt;
+    用户名: &lt;input type=&quot;text&quot; name=&quot;name&quot; value=&quot;&lt;%=remember==null?&quot;&quot;:remember.getValue() %&gt;&quot;/&gt;
+    密码: &lt;input type=&quot;password&quot; name=&quot;password&quot;/&gt;&lt;br/&gt;
+    记住用户名(一周):&lt;input type=&quot;checkbox&quot; name=&quot;remember&quot; value=&quot;yes&quot; &lt;%=remember == null ? &quot;&quot; : &quot;checked&quot; %&gt; /&gt;&lt;br/&gt;
+    &lt;input type=&quot;submit&quot; value=&quot;登录&quot;/&gt;
+&lt;/form&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+
+</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> cookie<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> javax.servlet.ServletException<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.servlet.http.Cookie<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.servlet.http.HttpServlet<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.servlet.http.HttpServletRequest<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.servlet.http.HttpServletResponse<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> java.io.IOException<span style="color:#f92672">;</span>
+
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">RememberUserInfo</span> <span style="color:#66d9ef">extends</span> HttpServlet <span style="color:#f92672">{</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">doPost</span><span style="color:#f92672">(</span>HttpServletRequest request<span style="color:#f92672">,</span> HttpServletResponse response<span style="color:#f92672">)</span>
+            <span style="color:#66d9ef">throws</span> ServletException<span style="color:#f92672">,</span> IOException <span style="color:#f92672">{</span>
+
+        <span style="color:#75715e">// 1.获得用户并名新建cookie
+</span><span style="color:#75715e"></span>        String name <span style="color:#f92672">=</span> request<span style="color:#f92672">.</span><span style="color:#a6e22e">getParameter</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;name&#34;</span><span style="color:#f92672">);</span>
+        String remember <span style="color:#f92672">=</span> request<span style="color:#f92672">.</span><span style="color:#a6e22e">getParameter</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;remeber&#34;</span><span style="color:#f92672">);</span>
+        Cookie cookie <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Cookie<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;remember&#34;</span><span style="color:#f92672">,</span> name<span style="color:#f92672">);</span>
+        <span style="color:#75715e">// 2.判断remember
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>remember <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">&amp;&amp;</span> remember<span style="color:#f92672">.</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;yes&#34;</span><span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+            <span style="color:#75715e">// &#34;yes&#34;（勾选了） - 设置有效时间为一周
+</span><span style="color:#75715e"></span>            cookie<span style="color:#f92672">.</span><span style="color:#a6e22e">setMaxAge</span><span style="color:#f92672">(</span>60 <span style="color:#f92672">*</span> 60 <span style="color:#f92672">*</span> 24 <span style="color:#f92672">*</span> 7<span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+            <span style="color:#75715e">// null（没勾选） - 设置cookie的有效时间为0
+</span><span style="color:#75715e"></span>            cookie<span style="color:#f92672">.</span><span style="color:#a6e22e">setMaxAge</span><span style="color:#f92672">(</span>0<span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#75715e">// 3.将cookie添加到response
+</span><span style="color:#75715e"></span>        response<span style="color:#f92672">.</span><span style="color:#a6e22e">addCookie</span><span style="color:#f92672">(</span>cookie<span style="color:#f92672">);</span>
+        <span style="color:#75715e">// 4.跳转到成功页面
+</span><span style="color:#75715e"></span>        request<span style="color:#f92672">.</span><span style="color:#a6e22e">getRequestDispatcher</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;/index.jsp&#34;</span><span style="color:#f92672">).</span><span style="color:#a6e22e">forward</span><span style="color:#f92672">(</span>request<span style="color:#f92672">,</span> response<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+
+</code></pre></div><ul>
+<li>历史记录</li>
+</ul>
+<p>list.jsp</p>
+<pre><code class="language-jsp" data-lang="jsp">&lt;%@ page language=&quot;java&quot; import=&quot;java.util.*&quot; pageEncoding=&quot;UTF-8&quot;%&gt;
+&lt;%
+String path = request.getContextPath();
+String basePath = request.getScheme()+&quot;://&quot;+request.getServerName()+&quot;:&quot;+request.getServerPort()+path+&quot;/&quot;;
+%&gt;
+
+&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.01 Transitional//EN&quot;&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;base href=&quot;&lt;%=basePath%&gt;&quot;&gt;
+    &lt;title&gt;My JSP 'list.jsp' starting page&lt;/title&gt;
+    &lt;meta http-equiv=&quot;pragma&quot; content=&quot;no-cache&quot;&gt;
+    &lt;meta http-equiv=&quot;cache-control&quot; content=&quot;no-cache&quot;&gt;
+    &lt;meta http-equiv=&quot;expires&quot; content=&quot;0&quot;&gt;    
+    &lt;meta http-equiv=&quot;keywords&quot; content=&quot;keyword1,keyword2,keyword3&quot;&gt;
+    &lt;meta http-equiv=&quot;description&quot; content=&quot;This is my page&quot;&gt;
+  &lt;/head&gt;
+  
+  &lt;body&gt;
+        &lt;a href=&quot;&lt;%=request.getContextPath() %&gt;/HistoryServlet?name=dell&quot; &gt;dell&lt;/a&gt; &lt;br&gt;
+        &lt;a href=&quot;&lt;%=request.getContextPath() %&gt;/HistoryServlet?name=lenovo&quot; &gt;lenovo&lt;/a&gt;&lt;br&gt;
+        &lt;a href=&quot;&lt;%=request.getContextPath() %&gt;/HistoryServlet?name=apple&quot; &gt;apple&lt;/a&gt;&lt;br&gt;
+        &lt;a href=&quot;&lt;%=request.getContextPath() %&gt;/HistoryServlet?name=acer&quot; &gt;acer&lt;/a&gt;&lt;br&gt;
+        &lt;a href=&quot;&lt;%=request.getContextPath() %&gt;/HistoryServlet?name=hasee&quot; &gt;hasee&lt;/a&gt;&lt;br&gt;
+        浏览历史:
+        &lt;%=request.getAttribute(&quot;history&quot;) %&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">import</span> javax.servlet.ServletException<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.servlet.http.Cookie<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.servlet.http.HttpServlet<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.servlet.http.HttpServletRequest<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.servlet.http.HttpServletResponse<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> java.io.IOException<span style="color:#f92672">;</span>
+
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">HistoryServlet</span> <span style="color:#66d9ef">extends</span> HttpServlet <span style="color:#f92672">{</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">doGet</span><span style="color:#f92672">(</span>HttpServletRequest request<span style="color:#f92672">,</span> HttpServletResponse response<span style="color:#f92672">)</span>
+            <span style="color:#66d9ef">throws</span> ServletException<span style="color:#f92672">,</span> IOException <span style="color:#f92672">{</span>
+
+        <span style="color:#75715e">// 1.获得当前访问的品牌
+</span><span style="color:#75715e"></span>        String current <span style="color:#f92672">=</span> request<span style="color:#f92672">.</span><span style="color:#a6e22e">getParameter</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;name&#34;</span><span style="color:#f92672">);</span>
+        <span style="color:#75715e">// 2.获得之前访问过的品牌(获得cookie)
+</span><span style="color:#75715e"></span>        Cookie history <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+        Cookie<span style="color:#f92672">[]</span> cookies <span style="color:#f92672">=</span> request<span style="color:#f92672">.</span><span style="color:#a6e22e">getCookies</span><span style="color:#f92672">();</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>cookies <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">&amp;&amp;</span> cookies<span style="color:#f92672">.</span><span style="color:#a6e22e">length</span> <span style="color:#f92672">&gt;</span> 0<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span>Cookie c <span style="color:#f92672">:</span> cookies<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>c<span style="color:#f92672">.</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">().</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;History&#34;</span><span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+                    history <span style="color:#f92672">=</span> c<span style="color:#f92672">;</span>
+                <span style="color:#f92672">}</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#75715e">// 3.将当前访问加上之前访问的,创建一个新的cookie.
+</span><span style="color:#75715e"></span>        <span style="color:#75715e">// &#34;history&#34; = &#34;dell,apple,hasee&#34;
+</span><span style="color:#75715e"></span>        String value <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;</span><span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>history <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            value <span style="color:#f92672">=</span> history<span style="color:#f92672">.</span><span style="color:#a6e22e">getValue</span><span style="color:#f92672">();</span>
+            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(!</span>history<span style="color:#f92672">.</span><span style="color:#a6e22e">getValue</span><span style="color:#f92672">().</span><span style="color:#a6e22e">contains</span><span style="color:#f92672">(</span>current<span style="color:#f92672">))</span> <span style="color:#f92672">{</span> <span style="color:#75715e">//判断当前访问的是否之前已经访问过
+</span><span style="color:#75715e"></span>                value <span style="color:#f92672">+=</span> <span style="color:#e6db74">&#34;,&#34;</span> <span style="color:#f92672">+</span> current<span style="color:#f92672">;</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span><span style="color:#75715e">//没有获得到之前的cookie,说明是第一次访问.
+</span><span style="color:#75715e"></span>            value <span style="color:#f92672">=</span> current<span style="color:#f92672">;</span>
+        <span style="color:#f92672">}</span>
+        Cookie newHistory <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Cookie<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;History&#34;</span><span style="color:#f92672">,</span> value<span style="color:#f92672">);</span>
+
+        <span style="color:#75715e">// 4.将cookie添加到响应中
+</span><span style="color:#75715e"></span>        response<span style="color:#f92672">.</span><span style="color:#a6e22e">addCookie</span><span style="color:#f92672">(</span>newHistory<span style="color:#f92672">);</span>
+        <span style="color:#75715e">// 5.将商品记录 放置到request域中
+</span><span style="color:#75715e"></span>        request<span style="color:#f92672">.</span><span style="color:#a6e22e">setAttribute</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;history&#34;</span><span style="color:#f92672">,</span> value<span style="color:#f92672">);</span>
+        <span style="color:#75715e">// 6.转发到jsp显示
+</span><span style="color:#75715e"></span>        request<span style="color:#f92672">.</span><span style="color:#a6e22e">getRequestDispatcher</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;/history/list.jsp&#34;</span><span style="color:#f92672">).</span><span style="color:#a6e22e">forward</span><span style="color:#f92672">(</span>request<span style="color:#f92672">,</span> response<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+
+</code></pre></div><h2 id="session">Session</h2>
+<blockquote>
+<p>Session是服务器端保存会话信息的技术，底层依赖Cookie，或是URL重写。</p>
+</blockquote>
+<!-- raw HTML omitted -->
+<p>HttpSession是服务器端对象，保存在服务器端，是三大域对象(request、session、application)之一，因此包含域操作相关方法。</p>
+<p><strong>原理：</strong>
+每当客户端与服务器端建立一个会话，服务器就会该客户端建立一个Session对象，将Session对象保存在服务器端的同时服务器还会给客户端发送一个带有JSESSIONID的Cookie（放在响应头中）；<br>
+当客户端在不关闭的情况下再次访问该服务器时，客户端就会通过这个JSESSIONID来取出保存在服务器端相应的Session对象；<br>
+当客户关闭了浏览器时，意味着与服务器段段开连接然后会话session也就随之结束了，此时能识别存在于服务器端的HttpSession对象的JSESSIONID也随之丢失了，但此时HttpSession对象依旧保存在服务器端，并且只存在于他的生命周期时间内，默认30分钟；因此即使不关闭浏览器，长时间不发出请求，服务器端也会删除。</p>
+<h3 id="notes-1">Notes</h3>
+<ul>
+<li>会话范围：session标示一次会话，会话：一个用户对服务器的多次连贯性请求！所谓连贯请求，就是该用户多次请求之间没有关闭浏览器。
+<ul>
+<li>开始：第一次访问服务器</li>
+<li>结束：服务器让浏览器记住sessionID的cookie默认过期时间是(设置有效时间为-1) &ndash;&gt; 关闭浏览器 cookie就丢失 &ndash;&gt; cookie丢失，sessionID就丢失 &ndash;&gt;找不到服务器的session</li>
+</ul>
+</li>
+<li>客户端与服务器端建立连接，服务器端不会立刻建立HttpSession对象，因为HttpSession存活的时间较长，所有只有当客户端请求的Servlet中调用了request.getSession()方法要求获取时服务器才会创建；</li>
+<li>若请求的是jsp页面，则服务器会立刻创建HttpSession，因为session是jsp内置对象之一，jsp对应的servlet类中已经默认调用了request.getSession();</li>
+<li>关于设置session的最大有效时间
+<ul>
+<li>默认是30分钟，在tomcat的web.xml中<code>&lt;session-config&gt;</code>配置的.</li>
+<li>如何修改session的过期时间?
+<ol>
+<li>修改在tomcat的web.xml<code>&lt;session-config&gt;</code> - 影响服务器中的所有项目</li>
+<li>在项目的web.xml中 加入<code>&lt;session-config&gt;</code>配置 - 影响的是当前项目</li>
+<li>通过setMaxInactiveInterval(int interval)方法设置 - 当前操作的session</li>
+</ol>
+</li>
+</ul>
+</li>
+<li>调用request.getSession()方法后服务器：获取Cookie中的JSESSIONID，需要判断JSESSIONID是否存在
+<ul>
+<li>不存在，则创建session，保存session并把新创建的JSESSIONID保存到Cookie中；</li>
+<li>存在，通过JSESSIONID查找session对象
+<ul>
+<li>如果没有查找到，则创建session并保存起来，把新创建的JSESSIONID保存到Cookie中；</li>
+<li>如果查找到了，那么就不会在创建session对象了；</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>session不能跨项目</li>
+<li>session在一个项目中可以对项目中的任意路径共享数据，因为保存sessionID的cookie的路径是项目路径</li>
+</ul>
+<p>URL重写(了解)</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;a</span> <span style="color:#a6e22e">href=</span><span style="color:#e6db74">&#34;/SessionProject/AServlet;jsessionid=&lt;%=request.getSession().getId() %&gt;&#34;</span><span style="color:#f92672">&gt;</span>AServlet<span style="color:#f92672">&lt;/a&gt;</span>
+<span style="color:#f92672">&lt;a</span> <span style="color:#a6e22e">href=</span><span style="color:#e6db74">&#34;&lt;%=response.encodeURL(&#34;</span><span style="color:#960050;background-color:#1e0010">/SessionProject/AServlet&#34;)%</span><span style="color:#f92672">&gt;</span>&#34;&gt;AServlet<span style="color:#f92672">&lt;/a&gt;</span>
+</code></pre></div><p>如果浏览器禁用cookie功能不能保存任何cookie，那么session技术要是用cookie来保存sessionID，没有cookie怎么保存?<br>
+使用url重写解决该问题,将页面中所有的连接末尾全都加上cookieid的参数，这样用户点击连接访问网站，通过url把SeesionID带到了服务器，这样就解决了，但是互联网行业没有这么干的。</p>
+<h3 id="usages">Usages</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">// 获得session域
+</span><span style="color:#75715e"></span>HttpSession session <span style="color:#f92672">=</span> request<span style="color:#f92672">.</span><span style="color:#a6e22e">getSession</span><span style="color:#f92672">();</span>
+
+<span style="color:#75715e">// 操作Session域
+</span><span style="color:#75715e">// 域相关方法
+</span><span style="color:#75715e"></span>session<span style="color:#f92672">.</span><span style="color:#a6e22e">setAttribute</span><span style="color:#f92672">(</span>arg0<span style="color:#f92672">,</span> arg1<span style="color:#f92672">);</span>
+session<span style="color:#f92672">.</span><span style="color:#a6e22e">getAttribute</span><span style="color:#f92672">(</span>arg0<span style="color:#f92672">);</span>
+session<span style="color:#f92672">.</span><span style="color:#a6e22e">removeAttribute</span><span style="color:#f92672">(</span>arg0<span style="color:#f92672">);</span> 
+session<span style="color:#f92672">.</span><span style="color:#a6e22e">getAttributeNames</span><span style="color:#f92672">();</span> 
+
+<span style="color:#75715e">// 其他方法
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">long</span> <span style="color:#a6e22e">getCreationTime</span><span style="color:#f92672">();</span> <span style="color:#75715e">// 获得创建时间
+</span><span style="color:#75715e"></span>String <span style="color:#a6e22e">getId</span><span style="color:#f92672">();</span> <span style="color:#75715e">// 获得sessionID        
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">long</span> <span style="color:#a6e22e">getLastAccessedTime</span><span style="color:#f92672">();</span> <span style="color:#75715e">// 获得最后一次访问时间       
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">int</span>  <span style="color:#a6e22e">getMaxInactiveInterval</span><span style="color:#f92672">();</span> <span style="color:#75715e">// 获得session的寿命        
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">setMaxInactiveInterval</span><span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> interval<span style="color:#f92672">);</span> <span style="color:#75715e">// 设置session的过期时间         
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">invalidate</span><span style="color:#f92672">();</span> <span style="color:#75715e">// 让session立即失效  
+</span><span style="color:#75715e">// 查看当前获得的session是否是新的（只有在第一访问服务器,session是新的 ）
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">isNew</span><span style="color:#f92672">();</span>   
+</code></pre></div><h3 id="application-1">Application</h3>
+<p>应用一：验证码的实现</p>
+<p>添加ValidateCode.jar<br>
+login.jsp</p>
+<pre><code class="language-jsp" data-lang="jsp">&lt;%@ page language=&quot;java&quot; pageEncoding=&quot;UTF-8&quot; %&gt;
+&lt;%
+    String path = request.getContextPath();
+    String basePath = request.getScheme() + &quot;://&quot; + request.getServerName() + &quot;:&quot; + request.getServerPort() + path + &quot;/&quot;;
+%&gt;
+
+&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.01 Transitional//EN&quot;&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;base href=&quot;&lt;%=basePath%&gt;&quot;&gt;
+
+    &lt;title&gt;My JSP 'login.jsp' starting page&lt;/title&gt;
+    &lt;meta http-equiv=&quot;pragma&quot; content=&quot;no-cache&quot;&gt;
+    &lt;meta http-equiv=&quot;cache-control&quot; content=&quot;no-cache&quot;&gt;
+    &lt;meta http-equiv=&quot;expires&quot; content=&quot;0&quot;&gt;
+    &lt;meta http-equiv=&quot;keywords&quot; content=&quot;keyword1,keyword2,keyword3&quot;&gt;
+    &lt;meta http-equiv=&quot;description&quot; content=&quot;This is my page&quot;&gt;
+
+    &lt;script type=&quot;text/javascript&quot;&gt;
+        function change() {
+            // 1.获得img对象
+            var img = document.getElementById(&quot;one&quot;);
+            // 2.改变img对象src属性
+            img.src = &quot;/Session/CookiePath?abc=&quot; + new Date();
+        }
+    &lt;/script&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+&lt;form action=&quot;/Session/SubmitServlet&quot; method=&quot;post&quot;&gt;
+    用户名: &lt;input type=&quot;text&quot; name=&quot;name&quot;/&gt;&lt;br&gt;
+    密码: &lt;input type=&quot;password&quot; name=&quot;password&quot;/&gt;&lt;br&gt;
+    验证码: &lt;input type=&quot;text&quot; name=&quot;verificationCode&quot;/&gt;&lt;img src=&quot;/Session/VerificationCodeServlet&quot; width=&quot;150&quot; id=&quot;one&quot;
+                                                          onclick=&quot;change();&quot;/&gt;
+    &lt;a href=&quot;javaScript:void(0)&quot; onclick=&quot;change();&quot;&gt;看不清换一张&lt;/a&gt;&lt;br&gt;
+    &lt;input type=&quot;submit&quot; value=&quot;登录&quot;/&gt; &lt;br&gt;
+&lt;/form&gt;
+&lt;font color=&quot;red&quot;&gt;
+    &lt;%=request.getAttribute(&quot;error&quot;) == null ? &quot;&quot; : request.getAttribute(&quot;error&quot;) %&gt;
+&lt;/font&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">import</span> cn.dsna.util.images.ValidateCode<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.servlet.ServletException<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.servlet.http.HttpServlet<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.servlet.http.HttpServletRequest<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.servlet.http.HttpServletResponse<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> java.io.IOException<span style="color:#f92672">;</span>
+
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">VerificationCodeServlet</span> <span style="color:#66d9ef">extends</span> HttpServlet <span style="color:#f92672">{</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">doGet</span><span style="color:#f92672">(</span>HttpServletRequest request<span style="color:#f92672">,</span> HttpServletResponse response<span style="color:#f92672">)</span>
+            <span style="color:#66d9ef">throws</span> ServletException<span style="color:#f92672">,</span> IOException <span style="color:#f92672">{</span>
+        <span style="color:#75715e">// 1.生成验证码
+</span><span style="color:#75715e"></span>        ValidateCode code <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ValidateCode<span style="color:#f92672">(</span>200<span style="color:#f92672">,</span> 80<span style="color:#f92672">,</span> 4<span style="color:#f92672">,</span> 100<span style="color:#f92672">);</span>
+        <span style="color:#75715e">// 2.将验证码保存到session中
+</span><span style="color:#75715e"></span>        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>code<span style="color:#f92672">.</span><span style="color:#a6e22e">getCode</span><span style="color:#f92672">());</span>
+        request<span style="color:#f92672">.</span><span style="color:#a6e22e">getSession</span><span style="color:#f92672">().</span><span style="color:#a6e22e">setAttribute</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;code&#34;</span><span style="color:#f92672">,</span> code<span style="color:#f92672">.</span><span style="color:#a6e22e">getCode</span><span style="color:#f92672">());</span>
+        <span style="color:#75715e">// 3.将验证码图片输出到浏览器
+</span><span style="color:#75715e"></span>        response<span style="color:#f92672">.</span><span style="color:#a6e22e">setContentType</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;image/jpeg&#34;</span><span style="color:#f92672">);</span>
+        code<span style="color:#f92672">.</span><span style="color:#a6e22e">write</span><span style="color:#f92672">(</span>response<span style="color:#f92672">.</span><span style="color:#a6e22e">getOutputStream</span><span style="color:#f92672">());</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">import</span> javax.servlet.ServletException<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.servlet.http.HttpServlet<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.servlet.http.HttpServletRequest<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.servlet.http.HttpServletResponse<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> java.io.IOException<span style="color:#f92672">;</span>
+
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SubmitServlet</span> <span style="color:#66d9ef">extends</span> HttpServlet <span style="color:#f92672">{</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">doPost</span><span style="color:#f92672">(</span>HttpServletRequest request<span style="color:#f92672">,</span> HttpServletResponse response<span style="color:#f92672">)</span>
+            <span style="color:#66d9ef">throws</span> ServletException<span style="color:#f92672">,</span> IOException <span style="color:#f92672">{</span>
+        <span style="color:#75715e">// 1.获得表单提交的验证码
+</span><span style="color:#75715e"></span>        String code1 <span style="color:#f92672">=</span> request<span style="color:#f92672">.</span><span style="color:#a6e22e">getParameter</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;verificationCode&#34;</span><span style="color:#f92672">);</span>
+        <span style="color:#75715e">// 2.获得session中的正确验证码
+</span><span style="color:#75715e"></span>        String code2 <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>String<span style="color:#f92672">)</span> request<span style="color:#f92672">.</span><span style="color:#a6e22e">getSession</span><span style="color:#f92672">().</span><span style="color:#a6e22e">getAttribute</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;code&#34;</span><span style="color:#f92672">);</span>
+        <span style="color:#75715e">// 3.比对是否一致
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>code1 <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">&amp;&amp;</span> code2 <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">&amp;&amp;</span> code1<span style="color:#f92672">.</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span>code2<span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+            <span style="color:#75715e">//正确：成功页面
+</span><span style="color:#75715e"></span>            response<span style="color:#f92672">.</span><span style="color:#a6e22e">sendRedirect</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;/Session/index.jsp&#34;</span><span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+            <span style="color:#75715e">//不正确：回到表单 页面 ,提示错误
+</span><span style="color:#75715e"></span>            request<span style="color:#f92672">.</span><span style="color:#a6e22e">setAttribute</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;error&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;验证码错误!请重新输入&#34;</span><span style="color:#f92672">);</span>
+            request<span style="color:#f92672">.</span><span style="color:#a6e22e">getRequestDispatcher</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;/VerificationCode/login.jsp&#34;</span><span style="color:#f92672">).</span><span style="color:#a6e22e">forward</span><span style="color:#f92672">(</span>request<span style="color:#f92672">,</span> response<span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+
+</code></pre></div><p>应用二：shopping cart
+list.jsp</p>
+<pre><code class="language-jsp" data-lang="jsp">&lt;%@ page language=&quot;java&quot; pageEncoding=&quot;UTF-8&quot; %&gt;
+&lt;%
+    String path = request.getContextPath();
+    String basePath = request.getScheme() + &quot;://&quot; + request.getServerName() + &quot;:&quot; + request.getServerPort() + path + &quot;/&quot;;
+%&gt;
+&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.01 Transitional//EN&quot;&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;base href=&quot;&lt;%=basePath%&gt;&quot;&gt;
+    &lt;title&gt;My JSP 'list.jsp' starting page&lt;/title&gt;
+    &lt;meta http-equiv=&quot;pragma&quot; content=&quot;no-cache&quot;&gt;
+    &lt;meta http-equiv=&quot;cache-control&quot; content=&quot;no-cache&quot;&gt;
+    &lt;meta http-equiv=&quot;expires&quot; content=&quot;0&quot;&gt;
+    &lt;meta http-equiv=&quot;keywords&quot; content=&quot;keyword1,keyword2,keyword3&quot;&gt;
+    &lt;meta http-equiv=&quot;description&quot; content=&quot;This is my page&quot;&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;br&gt;
+肥皂&lt;a href=&quot;/session/ShoppingCart?name=0&quot;&gt;加入购物车&lt;/a&gt;&lt;br/&gt;
+电动车&lt;a href=&quot;/session/ShoppingCart?name=1&quot;&gt;加入购物车&lt;/a&gt;&lt;br/&gt;
+笔记本&lt;a href=&quot;/session/ShoppingCart?name=2&quot;&gt;加入购物车&lt;/a&gt;&lt;br/&gt;
+小雨伞&lt;a href=&quot;/session/ShoppingCart?name=3&quot;&gt;加入购物车&lt;/a&gt;&lt;br/&gt;
+八度空间&lt;a href=&quot;/session/ShoppingCart?name=4&quot;&gt;加入购物车&lt;/a&gt;&lt;br/&gt;
+床单&lt;a href=&quot;/session/ShoppingCart?name=5&quot;&gt;加入购物车&lt;/a&gt;&lt;br/&gt;
+&lt;a href=&quot;/session/shoppingcart/shoppingcart.jsp&quot;&gt;查看购物车&lt;/a&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">import</span> javax.servlet.ServletException<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.servlet.http.HttpServlet<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.servlet.http.HttpServletRequest<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.servlet.http.HttpServletResponse<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.servlet.http.HttpSession<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> java.io.IOException<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> java.util.LinkedHashMap<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> java.util.Map<span style="color:#f92672">;</span>
+
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ShoppingCart</span> <span style="color:#66d9ef">extends</span> HttpServlet <span style="color:#f92672">{</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">doGet</span><span style="color:#f92672">(</span>HttpServletRequest request<span style="color:#f92672">,</span> HttpServletResponse response<span style="color:#f92672">)</span>
+            <span style="color:#66d9ef">throws</span> ServletException<span style="color:#f92672">,</span> IOException <span style="color:#f92672">{</span>
+        <span style="color:#75715e">// 1.获得要添加的商品(0~5)
+</span><span style="color:#75715e"></span>        String name <span style="color:#f92672">=</span> request<span style="color:#f92672">.</span><span style="color:#a6e22e">getParameter</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;name&#34;</span><span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">int</span> intName <span style="color:#f92672">=</span> Integer<span style="color:#f92672">.</span><span style="color:#a6e22e">parseInt</span><span style="color:#f92672">(</span>name<span style="color:#f92672">);</span>
+        <span style="color:#75715e">// 2.将数字翻译成中文商品名称 (使用数组)
+</span><span style="color:#75715e"></span>        String<span style="color:#f92672">[]</span> products <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> String<span style="color:#f92672">[]{</span><span style="color:#e6db74">&#34;肥皂&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;电动车&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;笔记本&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;小雨伞&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;八度空间&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;床单&#34;</span><span style="color:#f92672">};</span>
+        String productName <span style="color:#f92672">=</span> products<span style="color:#f92672">[</span>intName<span style="color:#f92672">];</span>
+        <span style="color:#75715e">// 3.获得session
+</span><span style="color:#75715e"></span>        HttpSession session <span style="color:#f92672">=</span> request<span style="color:#f92672">.</span><span style="color:#a6e22e">getSession</span><span style="color:#f92672">();</span>
+        <span style="color:#75715e">// 4.获得session中保存的购物车(Map)
+</span><span style="color:#75715e"></span>        Map<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span> Integer<span style="color:#f92672">&gt;</span> map <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>Map<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span> Integer<span style="color:#f92672">&gt;)</span> session<span style="color:#f92672">.</span><span style="color:#a6e22e">getAttribute</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;cart&#34;</span><span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>map <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#75715e">//获得到了：不是第一次访问==&gt;继续向Map中添加
+</span><span style="color:#75715e"></span>            Integer count <span style="color:#f92672">=</span> map<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>productName<span style="color:#f92672">);</span>
+            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>count <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                <span style="color:#75715e">//不存在：添加并设置数量为1
+</span><span style="color:#75715e"></span>                count <span style="color:#f92672">=</span> 1<span style="color:#f92672">;</span>
+            <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+                <span style="color:#75715e">//map中已经存在这个商品：把数量加1
+</span><span style="color:#75715e"></span>                count<span style="color:#f92672">++;</span>
+            <span style="color:#f92672">}</span>
+            map<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span>productName<span style="color:#f92672">,</span> count<span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+            <span style="color:#75715e">//没获得到：第一次访问
+</span><span style="color:#75715e"></span>            map <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> LinkedHashMap<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span> Integer<span style="color:#f92672">&gt;();</span>
+            <span style="color:#75715e">//新建Map：将商品添加并设置数量为1
+</span><span style="color:#75715e"></span>            map<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span>productName<span style="color:#f92672">,</span> 1<span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#75715e">// 5.将Map操作完再放回session
+</span><span style="color:#75715e"></span>        session<span style="color:#f92672">.</span><span style="color:#a6e22e">setAttribute</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;cart&#34;</span><span style="color:#f92672">,</span> map<span style="color:#f92672">);</span>
+        <span style="color:#75715e">// 6.返回到列表页面(重定向)
+</span><span style="color:#75715e"></span>        response<span style="color:#f92672">.</span><span style="color:#a6e22e">sendRedirect</span><span style="color:#f92672">(</span>request<span style="color:#f92672">.</span><span style="color:#a6e22e">getContextPath</span><span style="color:#f92672">()</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;/shoppingcart/list.jsp&#34;</span><span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>shoppingcart.jsp</p>
+<pre><code class="language-jsp" data-lang="jsp">&lt;%@page import=&quot;java.util.Map&quot; %&gt;
+&lt;%@ page language=&quot;java&quot; import=&quot;java.util.Map.Entry&quot; pageEncoding=&quot;UTF-8&quot; %&gt;
+&lt;%
+    String path = request.getContextPath();
+    String basePath = request.getScheme() + &quot;://&quot; + request.getServerName() + &quot;:&quot; + request.getServerPort() + path + &quot;/&quot;;
+%&gt;
+&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.01 Transitional//EN&quot;&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;base href=&quot;&lt;%=basePath%&gt;&quot;&gt;
+    &lt;title&gt;My JSP 'list.jsp' starting page&lt;/title&gt;
+    &lt;meta http-equiv=&quot;pragma&quot; content=&quot;no-cache&quot;&gt;
+    &lt;meta http-equiv=&quot;cache-control&quot; content=&quot;no-cache&quot;&gt;
+    &lt;meta http-equiv=&quot;expires&quot; content=&quot;0&quot;&gt;
+    &lt;meta http-equiv=&quot;keywords&quot; content=&quot;keyword1,keyword2,keyword3&quot;&gt;
+    &lt;meta http-equiv=&quot;description&quot; content=&quot;This is my page&quot;&gt;
+&lt;/head&gt;
+&lt;%
+    //1.获得session
+    //2.从session中取出购物车的map
+    Map&lt;String, Integer&gt; map = (Map&lt;String, Integer&gt;) session.getAttribute(&quot;cart&quot;);
+%&gt;
+&lt;body&gt;
+&lt;h1 align=&quot;center&quot;&gt;购物车详情&lt;/h1&gt;
+&lt;table border=&quot;1&quot; align=&quot;center&quot;&gt;
+    &lt;tr&gt;
+        &lt;th&gt;商品名称&lt;/th&gt;
+        &lt;th&gt;商品数量&lt;/th&gt;
+    &lt;/tr&gt;
+    &lt;%
+        //3 遍历显示
+        if (map != null &amp;&amp; map.size() &gt; 0) {
+            for (Entry&lt;String, Integer&gt; en : map.entrySet()) {
+    %&gt;
+    &lt;tr&gt;
+        &lt;td&gt;&lt;%=en.getKey() %&gt;&lt;/td&gt;
+        &lt;td&gt;&lt;%=en.getValue() %&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;%
+            }
+        } else {
+            out.print(&quot;您还没有添加任何商品!!&quot;);
+        }
+    %&gt;
+&lt;/table&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+</article>
+
+
+<p class="post-meta">
+    Tags:&nbsp;
+    
+    
+    <a href="https://w-yj.github.io/tags/JavaWeb">JavaWeb</a>
+    
+</p>
+
+
+
+            </div>
+        </div>
+    </div>
+    <footer class="center">
+    <div class="p2 wrap">
+        <div class="measure mt1 center">
+            <small>
+                Copyright &#169; 2017<br>
+                Powered by <a href="http://gohugo.io/" target="_blank">Hugo</a> &amp; <a
+                    href="https://github.com/azmelanar/hugo-theme-pixyll" target="_blank">Pixyll</a>
+            </small>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

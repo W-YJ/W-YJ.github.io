@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Kubernetes on WYJ&#39;s Notes</title>
+    <link>https://w-yj.github.io/tags/kubernetes/</link>
+    <description>Recent content in Kubernetes on WYJ&#39;s Notes</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 12 Jul 2020 10:29:15 +0000</lastBuildDate>
+    
+	<atom:link href="https://w-yj.github.io/tags/kubernetes/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>MetalLB Investigate</title>
+      <link>https://w-yj.github.io/post/metallb/</link>
+      <pubDate>Sun, 12 Jul 2020 10:29:15 +0000</pubDate>
+      
+      <guid>https://w-yj.github.io/post/metallb/</guid>
+      <description>MetalLB is a load-balancer implementation for bare metal Kubernetes clusters, using standard routing protocols.</description>
+    </item>
+    
+    <item>
+      <title>Deploying Kubernetes on Bare Metal</title>
+      <link>https://w-yj.github.io/post/k8s-install/</link>
+      <pubDate>Sun, 19 Apr 2020 09:42:15 +0000</pubDate>
+      
+      <guid>https://w-yj.github.io/post/k8s-install/</guid>
+      <description>Deploying Kubernetes on Bare Metal via kubeadm.</description>
+    </item>
+    
+  </channel>
+</rss>

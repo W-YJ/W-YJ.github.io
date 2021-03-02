@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Design Patterns - WYJ&#39;s Notes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="keywords" content="">
+    <link rel="canonical" href="https://w-yj.github.io/post/designpattern/">
+
+    
+    
+    <link rel="stylesheet" type="text/css" href="https://w-yj.github.io/sass/pixyll.min.30e55e9fcc01694c576be315e114e0449103a0df1fb91cec0c2ada477ba30f6b.css">
+
+    
+    <link rel='stylesheet' type='text/css' href='//fonts.googleapis.com/css?family=Merriweather:900,900italic,300,300italic' >
+    <link rel='stylesheet' type='text/css' href='//fonts.googleapis.com/css?family=Lato:900,300'>
+</head>
+
+<body class="site">
+    <div class="site-wrap">
+        <header class="site-header px2 px-responsive">
+    <div class="mt2 wrap">
+        <div class="measure">
+            <a href="https://w-yj.github.io" class="site-title">WYJ&#39;s Notes</a>
+            <nav class="site-nav">
+                
+<div class="right">
+<a href="https://w-yj.github.io/about/">About</a>
+<a href="https://w-yj.github.io/tags/">Tags</a>
+<a href="https://w-yj.github.io/contact/">Contact</a>
+</div>
+            </nav>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</header>
+
+        <div class="post p2 p-responsive wrap" role="main">
+            <div class="measure">
+                
+<div class="post-header mb2">
+    <h1 class="py2">Design Patterns</h1>
+    <span class="post-meta">
+        Mar 7, 2018
+        
+    </span>
+    <br>
+    
+</div>
+<article class="post-content">
+    <h1 id="design-pattern">Design Pattern</h1>
+<!-- raw HTML omitted -->
+<ul>
+<li>Design Patterns Outline
+<ul>
+<li>Creational Patterns</li>
+<li>Structural Patterns</li>
+<li>Behavioral Design Patterns</li>
+</ul>
+</li>
+<li>Factory Method Design Pattern
+<ul>
+<li>Implementation</li>
+<li>When to use?</li>
+<li>Design Principle</li>
+<li>Simple factory</li>
+</ul>
+</li>
+</ul>
+<!-- raw HTML omitted -->
+<h2 id="design-patterns-outline">Design Patterns Outline</h2>
+<p>《Design Patterns elements of reusable object-oriented software》——A bible for object-oriented design patterns</p>
+<blockquote>
+<p>writtern by Gang of four: Erich Gamma, John Vlissides, Ralph Johnson and Richard Helm. Published Oct 21, 1994</p>
+</blockquote>
+<p>Design Patterns are devided into three categories：creational, structural and beahavioral, and consist of 23 different design pattern.</p>
+<h3 id="creational-patterns">Creational Patterns</h3>
+<p>Deals with object creation. Complexity and coupling associated with new object creation and address it.</p>
+<ul>
+<li>Abstract Factory</li>
+<li>Factory</li>
+<li>Builder</li>
+<li>Singleton</li>
+<li>Object Pool</li>
+<li>Prototype</li>
+</ul>
+<h3 id="structural-patterns">Structural Patterns</h3>
+<p>About class and object composition. Use of inheritance and associations to compose functionality</p>
+<ul>
+<li>Adapter</li>
+<li>Bridge</li>
+<li>Composite</li>
+<li>Decorator</li>
+<li>Facade</li>
+<li>Flyweight</li>
+<li>Private Class Data</li>
+<li>Proxy</li>
+</ul>
+<h3 id="behavioral-design-patterns">Behavioral Design Patterns</h3>
+<ul>
+<li>Chain Of Responsibility</li>
+<li>Command</li>
+<li>Interpreter</li>
+<li>Iterator</li>
+<li>Mediator</li>
+<li>Memento</li>
+<li>Null Object</li>
+<li>Observer</li>
+<li>State</li>
+<li>Strategy</li>
+<li>Template Method</li>
+<li>Vistor</li>
+</ul>
+<h2 id="factory-method-design-pattern">Factory Method Design Pattern</h2>
+<blockquote>
+<p>Creational Pattern
+Define an interface for creating an object, but let subclasses decide which object to instantiate. Factory Method lets a class defer instantiation to subclasses.</p>
+</blockquote>
+<p><img src="https://w-yj.github.io/img/DesignPattern/FactoryMethodDesignPattern.png" alt="FactoryMethodDesignPattern"></p>
+<h3 id="implementation">Implementation</h3>
+<ul>
+<li>Provide an interface for creating an object - Here do not consider the word interface as Java interface. It simply means to provide a constract/method to create an object.</li>
+<li>Let the subclass decide what exact object to instantiate - This pattern involves &ldquo;inheritance&rdquo;</li>
+<li>Open-closed principle(OCP) - it states a class should be open for extension and close for modifications.</li>
+</ul>
+<h3 id="when-to-use">When to use?</h3>
+<ul>
+<li>If there is an inheritance hierarchy, where a polymorphic creation is needed.</li>
+<li>When you are modifying a class to accommodate varying requirements(violating open-closed principle)</li>
+</ul>
+<h3 id="design-principle">Design Principle</h3>
+<ul>
+<li>Depend on abstractions - Do not depend on concrete class.</li>
+<li>The dependency inversion principle.</li>
+</ul>
+<h3 id="simple-factory">Simple factory</h3>
+<ul>
+<li>Providing a static creational method. It is static factory, does not cater to factory method design pattern defined by GoF.
+ex: Calendar.getInstance()</li>
+</ul>
+<p><strong>To be continued&hellip;</strong></p>
+
+</article>
+
+
+<p class="post-meta">
+    Tags:&nbsp;
+    
+    
+    <a href="https://w-yj.github.io/tags/DesignPattern">DesignPattern</a>
+    
+</p>
+
+
+
+            </div>
+        </div>
+    </div>
+    <footer class="center">
+    <div class="p2 wrap">
+        <div class="measure mt1 center">
+            <small>
+                Copyright &#169; 2017<br>
+                Powered by <a href="http://gohugo.io/" target="_blank">Hugo</a> &amp; <a
+                    href="https://github.com/azmelanar/hugo-theme-pixyll" target="_blank">Pixyll</a>
+            </small>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

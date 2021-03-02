@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>git - WYJ&#39;s Notes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="keywords" content="">
+    <link rel="canonical" href="https://w-yj.github.io/post/git/">
+
+    
+    
+    <link rel="stylesheet" type="text/css" href="https://w-yj.github.io/sass/pixyll.min.30e55e9fcc01694c576be315e114e0449103a0df1fb91cec0c2ada477ba30f6b.css">
+
+    
+    <link rel='stylesheet' type='text/css' href='//fonts.googleapis.com/css?family=Merriweather:900,900italic,300,300italic' >
+    <link rel='stylesheet' type='text/css' href='//fonts.googleapis.com/css?family=Lato:900,300'>
+</head>
+
+<body class="site">
+    <div class="site-wrap">
+        <header class="site-header px2 px-responsive">
+    <div class="mt2 wrap">
+        <div class="measure">
+            <a href="https://w-yj.github.io" class="site-title">WYJ&#39;s Notes</a>
+            <nav class="site-nav">
+                
+<div class="right">
+<a href="https://w-yj.github.io/about/">About</a>
+<a href="https://w-yj.github.io/tags/">Tags</a>
+<a href="https://w-yj.github.io/contact/">Contact</a>
+</div>
+            </nav>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</header>
+
+        <div class="post p2 p-responsive wrap" role="main">
+            <div class="measure">
+                
+<div class="post-header mb2">
+    <h1 class="py2">git</h1>
+    <span class="post-meta">
+        Mar 8, 2017
+        
+    </span>
+    <br>
+    
+</div>
+<article class="post-content">
+    <h1 id="git">git</h1>
+<!-- raw HTML omitted -->
+<ul>
+<li>Commands
+<ul>
+<li>git config setup</li>
+<li>git commands</li>
+<li>Remote collaboration commands</li>
+</ul>
+</li>
+<li>Miscellaneous
+<ul>
+<li>git commit msg rules</li>
+<li>合并冲突指示符解释</li>
+<li>git使用命令行分页器less浏览所有信息，以下是less快捷键</li>
+<li>祖先引用</li>
+<li>Git托管平台的SSH key配置</li>
+<li>Untrack files already added to git repository based on .gitignore</li>
+<li>git log aliases in .gitconfig</li>
+<li>本地分支完全同步为远程分支</li>
+<li>合并特定commits到另一个分支</li>
+</ul>
+</li>
+</ul>
+<!-- raw HTML omitted -->
+<h2 id="commands">Commands</h2>
+<h3 id="git-config-setup">git config setup</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e"># 显示当前配置</span>
+git config --list
+<span style="color:#75715e"># 设置 Git 用户名</span>
+git config --global user.name <span style="color:#e6db74">&#34;&lt;Your-Full-Name&gt;&#34;</span>
+<span style="color:#75715e"># 设置 Git 邮箱</span>
+git config --global user.email <span style="color:#e6db74">&#34;&lt;your-email-address&gt;&#34;</span>
+<span style="color:#75715e"># 确保 Git 输出内容带有颜色标记</span>
+git config --global color.ui auto
+<span style="color:#75715e"># 对比显示原始状态</span>
+git config --global merge.conflictstyle diff3
+<span style="color:#75715e"># 彩色的git输出</span>
+git config color.ui true
+<span style="color:#75715e"># 显示历史记录时，每个提交的信息只显示一行</span>
+git config format.pretty oneline
+
+<span style="color:#75715e"># Git与代码编辑器</span>
+<span style="color:#75715e"># Atom Editor设置</span>
+git config --global core.editor <span style="color:#e6db74">&#34;atom --wait&#34;</span>
+<span style="color:#75715e"># Sublime Text设置</span>
+git config --global core.editor <span style="color:#e6db74">&#34;&#39;/Applications/Sublime Text 3.app/Contents/SharedSupport/bin/subl&#39; -n -w&#34;</span>
+<span style="color:#75715e"># VSCode设置</span>
+git config --global core.editor <span style="color:#e6db74">&#34;code --wait&#34;</span>
+</code></pre></div><h3 id="git-commands">git commands</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">gitk <span style="color:#75715e">#内建的图形化git</span>
+
+git init  
+git clone &lt;path-to-repository-to-clone&gt; <span style="color:#75715e">#可以提供第二个参数，作为该目录的名称</span>
+git submodule add git@github.com:azmelanar/hugo-theme-pixyll.git themes/pixyll
+git status
+
+<span style="color:#75715e">#git log后可接SHA以显示特定commmit详情</span>
+git log --oneline --decorate --all --graph <span style="color:#75715e">#显示仓库中的所有分支，以及所有commit</span>
+git log --stat <span style="color:#75715e">#显示被修改的文件添加/删除的行数</span>
+git log -p/--patch <span style="color:#75715e">#显示被修改的文件的具体更改</span>
+git shortlog <span style="color:#75715e">#按作者对commit分组, -s仅显示commit数量而非commit message, -n按数量排序而不是按作者姓名字母顺序</span>
+git log --author<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;&#34;</span> <span style="color:#75715e">#按作者筛选，显示某个作者所有commit方法</span>
+git log --grep<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;&#34;</span> <span style="color:#75715e">#根据commit提交信息筛选某词，筛选多个词需要添加引号</span>
+git log --name-status <span style="color:#75715e">#查看文件改变</span>
+
+git show &lt;SHA&gt; <span style="color:#75715e">#显示commit中包含额外详细信息，同git log -p</span>
+git show -stat --patch -w <span style="color:#75715e">#显示更改文件数，添加/删除的行数及具体更改并忽略空格变化</span>
+
+git add &lt;file1&gt; &lt;file2&gt; … &lt;fileN&gt; / .
+git add -u <span style="color:#75715e">#stage without new file</span>
+git add --ignore-removal <span style="color:#75715e">#ignore delete files</span>
+git add -i <span style="color:#75715e">#交互式添加文件到暂存区</span>
+
+git rm --cached . <span style="color:#75715e">#只是从暂存区删掉文件(unstage)</span>
+git rm -r --cached .idea <span style="color:#75715e">#配合gitignore清除idea缓存</span>
+git commit -m <span style="color:#e6db74">&#34;commit message&#34;</span> <span style="color:#75715e">#取出暂存区的文件并保存到仓库</span> 
+
+git diff &lt;source_branch&gt; &lt;target_branch&gt; <span style="color:#75715e">#用来查看已经执行但是尚未commit的更改</span>
+
+<span style="color:#75715e"># 轻量化标签在Git中不存储任何的信息，只是一个特定提交的引用</span>
+<span style="color:#75715e"># 附注标签储存在Git数据中，且包含标签创建者、电子邮件、日期、标签消息等信息</span>
+<span style="color:#75715e"># 创建的标签总是与commit进行绑定的</span>
+git tag <span style="color:#75715e"># 创建轻量化标签用来标记特定的commit，-d 删除标签</span>
+git tag -a v1.0.0 -m <span style="color:#e6db74">&#34;发布新版本v1.0.0&#34;</span> <span style="color:#75715e"># -a 创建附注标签，</span>
+git show v1.0.0 <span style="color:#75715e">#查看Tag信息</span>
+git tag -d &lt;tagname&gt; <span style="color:#75715e">#删除标签</span>
+
+<span style="color:#75715e">#stash your changes before switching branch with Git</span>
+git stash save <span style="color:#e6db74">&#34;changes&#34;</span>
+git stash pop
+git stash list
+git stash pop <span style="color:#e6db74">&#34;stash@{1}&#34;</span>
+git stash pop<span style="color:#f92672">=(</span>git stash pop <span style="color:#e6db74">&#34;stash@{1}&#34;</span>, git stash drop<span style="color:#f92672">)</span>
+
+git branch -a <span style="color:#75715e">#查看所有分支</span>
+git branch sidebar 5bfe5e7 <span style="color:#75715e">#向该 commit 添加分支</span>
+git checkout -b <span style="color:#f92672">[</span>分支名<span style="color:#f92672">]</span> <span style="color:#75715e">#创建分支并切换到该分支</span>
+git branch -d sidebar <span style="color:#75715e">#删除分支，如果要被删除的分支上有独有的commit，git不会删除该分支</span>
+
+git merge &lt;other-branch&gt; <span style="color:#75715e">#用来合并git分支</span>
+git merge --squash &lt;other-branch&gt; 
+git merge --abort <span style="color:#75715e">#合并时遇到冲突或错误后取消合并</span>
+git checkout -- &lt;filename&gt; <span style="color:#75715e">#替换本地改动，使用HEAD最新内容替换工作目录的文件，已添加到暂存区的改动以及新文件不会受到影响</span>
+
+git revert <span style="color:#75715e">#用于还原之前的commit:撤消目标commit的更改并创建新的commit来记录这一更改</span>
+
+git reset &lt;reference-to-commit&gt; <span style="color:#75715e">#用于清除commit(将HEAD和当前分支指针移到引用的commit)</span>
+git reset --mixed HEAD^ <span style="color:#75715e">#--mixed为默认参数，不删除工作空间改动代码，撤销commit，撤销git add .</span>
+git reset --soft HEAD^ <span style="color:#75715e">#--soft不删除工作空间改动代码，撤销commit，不撤销git add .</span>
+git reset --hard HEAD^ <span style="color:#75715e">#--hard删除工作空间改动代码，撤销commit，撤销git add .</span>
+git reset --hard origin/master
+
+git commit --amend <span style="color:#75715e">#用于撤消或更改最近的commit(常用于修改commit注释)</span>
+
+git reflog <span style="color:#75715e"># git会在完全清除任何内容之前，持续跟踪大约30天，使用该命令调用这些内容</span> 
+
+git rebase -squash <span style="color:#75715e">#将commit移动到一个新基底(base)上</span>
+<span style="color:#75715e"># 交互式地将 commit 变基到我们当前所在的 commit 向前三个的 commit</span>
+git rebase -i HEAD~3
+git merge-base feature master <span style="color:#75715e">#returns the commit ID of the original base, which you can then pass to git rebase</span>
+
+git rebase -i &lt;base&gt; <span style="color:#75715e"># 交互式 rebase</span>
+<span style="color:#75715e"># 在 commit 的交互式列表中，所有 commit 都以 pick 开头，但你可以使用其他命令（reword、edit、squash、fixup、exec 和 drop）进行变换。</span>
+<span style="color:#75715e"># 使用 p 或 pick – 使 commit 保持原样</span>
+<span style="color:#75715e"># 使用 r 或 reword – 保留 commit 的内容，但修改 commit 说明</span>
+<span style="color:#75715e"># 使用 e 或 edit – 保留 commit 的内容，但先不要执行 commit，以便修改即将 commit 的内容</span>
+<span style="color:#75715e"># 使用 s 或 squash – 将此 commit 的更改结合到之前的 commit 中（列表中位于其上面的 commit ）</span>
+<span style="color:#75715e"># 使用 f 或 fixup – 将此 commit 的更改结合到前一个 commit 中，但删除提交说明</span>
+<span style="color:#75715e"># 使用 x 或 exec – 运行 shell 命令</span>
+<span style="color:#75715e"># 使用 d 或 drop – 删除 commit</span>
+
+<span style="color:#75715e">#Tips</span>
+<span style="color:#75715e">#变基之前创建备份（backup）分支以便能很容易返回到之前的状态。之后如果对变基的结果满意，则可以删除 backup 分支</span>
+git checkout feature
+git checkout -b temporary-branch
+git rebase -i master
+<span style="color:#75715e"># [Clean up the history]</span>
+git checkout master
+git merge temporary-branch
+
+<span style="color:#75715e">#何时变基 - 变基时Git会为每个commit创建一个新的SHA。对于Git，SHA为commit的标识符，因此不同的标识符代表着不同的commit，无论内容是否发生了变化。如果你已推送了你想进行变基的commit，则不应变基。如果你在与其他开发者协作，那么他们可能已经在使用你推送的 commit。如果你随后使用 git rebase来进行更改，并强行推送 commit，则其他开发者现在将无法与远程仓库同步。他们需要对自己的 Git 仓库进行一些复杂的手术，使它们的仓库回到工作状态……甚至可能连这一点都做不了；他们可能得抛弃之前的所有工作，使用你新变基过且强制推送的 commit 重新开始。</span>
+</code></pre></div><h3 id="remote-collaboration-commands">Remote collaboration commands</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">git remote <span style="color:#75715e">#用于连接到多个不同的远程仓库</span>
+git remote add <span style="color:#75715e">#用于添加到新的远程仓库的连接并设置简写名</span>
+git remote -v <span style="color:#75715e">#用于查看远程仓库的详细信息，如完整路径而非简写名</span>
+git remove rename origin mine  <span style="color:#75715e">#重置远程仓库名称</span>
+git push <span style="color:#e6db74">`</span>&lt;remote-shortname&gt;<span style="color:#e6db74">`</span> <span style="color:#e6db74">`</span>&lt;branch&gt;<span style="color:#e6db74">`</span> <span style="color:#75715e">#用于从本地仓库向远程仓库某分支推送commit</span>
+git pull <span style="color:#e6db74">`</span>&lt;remote-shortname&gt;<span style="color:#e6db74">`</span> <span style="color:#e6db74">`</span>&lt;branch&gt;<span style="color:#e6db74">`</span> <span style="color:#75715e">#在本地仓库中拉取远程仓库的更改(fast-forward)，复制或合并</span>
+<span style="color:#75715e"># git pull - merge default, force it to integrate the remote branch with a rebase by passing it the --rebase option.</span>
+git fetch <span style="color:#e6db74">`</span>&lt;remote-shortname&gt;<span style="color:#e6db74">`</span> <span style="color:#e6db74">`</span>&lt;branch&gt;<span style="color:#e6db74">`</span> <span style="color:#75715e">#用于从远程仓库分支检索commit ，但不会自动将本地分支与远程跟踪分支合并。</span>
+
+<span style="color:#75715e"># fork会创建远程仓库的一份新副本到自己的账户中以获取完全控制权</span>
+<span style="color:#75715e"># Pull Request 是让源仓库拉取你的 commit，并融合在其项目中的请求</span>
+
+<span style="color:#75715e"># git远程分支覆盖本地分支</span>
+git fetch --all
+git reset --hard origin/master <span style="color:#f92672">(</span>这里master要修改为对应的分支名<span style="color:#f92672">)</span>
+git pull
+</code></pre></div><h2 id="miscellaneous">Miscellaneous</h2>
+<h3 id="git-commit-msg-rules">git commit msg rules</h3>
+<ol>
+<li>Separate subeject from body with a blank line</li>
+<li>Limit the subject line to 50 characters</li>
+<li>Capitalize the subject line</li>
+<li>Do not end the subject line with a period</li>
+<li>Use the imperative mood in the subject line</li>
+<li>Wrap the body at 72</li>
+</ol>
+<h3 id="合并冲突指示符解释">合并冲突指示符解释</h3>
+<ul>
+<li>&laquo;&laquo;&laquo;&lt; HEAD 此行下方的所有内容（直到下个指示符）显示了当前分支上的行</li>
+<li>||||||| merged common ancestors 此行下方的所有内容（直到下个指示符）显示了原始行的内容</li>
+<li>=======表示原始行内容的结束位置，之后的所有行（直到下个指示符）是被合并的当前分支上的行的内容</li>
+<li><code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code> heading-update 是要被合并的分支（此例中是 heading-update 分支）上的行结束指示符</li>
+</ul>
+<h3 id="git使用命令行分页器less浏览所有信息以下是less快捷键">git使用命令行分页器less浏览所有信息，以下是less快捷键</h3>
+<ul>
+<li>上下滚动一行分别使用上下键或k j</li>
+<li>上下半屏滚动分别使用d u</li>
+<li>上下全屏滚动分别使用f b</li>
+<li>q键退出日志</li>
+</ul>
+<h3 id="祖先引用">祖先引用</h3>
+<p>HEAD表示你当前的位置（它可以指向多个东西，但通常会指向分支名称或直接指向一个 commit 的 SHA）。通常会用到祖先引用来指代之前的 commit。祖先引用包含： ^ 表示父 commit， ~ 表示第一个父 commit，示例如下：</p>
+<ul>
+<li>当前commit的父commit：HEAD^ or HEAD~ or HEAD~1</li>
+<li>当前commit的祖父commit：HEAD^^ or HEAD~2</li>
+<li>当前commit的曾祖父commit：HEAD^^^ or HEAD~3</li>
+</ul>
+<p>^ 和 ~ 的区别主要体现在通过合并而创建的 commit 中。合并 commit 具有两个父级。对于合并 commit，^ 引用用来表示第一个父 commit，而 ^2 表示第二个父 commit。第一个父 commit 是当你运行 git merge 时所处的分支，而第二个父 commit 是被合并的分支。~ 永远表示第一个父 commit。</p>
+<h3 id="git托管平台的ssh-key配置">Git托管平台的SSH key配置</h3>
+<blockquote>
+<p>SSH是一种基于密钥（位于服务器端和本地的物理文件）的更安全的身份验证方法。</p>
+</blockquote>
+<ul>
+<li>设置github的user name和email：<code>git config --global user.name &quot;GitHub账号&quot; git config --global user.email &quot;GitHub邮箱&quot;</code></li>
+<li>在本地生成密钥对：<code>ssh-keygen -t rsa -C &quot;your_email@example.com&quot;</code></li>
+<li>将SSH私钥添加到SSH-agent，配置ssh-agent程序使用SSH key
+<ul>
+<li>在后台启动 ssh-agent：<code>eval $(ssh-agent -s)</code></li>
+<li>将SSH私钥添加到 ssh-agent：<code>ssh -add /Users/yjwwa/.ssh/id_rsa</code></li>
+</ul>
+</li>
+<li>将SSH公钥添加到GitHub账户，配置GitHub需要使用SSH key
+<ul>
+<li>先复制SSH公钥的完整内容：<code>clip &lt; /Users/yjwwa/.ssh/id_rsa.pub</code></li>
+<li>进入GitHub设置页面选择SSH keys选项并点击add SSH key</li>
+<li>取名并将之前复制的公钥内容粘贴到Key中</li>
+</ul>
+</li>
+<li>测试：<code>ssh -T git@github.com</code></li>
+</ul>
+<h3 id="untrack-files-already-added-to-git-repository-based-on-gitignore">Untrack files already added to git repository based on .gitignore</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e"># Step 1: Commit all your changes</span>
+<span style="color:#75715e"># Step 2: Remove everything from the repository.</span>
+<span style="color:#75715e"># –cached only remove files from the index. Files will still be there.</span>
+<span style="color:#75715e"># `git rm` can be unforgiving. Try with -n or --dry-run to test things out</span>
+git rm -r --cached .
+<span style="color:#75715e"># Step 3: Readd everything.</span>
+git add .
+<span style="color:#75715e"># Step 4: Commit</span>
+git commit -m <span style="color:#e6db74">&#34;.gitignore fix&#34;</span>
+<span style="color:#75715e"># Step 5: Push the changes to your remote</span>
+</code></pre></div><h3 id="git-log-aliases-in-gitconfig">git log aliases in .gitconfig</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e"># One liner with colors</span>
+l1 <span style="color:#f92672">=</span> log --pretty<span style="color:#f92672">=</span>format:<span style="color:#e6db74">&#34;%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]&#34;</span> --decorate --date<span style="color:#f92672">=</span>short
+<span style="color:#75715e"># Graph one liner</span>
+l2 <span style="color:#f92672">=</span> log --graph --oneline --decorate --all
+<span style="color:#75715e"># Search commit name history</span>
+l3 <span style="color:#f92672">=</span> !git log --oneline | grep
+<span style="color:#75715e"># Details about the last commit</span>
+l4 <span style="color:#f92672">=</span> log -p -1
+<span style="color:#75715e"># Get commits for n days before today</span>
+l5 <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;!f() { \
+</span><span style="color:#e6db74">        git log --after=\&#34;</span><span style="color:#66d9ef">$(</span>date -j -v-$1d +%Y-%m-%d<span style="color:#66d9ef">)</span><span style="color:#e6db74">\&#34; --oneline; \
+</span><span style="color:#e6db74">    }; f&#34;</span>
+</code></pre></div><h3 id="本地分支完全同步为远程分支">本地分支完全同步为远程分支</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e"># git fetch 只是下载远程的库的内容，不做任何的合并</span>
+git fetch --all  
+<span style="color:#75715e"># git reset 把HEAD指向刚刚下载的最新的版本</span>
+git reset --hard origin/master 
+git pull
+</code></pre></div><h3 id="合并特定commits到另一个分支">合并特定commits到另一个分支</h3>
+<ul>
+<li>合并某个分支上的单个commit</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e"># 将feature分支上的commit 62ecb3合并到master分支</span>
+git checkout master
+git cherry-pick 62ecb3
+</code></pre></div><ul>
+<li>合并某个分支上的一系列commits</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e"># 将feature分支的commit 76cada~62ecb3 合并到master分支</span>
+<span style="color:#75715e"># 基于feature分支创建一个新的分支，并指明新分支的最后一个commit</span>
+git checkout -b newbranch 63ecb3
+<span style="color:#75715e"># rebase这个新分支的commit到master，76cada^ 指明你想从哪个特定的commit开始</span>
+git rebase --onto master 76cada^
+</code></pre></div>
+</article>
+
+
+<p class="post-meta">
+    Tags:&nbsp;
+    
+    
+    <a href="https://w-yj.github.io/tags/Manual">Manual</a>
+    
+</p>
+
+
+
+            </div>
+        </div>
+    </div>
+    <footer class="center">
+    <div class="p2 wrap">
+        <div class="measure mt1 center">
+            <small>
+                Copyright &#169; 2017<br>
+                Powered by <a href="http://gohugo.io/" target="_blank">Hugo</a> &amp; <a
+                    href="https://github.com/azmelanar/hugo-theme-pixyll" target="_blank">Pixyll</a>
+            </small>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

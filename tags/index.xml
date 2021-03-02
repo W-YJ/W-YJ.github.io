@@ -6,10 +6,28 @@
     <description>Recent content in Tags on WYJ&#39;s Notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 12 Mar 2018 09:42:15 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 12 Jul 2020 10:29:15 +0000</lastBuildDate>
     
 	<atom:link href="https://w-yj.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Kubernetes</title>
+      <link>https://w-yj.github.io/tags/kubernetes/</link>
+      <pubDate>Sun, 12 Jul 2020 10:29:15 +0000</pubDate>
+      
+      <guid>https://w-yj.github.io/tags/kubernetes/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Go</title>
+      <link>https://w-yj.github.io/tags/go/</link>
+      <pubDate>Tue, 10 Dec 2019 09:42:15 +0000</pubDate>
+      
+      <guid>https://w-yj.github.io/tags/go/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>DesignPattern</title>
@@ -17,6 +35,42 @@
       <pubDate>Mon, 12 Mar 2018 09:42:15 +0000</pubDate>
       
       <guid>https://w-yj.github.io/tags/designpattern/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Java</title>
+      <link>https://w-yj.github.io/tags/java/</link>
+      <pubDate>Sun, 31 Dec 2017 17:54:02 +0000</pubDate>
+      
+      <guid>https://w-yj.github.io/tags/java/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>JavaWeb</title>
+      <link>https://w-yj.github.io/tags/javaweb/</link>
+      <pubDate>Wed, 26 Jul 2017 09:08:43 +0000</pubDate>
+      
+      <guid>https://w-yj.github.io/tags/javaweb/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Data</title>
+      <link>https://w-yj.github.io/tags/data/</link>
+      <pubDate>Fri, 10 Mar 2017 16:42:15 +0000</pubDate>
+      
+      <guid>https://w-yj.github.io/tags/data/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Manual</title>
+      <link>https://w-yj.github.io/tags/manual/</link>
+      <pubDate>Wed, 08 Mar 2017 16:42:15 +0000</pubDate>
+      
+      <guid>https://w-yj.github.io/tags/manual/</guid>
       <description></description>
     </item>
     

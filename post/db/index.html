@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Database - WYJ&#39;s Notes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="keywords" content="">
+    <link rel="canonical" href="https://w-yj.github.io/post/db/">
+
+    
+    
+    <link rel="stylesheet" type="text/css" href="https://w-yj.github.io/sass/pixyll.min.30e55e9fcc01694c576be315e114e0449103a0df1fb91cec0c2ada477ba30f6b.css">
+
+    
+    <link rel='stylesheet' type='text/css' href='//fonts.googleapis.com/css?family=Merriweather:900,900italic,300,300italic' >
+    <link rel='stylesheet' type='text/css' href='//fonts.googleapis.com/css?family=Lato:900,300'>
+</head>
+
+<body class="site">
+    <div class="site-wrap">
+        <header class="site-header px2 px-responsive">
+    <div class="mt2 wrap">
+        <div class="measure">
+            <a href="https://w-yj.github.io" class="site-title">WYJ&#39;s Notes</a>
+            <nav class="site-nav">
+                
+<div class="right">
+<a href="https://w-yj.github.io/about/">About</a>
+<a href="https://w-yj.github.io/tags/">Tags</a>
+<a href="https://w-yj.github.io/contact/">Contact</a>
+</div>
+            </nav>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</header>
+
+        <div class="post p2 p-responsive wrap" role="main">
+            <div class="measure">
+                
+<div class="post-header mb2">
+    <h1 class="py2">Database</h1>
+    <span class="post-meta">
+        Mar 10, 2017
+        
+    </span>
+    <br>
+    
+</div>
+<article class="post-content">
+    <h2 id="database">Database</h2>
+<!-- raw HTML omitted -->
+<ul>
+<li>Basic
+<ul>
+<li>Entity_Relationship Diagrams</li>
+<li>Cardinality constaints基数约束</li>
+<li>Composite Attribute</li>
+<li>Relational Schemas</li>
+</ul>
+</li>
+<li>SQL
+<ul>
+<li>Joins</li>
+<li>Commands</li>
+<li>字段设置</li>
+</ul>
+</li>
+<li>Transactions
+<ul>
+<li>Transactions</li>
+<li>Database State</li>
+<li>Atomic Operations</li>
+</ul>
+</li>
+<li>Isolation Level and Violations
+<ul>
+<li>Isolation Level</li>
+<li>Violations</li>
+</ul>
+</li>
+<li>DMS
+<ul>
+<li>Shell常用命令</li>
+</ul>
+</li>
+<li>Postgres</li>
+</ul>
+<!-- raw HTML omitted -->
+<h3 id="basic">Basic</h3>
+<h4 id="entity_relationship-diagrams">Entity_Relationship Diagrams</h4>
+<ul>
+<li>Entities: Categories of similar, but unique measurements</li>
+<li>Atrributes: Unique measurements within a category</li>
+<li>Entity Instance: A single occurrence of an entity type. In a table it would look like: a row</li>
+<li>Unique Attribute: An attribute with a unique value in each entity instance. In a table it would like: the column that allows you to link tables together.</li>
+</ul>
+<h4 id="cardinality-constaints基数约束">Cardinality constaints基数约束</h4>
+<blockquote>
+<p>closest maximum farthest minimum(instances)</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>Cardinality Symbols</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>I</td>
+<td>One</td>
+</tr>
+<tr>
+<td>symbol like a bird&rsquo;s foot</td>
+<td>many</td>
+</tr>
+<tr>
+<td>M/N</td>
+<td>Infinite</td>
+</tr>
+<tr>
+<td>O</td>
+<td>Optional</td>
+</tr>
+</tbody>
+</table>
+<p>Specific cardinality constaints notation:</p>
+<ul>
+<li>Numbers take precedence over symbols</li>
+<li>Number are always written from left to right</li>
+</ul>
+<h4 id="composite-attribute">Composite Attribute</h4>
+<blockquote>
+<p>Important measurement that can be completely reconstructed us other entities.</p>
+</blockquote>
+<h4 id="relational-schemas">Relational Schemas</h4>
+<blockquote>
+<p>Critical components of a relational schema</p>
+</blockquote>
+<ul>
+<li>Tables</li>
+<li>Primary keys: Columns(or set of columns) whose value is unique for every row in a table
+<ul>
+<li>Only 1 column per table can be a primary key (unless multiple columns are needed to identify each row).</li>
+<li>Primary keys cannot have null values.</li>
+</ul>
+</li>
+<li>Foreign keys: Column that refers to the primary key of  another table
+<ul>
+<li>Foriegn keys and unique keys do not have to have same name
+Unique columns in Relational schemas: Column (or set of columns) whose value is unique for every row in a table, but can contain null values</li>
+</ul>
+</li>
+</ul>
+<h3 id="sql">SQL</h3>
+<blockquote>
+<p>SQL：abbreviation. Structured query language：a computer programming language used for database management. Query: SQL code that describes the data you desire and the format in which you want it</p>
+</blockquote>
+<p>You provide these details using six main SQL keywords in a certain order:</p>
+<ul>
+<li>SELECT (everything that comes after this privides details about what data you want, and in what format)</li>
+<li>FROM</li>
+<li>WHERE (Required!)</li>
+<li>GROUP (BY)</li>
+<li>HAVING</li>
+<li>ORDER (BY);</li>
+</ul>
+<p>SELECT the data I want，FROM these database and tables, WHERE these criteria are met, and GROUP (BY) this field, HAVING this property, then ORDER (BY) this filed or list;</p>
+<h4 id="joins">Joins</h4>
+<blockquote>
+<p>Cartesian Product</p>
+</blockquote>
+<p><img src="https://w-yj.github.io/img/mysql_join.png" alt="img"></p>
+<ul>
+<li>Inner join that the type of join, where a row is only included if its value is contained in both unique columns of a table is called an inner join.
+<ul>
+<li>Null values can never be used to link rows in a join.</li>
+<li>Null values are not linked to other linked values.</li>
+</ul>
+</li>
+<li>Outer join defines which table will have all of it&rsquo;s values included.
+<ul>
+<li>Left and right outer join</li>
+<li>Full outer join(MySQL does not support while Teradata does.)</li>
+</ul>
+</li>
+</ul>
+<h4 id="commands">Commands</h4>
+<ul>
+<li>BETWEEN</li>
+<li>IS NULL/ IS NOT NULL</li>
+<li>ROUND()</li>
+<li>WITH</li>
+</ul>
+<h4 id="字段设置">字段设置</h4>
+<p>非字符长度 而是指字符显示宽度</p>
+<ul>
+<li>The number in the parenthesis does not determines the max and min values that can be stored in the integer field. The max and min values that can be stored are always fixed.</li>
+<li>The display width of the column does not affects the maximum value that can be stored in that column. A column with INT(5) or INT(11) can store the same maximum values. Also, if you have a column INT(20) that does not means that you will be able to store 20 digit values (BIGINT values). The column still will store only till the max values of INT.</li>
+</ul>
+<h3 id="transactions">Transactions</h3>
+<h4 id="transactions-1">Transactions</h4>
+<ul>
+<li>Bundle multiple database changes into atomic operations.</li>
+<li>Undo! - need to set it up ahead of time.</li>
+</ul>
+<h4 id="database-state">Database State</h4>
+<p>Each opearation alters the state of the database, moving it forward in time.</p>
+<h4 id="atomic-operations">Atomic Operations</h4>
+<p>Database operations that update the state are atomic. All or nothing.</p>
+<ul>
+<li>Insert either works completely or it doesn&rsquo;t.</li>
+<li>Update either works completely or it doesn&rsquo;t.</li>
+<li>Never get half an operation.</li>
+</ul>
+<p><strong>Reasons why operations may not work</strong></p>
+<ul>
+<li>One or more constraints violated.</li>
+<li>Datatype mismatch.</li>
+<li>Syntax error.</li>
+</ul>
+<h3 id="isolation-level-and-violations">Isolation Level and Violations</h3>
+<h4 id="isolation-level">Isolation Level</h4>
+<blockquote>
+<p>Two transactions are isolated to each other.</p>
+</blockquote>
+<h4 id="violations">Violations</h4>
+<ul>
+<li>Dirty Read</li>
+<li>Nonrepeateable Read</li>
+<li>Phantom</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Isolation Level</th>
+<th>Dirty Read</th>
+<th>Nonrepeatable Read</th>
+<th>Phantom</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Read Uncommitted</td>
+<td>☑️</td>
+<td>☑️</td>
+<td>☑️</td>
+</tr>
+<tr>
+<td>Read Committed</td>
+<td>❌</td>
+<td>☑️</td>
+<td>☑️</td>
+</tr>
+<tr>
+<td>Repeatable Read</td>
+<td>❌</td>
+<td>❌</td>
+<td>☑️</td>
+</tr>
+<tr>
+<td>Serializable</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+</tbody>
+</table>
+<h3 id="dms">DMS</h3>
+<h4 id="shell常用命令">Shell常用命令</h4>
+<ol>
+<li>卸载：<code>mysqld --remove mysql</code></li>
+<li>停止服务：<code>net stop mysql</code></li>
+</ol>
+<h3 id="postgres">Postgres</h3>
+<ul>
+<li>pg_ctl -D /usr/local/var/postgres start &amp;&amp; brew services start postgresql - Postgres starts every time your computer starts up.</li>
+<li>pg_ctl -D /usr/local/var/postgres start - run this if not want a background service.</li>
+<li>postgres -V - check version</li>
+<li>psql postgres - use psql utility which is a utility installed with Postgres that lets carry out administrative functions without needing to know their actual SQL commands.
+<ul>
+<li>\du - To see what users are installed.</li>
+<li>\password role - edit password.</li>
+</ul>
+</li>
+<li>CREATE ROLE username WITH LOGIN PASSWORD &lsquo;quoted password&rsquo; [OPTIONS]</li>
+<li>ALTER ROLE patrick CREATEDB;</li>
+<li>Command line utilities
+<ul>
+<li>createuser: creates a user</li>
+<li>createdb: creates a database</li>
+<li>dropuser: deletes a user</li>
+<li>dropdb: deletes a database</li>
+<li>postgres: executes the SQL server itself (we saw that one above when we checked our Postgres version!)</li>
+<li>pg_dump: dumps the contents of a single database to a file</li>
+<li>pg_dumpall: dumps all databases to a file</li>
+<li>psql: as above!</li>
+</ul>
+</li>
+<li>psql postgres -U username</li>
+<li>CREATE DATABASE dbname;</li>
+<li>GRANT ALL PRIVILEGES ON DATABASE super_awesome_application TO rolename;</li>
+<li>\list - lists all the databases in Postgres</li>
+<li>\connect dbname - connect to a specific database</li>
+<li>\dt - list the tables in the currently connected database</li>
+<li>\q</li>
+<li>ALTER DATABASE super_awesome_application RENAME TO even_more_awesome_application; - rename;</li>
+<li>CREATE ROLE name; - 创建数据库角色</li>
+<li>DROP ROLE name; - 删除存在的角色</li>
+<li>CREATE USER name; DROP USER name; - 创建和删除用户</li>
+</ul>
+
+</article>
+
+
+<p class="post-meta">
+    Tags:&nbsp;
+    
+    
+    <a href="https://w-yj.github.io/tags/Data">Data</a>
+    
+</p>
+
+
+
+            </div>
+        </div>
+    </div>
+    <footer class="center">
+    <div class="p2 wrap">
+        <div class="measure mt1 center">
+            <small>
+                Copyright &#169; 2017<br>
+                Powered by <a href="http://gohugo.io/" target="_blank">Hugo</a> &amp; <a
+                    href="https://github.com/azmelanar/hugo-theme-pixyll" target="_blank">Pixyll</a>
+            </small>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

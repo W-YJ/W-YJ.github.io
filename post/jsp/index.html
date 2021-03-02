@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>JSP(Deprecated) - WYJ&#39;s Notes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="keywords" content="">
+    <link rel="canonical" href="https://w-yj.github.io/post/jsp/">
+
+    
+    
+    <link rel="stylesheet" type="text/css" href="https://w-yj.github.io/sass/pixyll.min.30e55e9fcc01694c576be315e114e0449103a0df1fb91cec0c2ada477ba30f6b.css">
+
+    
+    <link rel='stylesheet' type='text/css' href='//fonts.googleapis.com/css?family=Merriweather:900,900italic,300,300italic' >
+    <link rel='stylesheet' type='text/css' href='//fonts.googleapis.com/css?family=Lato:900,300'>
+</head>
+
+<body class="site">
+    <div class="site-wrap">
+        <header class="site-header px2 px-responsive">
+    <div class="mt2 wrap">
+        <div class="measure">
+            <a href="https://w-yj.github.io" class="site-title">WYJ&#39;s Notes</a>
+            <nav class="site-nav">
+                
+<div class="right">
+<a href="https://w-yj.github.io/about/">About</a>
+<a href="https://w-yj.github.io/tags/">Tags</a>
+<a href="https://w-yj.github.io/contact/">Contact</a>
+</div>
+            </nav>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</header>
+
+        <div class="post p2 p-responsive wrap" role="main">
+            <div class="measure">
+                
+<div class="post-header mb2">
+    <h1 class="py2">JSP(Deprecated)</h1>
+    <span class="post-meta">
+        Jul 26, 2017
+        
+    </span>
+    <br>
+    
+</div>
+<article class="post-content">
+    <h1 id="jsp">JSP</h1>
+<blockquote>
+<p>Java Sever Page，本质就是 Servlet，初有 Servlet 时，Servlet既要处理业务逻辑又要负责输出html，由于在其中输出html太过繁琐，于是推出了JSP技术专注于显示。</p>
+</blockquote>
+<!-- raw HTML omitted -->
+<ul>
+<li>Introduction</li>
+<li>指令
+<ul>
+<li>page 指令</li>
+<li>include 指令</li>
+<li>taglib 指令</li>
+<li>内置对象</li>
+</ul>
+</li>
+<li>内置标签
+<ul>
+<li>&lt;jsp:forward标签&gt;</li>
+<li>&lt;jsp:include&gt;标签</li>
+<li>JSP中使用JavaBean</li>
+</ul>
+</li>
+<li>ExpressionLanguage
+<ul>
+<li>使用EL内置对象获得数据
+<ul>
+<li>EL的内置对象:</li>
+<li>EL表达式内置对象的操作：</li>
+<li>使用EL表达式可以获取JAVABEAN属性、集合项的值</li>
+<li>使用EL可以进行逻辑运算</li>
+<li>EL函数库
+<ul>
+<li>自定义EL函数库</li>
+<li>系统自带的EL函数.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<!-- raw HTML omitted -->
+<h2 id="introduction">Introduction</h2>
+<p><strong>运行原理图</strong>
+<img src="https://w-yj.github.io/img/JSP/jsp%E8%BF%90%E8%A1%8C%E5%8E%9F%E7%90%86.png" alt="运行原理"></p>
+<ul>
+<li>JSP由 HTML, JSP脚本和标签构成</li>
+<li>HTML代码使用 out.write()输出</li>
+<li>JSP脚本使用&lt;%  %&gt; 程序代码标签包围Java代码，即JSP脚本，其中不可以定义方法。在该脚本中写的java代码最终会生成到jsp对应Servlet类中的service方法中。</li>
+<li>声明标签：<code>&lt;%! int i = 0; %&gt;</code></li>
+<li>表达式: <code>&lt;%= %&gt;</code> 同 <code>out.print();</code></li>
+<li>JSP注释
+<ul>
+<li>服务器端注释: <code>&lt;%-- --%&gt;</code>被注释掉的内容不会参与编译，转化阶段消失，只能被开发人员看到</li>
+<li>html注释: <code>&lt;!-- --&gt;</code> 被注释掉的内容不显示但是不会消失</li>
+</ul>
+</li>
+</ul>
+<h2 id="指令">指令</h2>
+<blockquote>
+<p>指令元素用于指示JSP执行某些步骤或者指示JSP表现特定行为，语法格式<code>&lt;%@ directive [ attribute =“value” ] * %&gt;</code></p>
+</blockquote>
+<h3 id="page-指令">page 指令</h3>
+<blockquote>
+<p>用于定义JSP文件的全局属性，属性包含在<code>&lt;%@ page</code> 和<code>%&gt;</code>之间</p>
+</blockquote>
+<p><strong>属性</strong>:</p>
+<ul>
+<li>language: 声明使用脚本的种类，如<code>language=&quot;java&quot;</code></li>
+<li>import：用来导包或类的列表，唯一一个可以出现多次的标记属性</li>
+<li><code>contentType=&quot;text/html;charset=UTF-8&quot;</code>:响应浏览器时，告诉浏览器JSP页面响应的MIME类型以及用什么码表解码</li>
+<li>pageEncoding=&quot;UTF-8&rdquo;：指定服务器读取jsp时采用的编码格式，其优先权高于contentType，
+以上两个属性，指定一个，另一个会自动指定</li>
+<li>session：是否需要使用session对象，设置为false，则session内置对象会消失。默认为true，一般不用修改</li>
+<li>errorPage：处理异常事件是调用的JSP页面（不常用）</li>
+<li>isErrorPage：设置此页是否可为其他页errorPage的目标，值取“true”或&quot;false&rdquo;（不常用）</li>
+<li>buffer=&quot;8kb&rdquo;：指定对客户端输出缓冲区的大小(不常用)</li>
+<li>autoFlush: 当buffer溢出时，如果该属性设置为true，会将缓存自动输出到浏览器，设置为false，将会报错。(不常用)</li>
+<li>extends：指定继承类，需要加入Java class的全名，默认继承org.apache.jasper.runtime.HttpJspBase，通过该属性可以改变，但必须是HTTPServlet的子类。(不用)</li>
+</ul>
+<pre><code class="language-jsp" data-lang="jsp">&lt;!-- 错误页面可以在web.xml中使用如下统一配置  --&gt;
+&lt;error-page&gt;
+    &lt;error-code&gt;500&lt;/error-code&gt;
+    &lt;location&gt;/zhiling/Demo2.jsp&lt;/location&gt;
+&lt;/error-page&gt;
+</code></pre><h3 id="include-指令">include 指令</h3>
+<blockquote>
+<p>静态包含，在JSP页面中静态包含一个文件，同时由JSP解析包含的文件内容</p>
+</blockquote>
+<p><img src="https://w-yj.github.io/img/JSP/jsp_%E9%9D%99%E6%80%81%E5%8C%85%E5%90%AB.png" alt="静态包含"></p>
+<p>语法格式：<code>&lt;%@ include file=“filename” %&gt;</code></p>
+<ul>
+<li>file不能为一变量，如：</li>
+</ul>
+<pre><code class="language-jsp" data-lang="jsp">&lt;% String url=&quot;index.html&quot; ; %&gt;
+&lt;%@ include file = &quot;&lt;%= url %&gt;&quot; %&gt;
+</code></pre><ul>
+<li>file所指定的文件后不可以再接任何参数，如：</li>
+</ul>
+<pre><code class="language-jsp" data-lang="jsp">&lt;%@ include file = &quot;jw.jsp?nm=browser&quot; %&gt;
+</code></pre><p>demo1.jsp</p>
+<pre><code class="language-jsp" data-lang="jsp">&lt;body&gt;
+常见写法:&lt;br&gt;
+&lt;%@ include file=&quot;Demo2.jsp&quot; %&gt;
+&lt;%=i %&gt;
+&lt;/body&gt;
+</code></pre><p>demo2.jsp</p>
+<pre><code class="language-jsp" data-lang="jsp">haha
+xixi
+heihei
+hehe
+gaga
+hiahia
+&lt;%
+    int i = 10;
+%&gt;
+</code></pre><h3 id="taglib-指令">taglib 指令</h3>
+<blockquote>
+<p>引入标签指令，允许用户使用标签库自定义新的标签，例如常用的标签库:JSTL</p>
+</blockquote>
+<p>语法格式：<code>&lt;% taglib uri=&quot;taglibURI&quot; prefix=&quot;tabPrefix&quot;%&gt;</code></p>
+<ul>
+<li>uri - 标签文件的URI地址</li>
+<li>prefix - 标签组的命名空间前缀</li>
+</ul>
+<p>taglib指令中的uri属性用于根据标签的前缀对自定义的标签进行唯一的命名，其值可以是相对路径，绝对路径或标签库描述文件。</p>
+<h3 id="内置对象">内置对象</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"> <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">_jspService</span><span style="color:#f92672">(</span>HttpServletRequest request<span style="color:#f92672">,</span> HttpServletResponse response<span style="color:#f92672">)</span>
+            <span style="color:#66d9ef">throws</span> java<span style="color:#f92672">.</span><span style="color:#a6e22e">io</span><span style="color:#f92672">.</span><span style="color:#a6e22e">IOException</span><span style="color:#f92672">,</span> ServletException <span style="color:#f92672">{</span>
+        PageContext pageContext <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+        HttpSession session <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+        Throwable exception <span style="color:#f92672">=</span> org<span style="color:#f92672">.</span><span style="color:#a6e22e">apache</span><span style="color:#f92672">.</span><span style="color:#a6e22e">jasper</span><span style="color:#f92672">.</span><span style="color:#a6e22e">runtime</span><span style="color:#f92672">.</span><span style="color:#a6e22e">JspRuntimeLibrary</span><span style="color:#f92672">.</span><span style="color:#a6e22e">getThrowable</span><span style="color:#f92672">(</span>request<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>exception <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            response<span style="color:#f92672">.</span><span style="color:#a6e22e">setStatus</span><span style="color:#f92672">(</span>HttpServletResponse<span style="color:#f92672">.</span><span style="color:#a6e22e">SC_INTERNAL_SERVER_ERROR</span><span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+        ServletContext application <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+        ServletConfig config <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+        JspWriter out <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+        Object page <span style="color:#f92672">=</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">;</span>
+        <span style="color:#75715e">//……
+</span><span style="color:#75715e"></span>    <span style="color:#f92672">}</span>
+</code></pre></div><table>
+<thead>
+<tr>
+<th>类型</th>
+<th>变量名称</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HttpServletRequest</td>
+<td>request</td>
+</tr>
+<tr>
+<td>HttpServletResponse</td>
+<td>response</td>
+</tr>
+<tr>
+<td>HttpSession</td>
+<td>session</td>
+</tr>
+<tr>
+<td>Throwable</td>
+<td>exception</td>
+</tr>
+<tr>
+<td>ServletContext</td>
+<td>application</td>
+</tr>
+<tr>
+<td>ServletConfig</td>
+<td>config</td>
+</tr>
+<tr>
+<td>Object</td>
+<td>page</td>
+</tr>
+<tr>
+<td>JspWriter</td>
+<td>out</td>
+</tr>
+<tr>
+<td>PageContext</td>
+<td>pageContext</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li>
+<p><strong>request对象</strong>是javax.servlet.http.HttpServletRequest类的实例，它代表了客户端的请求信息，主要用于接受通过HTTP协议传送到服务器的数据（头信息、系统信息、请求方式以及请求参数等）</p>
+</li>
+<li>
+<p><strong>response对象</strong>是javax.servlet.HttpServletResponse类的实例。它代表了客户端的响应，它提供了一系列方法来获取HTTP头信息，cookies，HTTP方法，表单数据等</p>
+</li>
+<li>
+<p><strong>session对象</strong>是javax.servlet.http.HttpSession类的实例，主要用来跟踪在各个客户端请求间的会话</p>
+</li>
+<li>
+<p><strong>application</strong>是javax.servlet.ServletContext类的实例。ServletContext是全局对象，可用于存放共享数据</p>
+</li>
+<li>
+<p><strong>out对象</strong>主要向输出流写入内容，jsp中使用JspWriter在向外输出内容     <br>
+<img src="https://w-yj.github.io/img/JSP/jsp_out%E5%8E%9F%E7%90%86.png" alt="工作原理">
+response.getWriter 和 JspWriter 有什么区别?</p>
+<ul>
+<li>response.getWriter的输出会出现在JspWriter输出的前面</li>
+<li>JspWriter缓存会附加到response.getWriter缓存后，最终输出response.getWriter缓存<br>
+注意：JSP中不要直接使用response.getWriter</li>
+</ul>
+</li>
+<li>
+<p><strong>PageContext对象</strong>主要作用是获取任何范围的参数</p>
+<ol>
+<li>page域：范围只在当前页面当中(4个域中最小一个域)</li>
+</ol>
+<blockquote>
+<p>存值: <code>pageContext.setAttribute(&quot;&quot;, &quot;&quot;);</code><br>
+取值: <code>pageContext.getAttribute(&quot;&quot;);</code><br>
+删除一个值: <code>pageContext.removeAttribute(&quot;&quot;);</code></p>
+</blockquote>
+<ol start="2">
+<li>pageContext操作其他3个域:</li>
+</ol>
+<blockquote>
+<p>存值: <code>pageContext.setAttribute(&quot;name&quot;, &quot;tom&quot;,PageContext.REQUEST_SCOPE );</code><br>
+取值: <code>pageContext.getAttribute(&quot;name&quot;, PageContext.REQUEST_SCOPE);</code><br>
+删除一个值: <code>pageContext.removeAttribute(&quot;name&quot;, PageContext.REQUEST_SCOPE);</code><br>
+查找各域中的属性：<code>pageContext.findAttribute();</code><br>
+遍历所有键: <code>pageContext.getAttributeNamesInScope(PageContext.REQUEST_SCOPE);</code></p>
+</blockquote>
+<ol start="3">
+<li>获得其他8个内置对象:<br>
+jsp主要负责显示，所以应该尽量减少jsp中Java代码，当逻辑代码转移到Java类中时，需用用到jsp的内置对象，此时就只需要传递一个PageContext对象就可以获得其他对象</li>
+</ol>
+<blockquote>
+<p>pageContext.getRequest();<br>
+pageContext.getResponse();<br>
+pageContext.getSession();<br>
+pageContext.getServletContext();<br>
+pageContext.getServletConfig();<br>
+pageContext.getOut();<br>
+pageContext.getException();<br>
+pageContext.getPage();</p>
+</blockquote>
+</li>
+<li>
+<p><strong>page对象</strong>代表JSP本身，是页面实例的引用，指向了当前JSP程序本身的对象（this）</p>
+</li>
+<li>
+<p><strong>config对象</strong>是javax.sevlet.ServletConfig类的实例，主要用于取得服务器的配置信息。servletConfig对象仅对servlet自身有效，一个servlet的ServletConfig对象不能被另一个servlet访问。</p>
+</li>
+<li>
+<p><strong>exception对象</strong>包装了从先前页面中抛出的异常信息，主要用于产生对出错条件的适当响应。</p>
+</li>
+</ol>
+<h2 id="内置标签">内置标签</h2>
+<blockquote>
+<p>内置标签，不需要引入，用于在jsp页面中提供业务逻辑功能，避免在JSP页面中直接编写java代码造成jsp页面难以维护</p>
+</blockquote>
+<h3 id="ltjspforward标签gt">&lt;jsp:forward标签&gt;</h3>
+<pre><code class="language-jsp" data-lang="jsp">&lt;jsp:forward page=&quot;/jspTag/Demo2.jsp&quot;&gt; 
+       &lt;jsp:param  name=&quot;name&quot; value=&quot;tom&quot; &gt;&lt;/jsp:param&gt;
+&lt;/jsp:forward&gt;
+&lt;!-- &lt;jsp:forward&gt;之后的代码不执行  --&gt;
+</code></pre><p>接受用户输入并将请求分派给另一页面，相当于如下java代码：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">request<span style="color:#f92672">.</span><span style="color:#a6e22e">getRequestDispatcher</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;&#34;</span><span style="color:#f92672">).</span><span style="color:#a6e22e">forward</span><span style="color:#f92672">(</span>request<span style="color:#f92672">,</span> response<span style="color:#f92672">);</span>
+</code></pre></div><h3 id="ltjspincludegt标签">&lt;jsp:include&gt;标签</h3>
+<p><strong>动态包含</strong></p>
+<p><img src="https://w-yj.github.io/img/JSP/jsp_%E5%8A%A8%E6%80%81%E5%8C%85%E5%90%AB.png" alt="动态包含"></p>
+<pre><code class="language-jsp" data-lang="jsp">&lt;jsp:include page=&quot;/jspTag/Demo2.jsp&quot;&gt;&lt;/jsp:include&gt;
+</code></pre><p>请求时文件包含，相当于如下java代码：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">request<span style="color:#f92672">.</span><span style="color:#a6e22e">getRequestDispatcher</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;&#34;</span><span style="color:#f92672">).</span><span style="color:#a6e22e">include</span><span style="color:#f92672">(</span>request<span style="color:#f92672">,</span> response<span style="color:#f92672">);</span>
+</code></pre></div><p>动态包含与静态包含的区别：
+<img src="https://w-yj.github.io/img/JSP/jsp_include%E5%8C%BA%E5%88%AB.png" alt="include用法的区别"></p>
+<h3 id="jsp中使用javabean">JSP中使用JavaBean</h3>
+<p>JSP技术提供了三个关于JavaBean组件的动作元素，即JSP标签，它们分别为：</p>
+<p><strong><code>&lt;jsp:useBean&gt;标签</code></strong></p>
+<blockquote>
+<p>用于在指定的域范围内查找指定名称的JavaBean对象。如果存在则直接返回该JavaBean对象的引用，如果不存在则实例化一个新的JavaBean对象并将它以指定的名称存储到指定的域范围中。</p>
+</blockquote>
+<p>语法:<br>
+<code>&lt;jsp:useBean id=&quot;beanName&quot; class=&quot;po.User&quot; scope=&quot;page|request|session|application&quot;/&gt;</code></p>
+<ul>
+<li>id属性用于指定JavaBean实例对象的引用名称和其存储在域范围中的名称</li>
+<li>class属性用于指定JavaBean的完整类名（即必须带有包名）</li>
+<li>scope属性用于指定JavaBean实例对象所存储的域范围，其取值只能是page、request、session和application等四个值中的一个，其默认值是page</li>
+</ul>
+<pre><code class="language-jsp" data-lang="jsp">&lt;jsp:useBean id=&quot;u&quot; scope=&quot;page&quot; class=&quot;cn.beans.User&quot; &gt;
+&lt;/jsp:useBean&gt;
+</code></pre><p>相当于如下java代码：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">User user <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> User<span style="color:#f92672">();</span>
+pageContext<span style="color:#f92672">.</span><span style="color:#a6e22e">setAttribute</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;u&#34;</span><span style="color:#f92672">,</span> user<span style="color:#f92672">);</span>
+</code></pre></div><p><strong><code>&lt;jsp:setProperty&gt;</code>标签</strong></p>
+<blockquote>
+<p>用于设置和访问JavaBean对象的属性。</p>
+</blockquote>
+<p>语法：</p>
+<pre><code>&lt;jsp:setProperty name=&quot;beanName&quot; 
+{
+  property=&quot;propertyName&quot; value=&quot;{string | &lt;%= expression %&gt;}&quot; |
+  property=&quot;propertyName&quot; [ param=&quot;parameterName&quot; ] |
+  property= &quot;*&quot;
+}/&gt;
+</code></pre><ul>
+<li>name属性用于指定JavaBean对象的名称。</li>
+<li>property属性用于指定JavaBean实例对象的属性名。</li>
+<li>value属性用于指定JavaBean对象的某个属性的值，value的值可以是字符串，也可以是表达式。为字符串时，该值会自动转化为JavaBean属性相应的类型，如果value的值是一个表达式，那么该表达式的计算结果必须与所要设置的JavaBean属性的类型一致。</li>
+<li>param属性用于将JavaBean实例对象的某个属性值设置为一个请求参数值，该属性值同样会自动转换成要设置的JavaBean属性的类型。</li>
+</ul>
+<pre><code class="language-jsp" data-lang="jsp">&lt;jsp:setProperty property=&quot;name&quot; name=&quot;u&quot; param=&quot;name&quot; /&gt;
+</code></pre><p>相当于如下java代码：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">((</span>User<span style="color:#f92672">)</span>pageContext<span style="color:#f92672">.</span><span style="color:#a6e22e">getAttribute</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;u&#34;</span><span style="color:#f92672">)).</span><span style="color:#a6e22e">setName</span><span style="color:#f92672">(</span>request<span style="color:#f92672">.</span><span style="color:#a6e22e">getParameter</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;name&#34;</span><span style="color:#f92672">));</span>
+</code></pre></div><p><strong><code>&lt;jsp:getProperty&gt;</code>标签</strong></p>
+<blockquote>
+<p>用于读取JavaBean对象的属性，也就是调用JavaBean对象的getter方法，然后将读取的属性值转换成字符串后插入进输出的响应正文中。</p>
+</blockquote>
+<p>语法
+<code>&lt;jsp:getProperty name=&quot;beanInstanceName&quot; property=&quot;PropertyName&quot; /&gt;</code></p>
+<ul>
+<li>name属性用于指定JavaBean实例对象的名称，其值应与jsp:useBean标签的id属性值相同</li>
+<li>property属性用于指定JavaBean实例对象的属性名</li>
+<li>如果一个JavaBean实例对象的某个属性的值为null，那么，使用jsp:getProperty标签输出该属性的结果将是一个内容为“null”的字符串</li>
+</ul>
+<pre><code class="language-jsp" data-lang="jsp">&lt;jsp:getProperty property=&quot;name&quot; name=&quot;u&quot;/&gt;
+</code></pre><p>相当于如下java代码</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">out<span style="color:#f92672">.</span><span style="color:#a6e22e">print</span><span style="color:#f92672">(((</span>User<span style="color:#f92672">)</span>pageContext<span style="color:#f92672">.</span><span style="color:#a6e22e">getAttribute</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;u&#34;</span><span style="color:#f92672">)).</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">());</span>
+</code></pre></div><p>Demo:
+demo1.jsp</p>
+<pre><code class="language-jsp" data-lang="jsp">&lt;body&gt;
+&lt;form action=&quot;/Review/jsp/Demo4.jsp&quot; method=&quot;post&quot;&gt;
+    用户名:&lt;input type=&quot;text&quot; name=&quot;name&quot;/&gt;&lt;br&gt;
+    密码:&lt;input type=&quot;password&quot; name=&quot;password&quot;/&gt;&lt;br&gt;
+    &lt;input type=&quot;submit&quot;/&gt;&lt;br&gt;
+&lt;/form&gt;
+&lt;/body&gt;
+</code></pre><p>demo2.jsp</p>
+<pre><code class="language-jsp" data-lang="jsp">&lt;body&gt;
+&lt;jsp:useBean id=&quot;u&quot; scope=&quot;page&quot; class=&quot;po.User&quot;&gt;&lt;/jsp:useBean&gt;
+&lt;jsp:setProperty property=&quot;name&quot; name=&quot;u&quot; param=&quot;name&quot;/&gt;
+
+&lt;jsp:getProperty property=&quot;name&quot; name=&quot;u&quot;/&gt;
+&lt;/body&gt;
+</code></pre><p>以上代码相当于：</p>
+<pre><code class="language-jsp" data-lang="jsp">&lt;%
+    po.User user = new po.User();
+    pageContext.setAttribute(&quot;u&quot;, user);
+
+    ((po.User) pageContext.getAttribute(&quot;u&quot;)).setName(request.getParameter(&quot;name&quot;));
+
+    out.print(((po.User) pageContext.getAttribute(&quot;u&quot;)).getName());
+%&gt;
+</code></pre><h2 id="expressionlanguage">ExpressionLanguage</h2>
+<blockquote>
+<p>EL封装内省的操作，可以通过EL替代页面上的代码操作JAVA BEAN</p>
+</blockquote>
+<h3 id="使用el内置对象获得数据">使用EL内置对象获得数据</h3>
+<h4 id="el的内置对象">EL的内置对象:</h4>
+<p>requestScope 、sessionScope、applicationScope、pageScope
+通过以上4个内置对象可以对4大域进行访问
+以下内置对象用处不大：
+param、paramValues(返回string[]) - 这两个对象封装了表单参数：
+header、headerValues - 这两个对象封装了HTTP请求头
+initParam - 封装了web.xml中配置，初始化参数
+pageContext - 封装了9大内置对象中的
+cookie - 封装了cookie信息</p>
+<p>注意事项：</p>
+<ul>
+<li>测试headerValues时，如果头里面有“-”，例Accept-Encoding，则要headerValues[“Accept-Encoding”]</li>
+<li>测试cookie时，例${cookie.key}取的是cookie对象，如访问cookie的名称和值，须${cookie.key.name}或${cookie.key.value}</li>
+</ul>
+<h4 id="el表达式内置对象的操作">EL表达式内置对象的操作：</h4>
+<p>格式: ${}</p>
+<pre><code class="language-jsp" data-lang="jsp">&lt;%
+  request.setAttribute(&quot;name&quot;, &quot;requestTom&quot;);
+  session.setAttribute(&quot;name&quot;, &quot;sessionTom&quot;);
+  application.setAttribute(&quot;name&quot;, &quot;applicationTom&quot;);
+  pageContext.setAttribute(&quot;name&quot;, &quot;pageTom&quot;);
+%&gt;
+${requestScope.name} - &lt;% request.getAttribute(&quot;name&quot;); %&gt;
+${sessionScope.name} - &lt;% session.getAttribute(&quot;name&quot;); %&gt;
+${applicationScope.name} - &lt;% application.getAttribute(&quot;name&quot;); %&gt;
+${pageScope.name} - &lt;% pageContext.getAttribute(&quot;name&quot;);%&gt;
+
+EL表达式如果获得的值是null,那么什么都不打印
+
+从最小的域开始,找key为name的属性值
+${name} - &lt;%pageContext.findAttribute(&quot;name&quot;);
+    
+下面试试剩下不常用的7个内置对象
+param 获得单个值，paramValues 获得多个值，这两个对象封装了表单参数 
+${param.name } - &lt;% request.getParameter(&quot;name&quot;); %&gt;
+${paramValues.habit } - &lt;% request.getParameterValues(&quot;habit&quot;); %&gt;
+
+header, headerValues 这两个对象封装了HTTP请求头
+${header.Accept } - &lt;%request.getHeader(&quot;Accept&quot;); %&gt;
+${headerValues.Accept } - &lt;%request.getHeaders(&quot;Accept&quot;); %&gt;
+
+initParam 封装了web.xml中配置
+${initParam.name } - &lt;% application.getInitParameter(&quot;name&quot;); %&gt;
+
+pageContex 封装了9大内置对象中的 pageContext
+${pageContext.request.contextPath } - &lt;% ((HttpServletRequest)pageContext.getRequest()).getContextPath(); %&gt;
+
+cookie封装了cookie信息
+&lt;%
+  Cookie c = new Cookie(&quot;name&quot;,&quot;jerry&quot;);
+  c.setMaxAge(60*60);
+  response.addCookie(c); %&gt;
+
+${cookie.name.value } --&gt;
+&lt;%
+  for(Cookie cookie : request.getCookies()){
+       if(cookie.getName().equals(&quot;name&quot;)){
+            cookie.getName();
+       }
+  }
+%&gt;
+</code></pre><h4 id="使用el表达式可以获取javabean属性集合项的值">使用EL表达式可以获取JAVABEAN属性、集合项的值</h4>
+<p>使用EL访问User对象：</p>
+<pre><code class="language-jsp" data-lang="jsp">&lt;%
+  User u = new User();
+  u.setName(&quot;tom&quot;);
+  request.setAttribute(&quot;user&quot;, u);
+%&gt; 
+${requestScope.user.name} - &lt;%((User)request.getAttribute(&quot;user&quot;)).getName(); %&gt;
+${requestScope.user['name']} - &lt;%((User)request.getAttribute(&quot;user&quot;)).getName(); %&gt;
+</code></pre><p>使用EL访问数组：</p>
+<pre><code class="language-jsp" data-lang="jsp">&lt;%
+  String[] array = new String[]{&quot;tom&quot;,&quot;jerry&quot;,&quot;jack&quot;,&quot;rose&quot;};
+  request.setAttribute(&quot;array&quot;, array);
+%&gt;
+${requestScope.array[2]} 
+</code></pre><p>使用EL访问List：</p>
+<pre><code class="language-jsp" data-lang="jsp">&lt;%
+    List&lt;String&gt; list = new ArrayList&lt;String&gt;();
+    list.add(&quot;jack&quot;);
+    list.add(&quot;rose&quot;);
+    request.setAttribute(&quot;list&quot;, list);
+%&gt;
+${requestScope.list[1]}
+</code></pre><p>使用EL访问Map：</p>
+<pre><code class="language-jsp" data-lang="jsp"> &lt;%
+    Map&lt;String,String&gt; map = new HashMap&lt;String,String&gt;();
+    map.put(&quot;birthday&quot;, &quot;now&quot;);
+    map.put(&quot;haha.heihei&quot;, &quot;hiahia&quot;);
+    request.setAttribute(&quot;map&quot;, map);
+%&gt;
+${requestScope.map.birthday}
+${requestScope.map['birthday']}
+${requestScope.map['haha.heihei']}
+</code></pre><h4 id="使用el可以进行逻辑运算">使用EL可以进行逻辑运算</h4>
+<pre><code class="language-jsp" data-lang="jsp">&lt;%
+  request.setAttribute(&quot;num1&quot;, 10);
+  request.setAttribute(&quot;num2&quot;, 20);
+%&gt;
+&lt;!-- EL表达式支持如下运算符： --&gt;
+${num1 &gt; num2} -&gt; ${num1 gt num2}
+${num1 &lt; num2} -&gt; ${num1 lt num2}
+${num1 &lt;= num2} -&gt; ${num1 le num2} 
+${num1 &gt;= num2} -&gt; ${num1 ge num2} 
+${num1 == num2} -&gt; ${num1 eq num2} 
+${num1 != num2} -&gt; ${num1 ne num2} 
+${true &amp;&amp; true}
+${true || true}
+${!true}
+${(num1 &gt; num2)?&quot;num1厉害&quot;:&quot;num2厉害&quot; }
+</code></pre><h4 id="el函数库">EL函数库</h4>
+<blockquote>
+<p>简化页面中静态方法的调用，使用EL函数代替JAVA代码</p>
+</blockquote>
+<h5 id="自定义el函数库">自定义EL函数库</h5>
+<p>先定义工具类，在类中定义静态方法并填写配置文件xxx.tld放到WEB-INF下除了classes和lib目录之外的任意子目录中
+Tool.tool</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> tool<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> java.text.SimpleDateFormat<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> java.util.Date<span style="color:#f92672">;</span>
+
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Tool</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> String <span style="color:#a6e22e">getTime</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> SimpleDateFormat<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;hh:mm:ss&#34;</span><span style="color:#f92672">).</span><span style="color:#a6e22e">format</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Date<span style="color:#f92672">());</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>Tool<span style="color:#f92672">.</span><span style="color:#a6e22e">getTime</span><span style="color:#f92672">());</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>myFn.tld</p>
+<pre><code class="language-tld" data-lang="tld">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;
+
+&lt;taglib xmlns=&quot;http://java.sun.com/xml/ns/j2ee&quot;
+        xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:schemaLocation=&quot;http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd&quot;
+        version=&quot;2.0&quot;&gt;
+    &lt;!-- 版本号没啥用 --&gt;
+    &lt;tlib-version&gt;1.0&lt;/tlib-version&gt;
+    &lt;!-- 推荐使用的前缀 --&gt;
+    &lt;short-name&gt;myFn&lt;/short-name&gt;
+    &lt;!-- 给该标签库起一个&quot;包名&quot;，在页面中引入时使用 --&gt;
+    &lt;!--TLD文件中的&lt;uri&gt;元素用指定该TLD文件的URI，在JSP文件中需要通过这个URI来引入该标签库描述文件--&gt;
+    &lt;uri&gt;http://www.iamwyj.com/myFn&lt;/uri&gt;
+
+    &lt;!-- 注册一个EL函数 --&gt;
+    &lt;function&gt;
+        &lt;!-- 声明函数名称 --&gt;
+        &lt;name&gt;getTime&lt;/name&gt;
+        &lt;!-- 注册静态方法所在的完整类名 --&gt;
+        &lt;function-class&gt;tool.Tool&lt;/function-class&gt;
+        &lt;!-- 绑定类中的静态方法 --&gt;
+        &lt;function-signature&gt;java.lang.String getTime()&lt;/function-signature&gt;
+    &lt;/function&gt;
+&lt;/taglib&gt;
+</code></pre><p>之后在需要使用的页面中引入</p>
+<pre><code class="language-jsp" data-lang="jsp">&lt;%@ taglib prefix=&quot;myFn&quot; uri=&quot;http://www.itcast.cn/myFn&quot;  %&gt;
+</code></pre><p>后再使用<code>${myFn:getTime()}</code></p>
+<p>Demo.jsp</p>
+<pre><code class="language-jsp" data-lang="jsp">&lt;%@ page language=&quot;java&quot; pageEncoding=&quot;UTF-8&quot; import=&quot;tool.Tool&quot; %&gt;
+&lt;%@ taglib prefix=&quot;myFn&quot; uri=&quot;www.iamwyj.com&quot; %&gt;
+&lt;%
+    String path = request.getContextPath();
+    String basePath = request.getScheme() + &quot;://&quot; + request.getServerName() + &quot;:&quot; + request.getServerPort() + path + &quot;/&quot;;
+%&gt;
+
+&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.01 Transitional//EN&quot;&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;base href=&quot;&lt;%=basePath%&gt;&quot;&gt;
+
+    &lt;title&gt;My JSP 'Demo1.jsp' starting page&lt;/title&gt;
+
+    &lt;meta http-equiv=&quot;pragma&quot; content=&quot;no-cache&quot;&gt;
+    &lt;meta http-equiv=&quot;cache-control&quot; content=&quot;no-cache&quot;&gt;
+    &lt;meta http-equiv=&quot;expires&quot; content=&quot;0&quot;&gt;
+    &lt;meta http-equiv=&quot;keywords&quot; content=&quot;keyword1,keyword2,keyword3&quot;&gt;
+    &lt;meta http-equiv=&quot;description&quot; content=&quot;This is my page&quot;&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+&lt;!-- 方式一 --&gt;
+&lt;%=Tool.getTime() %&gt;&lt;br&gt;
+&lt;!-- 方式二 --&gt;
+${myFn:getTime()}&lt;br&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre><p>访问后浏览器分别以上诉两种方式显示当前时间</p>
+<h5 id="系统自带的el函数">系统自带的EL函数.</h5>
+<pre><code>&lt;!-- 判断是否包含 --&gt;
+${fn:contains(&quot;hiahia&quot;, &quot;hi&quot;)} 
+&lt;!-- 判断是否以某字符串结尾(有BUG) --&gt;
+${fn:endsWith(&quot;abha&quot;, &quot;ha&quot;)} 
+&lt;!-- 自动将html关键字符转义 --&gt;
+${fn:escapeXml(&quot;&lt;font color='red'&gt;haha&lt;/font&gt;&quot;)}
+</code></pre>
+</article>
+
+
+<p class="post-meta">
+    Tags:&nbsp;
+    
+    
+    <a href="https://w-yj.github.io/tags/JavaWeb">JavaWeb</a>
+    
+</p>
+
+
+
+            </div>
+        </div>
+    </div>
+    <footer class="center">
+    <div class="p2 wrap">
+        <div class="measure mt1 center">
+            <small>
+                Copyright &#169; 2017<br>
+                Powered by <a href="http://gohugo.io/" target="_blank">Hugo</a> &amp; <a
+                    href="https://github.com/azmelanar/hugo-theme-pixyll" target="_blank">Pixyll</a>
+            </small>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

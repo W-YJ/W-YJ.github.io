@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>SSM - WYJ&#39;s Notes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="keywords" content="">
+    <link rel="canonical" href="https://w-yj.github.io/post/ssm/">
+
+    
+    
+    <link rel="stylesheet" type="text/css" href="https://w-yj.github.io/sass/pixyll.min.30e55e9fcc01694c576be315e114e0449103a0df1fb91cec0c2ada477ba30f6b.css">
+
+    
+    <link rel='stylesheet' type='text/css' href='//fonts.googleapis.com/css?family=Merriweather:900,900italic,300,300italic' >
+    <link rel='stylesheet' type='text/css' href='//fonts.googleapis.com/css?family=Lato:900,300'>
+</head>
+
+<body class="site">
+    <div class="site-wrap">
+        <header class="site-header px2 px-responsive">
+    <div class="mt2 wrap">
+        <div class="measure">
+            <a href="https://w-yj.github.io" class="site-title">WYJ&#39;s Notes</a>
+            <nav class="site-nav">
+                
+<div class="right">
+<a href="https://w-yj.github.io/about/">About</a>
+<a href="https://w-yj.github.io/tags/">Tags</a>
+<a href="https://w-yj.github.io/contact/">Contact</a>
+</div>
+            </nav>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</header>
+
+        <div class="post p2 p-responsive wrap" role="main">
+            <div class="measure">
+                
+<div class="post-header mb2">
+    <h1 class="py2">SSM</h1>
+    <span class="post-meta">
+        Dec 31, 2017
+        
+    </span>
+    <br>
+    
+</div>
+<article class="post-content">
+    <h1 id="ssm框架搭建">SSM框架搭建</h1>
+<!-- raw HTML omitted -->
+<ul>
+<li>框架作用</li>
+<li>使用工具</li>
+<li>SSM框架整合</li>
+</ul>
+<!-- raw HTML omitted -->
+<h2 id="框架作用">框架作用</h2>
+<ol>
+<li>SpringMVC: 用于 Web 层，controller，作用类似于servlet，用来处理用户请求，生成。</li>
+<li>Spring：装载bean(java类，也包括service dao中的)，利用此机制，无需每次都初始化，new。</li>
+<li>MyBatis：它能自由控制sql，并且可以使用xml的方式来组织管理sql。</li>
+</ol>
+<h2 id="使用工具">使用工具</h2>
+<ul>
+<li>Maven</li>
+<li>Tomcat</li>
+<li>JDK</li>
+<li>MyBatis generator tool</li>
+</ul>
+<h2 id="ssm框架整合">SSM框架整合</h2>
+<ol>
+<li>准备数据库</li>
+<li>新建maven项目并设置
+将编码改成UTF-8、设置project facets、设置java build path(maven工程基于jdk)，设置完成后出现maven工程目录结构。</li>
+<li>使用MyBatis generator工具生成数据库表对应的pojo, mapping和dao
+<strong>配置generatorConfig.xml</strong></li>
+</ol>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#75715e">&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+<span style="color:#75715e">&lt;!DOCTYPE generatorConfiguration PUBLIC &#34;-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN&#34; &#34;http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd&#34;&gt;</span>
+<span style="color:#f92672">&lt;generatorConfiguration&gt;</span>
+  <span style="color:#f92672">&lt;classPathEntry</span> <span style="color:#a6e22e">location=</span><span style="color:#e6db74">&#34;C:\Users\WYJ\.m2\repository\mysql\mysql-connector-java\5.1.44\mysql-connector-java-5.1.44.jar&#34;</span><span style="color:#f92672">/&gt;</span>
+  <span style="color:#f92672">&lt;context</span> <span style="color:#a6e22e">id=</span><span style="color:#e6db74">&#34;context1&#34;</span><span style="color:#f92672">&gt;</span>
+    <span style="color:#f92672">&lt;jdbcConnection</span> <span style="color:#a6e22e">connectionURL=</span><span style="color:#e6db74">&#34;jdbc:mysql://localhost:3306/booksale&#34;</span> <span style="color:#a6e22e">driverClass=</span><span style="color:#e6db74">&#34;com.mysql.jdbc.Driver&#34;</span> <span style="color:#a6e22e">password=</span><span style="color:#e6db74">&#34;admin&#34;</span> <span style="color:#a6e22e">userId=</span><span style="color:#e6db74">&#34;root&#34;</span> <span style="color:#f92672">/&gt;</span>
+    <span style="color:#f92672">&lt;javaModelGenerator</span> <span style="color:#a6e22e">targetPackage=</span><span style="color:#e6db74">&#34;com.iamwyj.books.pojo&#34;</span> <span style="color:#a6e22e">targetProject=</span><span style="color:#e6db74">&#34;books/src/main/java&#34;</span> <span style="color:#f92672">/&gt;</span>
+    <span style="color:#f92672">&lt;sqlMapGenerator</span> <span style="color:#a6e22e">targetPackage=</span><span style="color:#e6db74">&#34;com.iamwyj.books.mapper&#34;</span> <span style="color:#a6e22e">targetProject=</span><span style="color:#e6db74">&#34;books/src/main/java&#34;</span> <span style="color:#f92672">/&gt;</span>
+    <span style="color:#f92672">&lt;javaClientGenerator</span> <span style="color:#a6e22e">targetPackage=</span><span style="color:#e6db74">&#34;com.iamwyj.books.dao&#34;</span> <span style="color:#a6e22e">targetProject=</span><span style="color:#e6db74">&#34;books/src/main/java&#34;</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;XMLMAPPER&#34;</span> <span style="color:#f92672">/&gt;</span>
+    <span style="color:#f92672">&lt;table</span> <span style="color:#a6e22e">tableName=</span><span style="color:#e6db74">&#34;books&#34;</span> <span style="color:#a6e22e">domainObjectName=</span><span style="color:#e6db74">&#34;Book&#34;</span> <span style="color:#a6e22e">enableCountByExample=</span><span style="color:#e6db74">&#34;false&#34;</span> <span style="color:#a6e22e">enableUpdateByExample=</span><span style="color:#e6db74">&#34;false&#34;</span> <span style="color:#a6e22e">enableDeleteByExample=</span><span style="color:#e6db74">&#34;false&#34;</span> <span style="color:#a6e22e">enableSelectByExample=</span><span style="color:#e6db74">&#34;false&#34;</span> <span style="color:#a6e22e">selectByExampleQueryId=</span><span style="color:#e6db74">&#34;false&#34;</span><span style="color:#f92672">/&gt;</span>  
+  <span style="color:#f92672">&lt;/context&gt;</span>
+<span style="color:#f92672">&lt;/generatorConfiguration&gt;</span>
+</code></pre></div><ol start="4">
+<li>引入jar包，在pom.xml中添加坐标
+<strong>pom.xml</strong></li>
+</ol>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;project</span> <span style="color:#a6e22e">xmlns=</span><span style="color:#e6db74">&#34;http://maven.apache.org/POM/4.0.0&#34;</span> <span style="color:#a6e22e">xmlns:xsi=</span><span style="color:#e6db74">&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span>
+	<span style="color:#a6e22e">xsi:schemaLocation=</span><span style="color:#e6db74">&#34;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd&#34;</span><span style="color:#f92672">&gt;</span>
+	<span style="color:#f92672">&lt;modelVersion&gt;</span>4.0.0<span style="color:#f92672">&lt;/modelVersion&gt;</span>
+	<span style="color:#f92672">&lt;groupId&gt;</span>com.iamwyj<span style="color:#f92672">&lt;/groupId&gt;</span>
+	<span style="color:#f92672">&lt;artifactId&gt;</span>books<span style="color:#f92672">&lt;/artifactId&gt;</span>
+	<span style="color:#f92672">&lt;packaging&gt;</span>war<span style="color:#f92672">&lt;/packaging&gt;</span>
+	<span style="color:#f92672">&lt;version&gt;</span>0.0.1-SNAPSHOT<span style="color:#f92672">&lt;/version&gt;</span>
+	<span style="color:#f92672">&lt;name&gt;</span>books Maven Webapp<span style="color:#f92672">&lt;/name&gt;</span>
+	<span style="color:#f92672">&lt;url&gt;</span>http://maven.apache.org<span style="color:#f92672">&lt;/url&gt;</span>
+	<span style="color:#f92672">&lt;dependencies&gt;</span>
+		<span style="color:#75715e">&lt;!-- 1，单元测试 --&gt;</span>
+		<span style="color:#f92672">&lt;dependency&gt;</span>
+			<span style="color:#f92672">&lt;groupId&gt;</span>junit<span style="color:#f92672">&lt;/groupId&gt;</span>
+			<span style="color:#f92672">&lt;artifactId&gt;</span>junit<span style="color:#f92672">&lt;/artifactId&gt;</span>
+			<span style="color:#f92672">&lt;version&gt;</span>4.12<span style="color:#f92672">&lt;/version&gt;</span>
+		<span style="color:#f92672">&lt;/dependency&gt;</span>
+
+		<span style="color:#75715e">&lt;!-- 2.数据库 --&gt;</span>
+		<span style="color:#f92672">&lt;dependency&gt;</span>
+			<span style="color:#f92672">&lt;groupId&gt;</span>mysql<span style="color:#f92672">&lt;/groupId&gt;</span>
+			<span style="color:#f92672">&lt;artifactId&gt;</span>mysql-connector-java<span style="color:#f92672">&lt;/artifactId&gt;</span>
+			<span style="color:#f92672">&lt;version&gt;</span>5.1.37<span style="color:#f92672">&lt;/version&gt;</span>
+			<span style="color:#f92672">&lt;scope&gt;</span>runtime<span style="color:#f92672">&lt;/scope&gt;</span>
+		<span style="color:#f92672">&lt;/dependency&gt;</span>
+
+		<span style="color:#f92672">&lt;dependency&gt;</span>
+			<span style="color:#f92672">&lt;groupId&gt;</span>com.alibaba<span style="color:#f92672">&lt;/groupId&gt;</span>
+			<span style="color:#f92672">&lt;artifactId&gt;</span>druid<span style="color:#f92672">&lt;/artifactId&gt;</span>
+			<span style="color:#f92672">&lt;version&gt;</span>1.1.5<span style="color:#f92672">&lt;/version&gt;</span>
+		<span style="color:#f92672">&lt;/dependency&gt;</span>
+
+		<span style="color:#75715e">&lt;!-- Dao:Mybatis --&gt;</span>
+		<span style="color:#f92672">&lt;dependency&gt;</span>
+			<span style="color:#f92672">&lt;groupId&gt;</span>org.mybatis<span style="color:#f92672">&lt;/groupId&gt;</span>
+			<span style="color:#f92672">&lt;artifactId&gt;</span>mybatis<span style="color:#f92672">&lt;/artifactId&gt;</span>
+			<span style="color:#f92672">&lt;version&gt;</span>3.3.0<span style="color:#f92672">&lt;/version&gt;</span>
+		<span style="color:#f92672">&lt;/dependency&gt;</span>
+
+		<span style="color:#f92672">&lt;dependency&gt;</span>
+			<span style="color:#f92672">&lt;groupId&gt;</span>org.mybatis<span style="color:#f92672">&lt;/groupId&gt;</span>
+			<span style="color:#f92672">&lt;artifactId&gt;</span>mybatis-spring<span style="color:#f92672">&lt;/artifactId&gt;</span>
+			<span style="color:#f92672">&lt;version&gt;</span>1.2.3<span style="color:#f92672">&lt;/version&gt;</span>
+		<span style="color:#f92672">&lt;/dependency&gt;</span>
+
+		<span style="color:#75715e">&lt;!-- 3.Servlet web --&gt;</span>
+		<span style="color:#f92672">&lt;dependency&gt;</span>
+			<span style="color:#f92672">&lt;groupId&gt;</span>taglibs<span style="color:#f92672">&lt;/groupId&gt;</span>
+			<span style="color:#f92672">&lt;artifactId&gt;</span>standard<span style="color:#f92672">&lt;/artifactId&gt;</span>
+			<span style="color:#f92672">&lt;version&gt;</span>1.1.2<span style="color:#f92672">&lt;/version&gt;</span>
+		<span style="color:#f92672">&lt;/dependency&gt;</span>
+		<span style="color:#f92672">&lt;dependency&gt;</span>
+			<span style="color:#f92672">&lt;groupId&gt;</span>jstl<span style="color:#f92672">&lt;/groupId&gt;</span>
+			<span style="color:#f92672">&lt;artifactId&gt;</span>jstl<span style="color:#f92672">&lt;/artifactId&gt;</span>
+			<span style="color:#f92672">&lt;version&gt;</span>1.2<span style="color:#f92672">&lt;/version&gt;</span>
+		<span style="color:#f92672">&lt;/dependency&gt;</span>
+		<span style="color:#f92672">&lt;dependency&gt;</span>
+			<span style="color:#f92672">&lt;groupId&gt;</span>com.fasterxml.jackson.core<span style="color:#f92672">&lt;/groupId&gt;</span>
+			<span style="color:#f92672">&lt;artifactId&gt;</span>jackson-databind<span style="color:#f92672">&lt;/artifactId&gt;</span>
+			<span style="color:#f92672">&lt;version&gt;</span>2.5.4<span style="color:#f92672">&lt;/version&gt;</span>
+		<span style="color:#f92672">&lt;/dependency&gt;</span>
+		<span style="color:#f92672">&lt;dependency&gt;</span>
+			<span style="color:#f92672">&lt;groupId&gt;</span>javax.servlet<span style="color:#f92672">&lt;/groupId&gt;</span>
+			<span style="color:#f92672">&lt;artifactId&gt;</span>javax.servlet-api<span style="color:#f92672">&lt;/artifactId&gt;</span>
+			<span style="color:#f92672">&lt;version&gt;</span>3.1.0<span style="color:#f92672">&lt;/version&gt;</span>
+		<span style="color:#f92672">&lt;/dependency&gt;</span>
+		
+		<span style="color:#75715e">&lt;!-- 4.Spring --&gt;</span>
+		<span style="color:#75715e">&lt;!-- Spring核心 --&gt;</span>
+		<span style="color:#f92672">&lt;dependency&gt;</span>
+			<span style="color:#f92672">&lt;groupId&gt;</span>org.springframework<span style="color:#f92672">&lt;/groupId&gt;</span>
+			<span style="color:#f92672">&lt;artifactId&gt;</span>spring-core<span style="color:#f92672">&lt;/artifactId&gt;</span>
+			<span style="color:#f92672">&lt;version&gt;</span>4.1.7.RELEASE<span style="color:#f92672">&lt;/version&gt;</span>
+		<span style="color:#f92672">&lt;/dependency&gt;</span>
+		<span style="color:#f92672">&lt;dependency&gt;</span>
+			<span style="color:#f92672">&lt;groupId&gt;</span>org.springframework<span style="color:#f92672">&lt;/groupId&gt;</span>
+			<span style="color:#f92672">&lt;artifactId&gt;</span>spring-beans<span style="color:#f92672">&lt;/artifactId&gt;</span>
+			<span style="color:#f92672">&lt;version&gt;</span>4.1.7.RELEASE<span style="color:#f92672">&lt;/version&gt;</span>
+		<span style="color:#f92672">&lt;/dependency&gt;</span>
+		<span style="color:#f92672">&lt;dependency&gt;</span>
+			<span style="color:#f92672">&lt;groupId&gt;</span>org.springframework<span style="color:#f92672">&lt;/groupId&gt;</span>
+			<span style="color:#f92672">&lt;artifactId&gt;</span>spring-context<span style="color:#f92672">&lt;/artifactId&gt;</span>
+			<span style="color:#f92672">&lt;version&gt;</span>4.1.7.RELEASE<span style="color:#f92672">&lt;/version&gt;</span>
+		<span style="color:#f92672">&lt;/dependency&gt;</span>
+		<span style="color:#75715e">&lt;!-- Spring DAO层 --&gt;</span>
+		<span style="color:#f92672">&lt;dependency&gt;</span>
+			<span style="color:#f92672">&lt;groupId&gt;</span>org.springframework<span style="color:#f92672">&lt;/groupId&gt;</span>
+			<span style="color:#f92672">&lt;artifactId&gt;</span>spring-jdbc<span style="color:#f92672">&lt;/artifactId&gt;</span>
+			<span style="color:#f92672">&lt;version&gt;</span>4.1.7.RELEASE<span style="color:#f92672">&lt;/version&gt;</span>
+		<span style="color:#f92672">&lt;/dependency&gt;</span>
+		<span style="color:#f92672">&lt;dependency&gt;</span>
+			<span style="color:#f92672">&lt;groupId&gt;</span>org.springframework<span style="color:#f92672">&lt;/groupId&gt;</span>
+			<span style="color:#f92672">&lt;artifactId&gt;</span>spring-tx<span style="color:#f92672">&lt;/artifactId&gt;</span>
+			<span style="color:#f92672">&lt;version&gt;</span>4.1.7.RELEASE<span style="color:#f92672">&lt;/version&gt;</span>
+		<span style="color:#f92672">&lt;/dependency&gt;</span>
+		<span style="color:#75715e">&lt;!-- Spring web --&gt;</span>
+		<span style="color:#f92672">&lt;dependency&gt;</span>
+			<span style="color:#f92672">&lt;groupId&gt;</span>org.springframework<span style="color:#f92672">&lt;/groupId&gt;</span>
+			<span style="color:#f92672">&lt;artifactId&gt;</span>spring-web<span style="color:#f92672">&lt;/artifactId&gt;</span>
+			<span style="color:#f92672">&lt;version&gt;</span>4.1.7.RELEASE<span style="color:#f92672">&lt;/version&gt;</span>
+		<span style="color:#f92672">&lt;/dependency&gt;</span>
+		<span style="color:#f92672">&lt;dependency&gt;</span>
+			<span style="color:#f92672">&lt;groupId&gt;</span>org.springframework<span style="color:#f92672">&lt;/groupId&gt;</span>
+			<span style="color:#f92672">&lt;artifactId&gt;</span>spring-webmvc<span style="color:#f92672">&lt;/artifactId&gt;</span>
+			<span style="color:#f92672">&lt;version&gt;</span>4.1.7.RELEASE<span style="color:#f92672">&lt;/version&gt;</span>
+		<span style="color:#f92672">&lt;/dependency&gt;</span>
+		<span style="color:#75715e">&lt;!-- Spring test --&gt;</span>
+		<span style="color:#f92672">&lt;dependency&gt;</span>
+			<span style="color:#f92672">&lt;groupId&gt;</span>org.springframework<span style="color:#f92672">&lt;/groupId&gt;</span>
+			<span style="color:#f92672">&lt;artifactId&gt;</span>spring-test<span style="color:#f92672">&lt;/artifactId&gt;</span>
+			<span style="color:#f92672">&lt;version&gt;</span>4.1.7.RELEASE<span style="color:#f92672">&lt;/version&gt;</span>
+		<span style="color:#f92672">&lt;/dependency&gt;</span>
+
+		<span style="color:#75715e">&lt;!-- Map工具类 --&gt;</span>
+		<span style="color:#f92672">&lt;dependency&gt;</span>
+			<span style="color:#f92672">&lt;groupId&gt;</span>commons-collections<span style="color:#f92672">&lt;/groupId&gt;</span>
+			<span style="color:#f92672">&lt;artifactId&gt;</span>commons-collections<span style="color:#f92672">&lt;/artifactId&gt;</span>
+			<span style="color:#f92672">&lt;version&gt;</span>3.2<span style="color:#f92672">&lt;/version&gt;</span>
+		<span style="color:#f92672">&lt;/dependency&gt;</span>
+		
+	<span style="color:#f92672">&lt;/dependencies&gt;</span>
+	<span style="color:#f92672">&lt;build&gt;</span>
+		<span style="color:#f92672">&lt;finalName&gt;</span>books<span style="color:#f92672">&lt;/finalName&gt;</span>
+	<span style="color:#f92672">&lt;/build&gt;</span>
+<span style="color:#f92672">&lt;/project&gt;</span>
+</code></pre></div><ol start="5">
+<li>建立controller, service, service.impl包，以及spring.xml, spring-mybatis.xml, spring-mvc.xml,config.properties</li>
+<li>配置config.properties存放数据库信息
+<strong>config.properties</strong></li>
+</ol>
+<pre><code class="language-properties" data-lang="properties">validationQuery=SELECT1
+jdbc_url=jdbc:mysql://localhost:3306/booksale?useUnicode=true&amp;characterEncoding=UTF-8&amp;zeroDateTimeBehavior=convertToNull
+jdbc_username=root
+jdbc_password=admin
+</code></pre><ol start="7">
+<li>配置spring-mybatis.xml</li>
+</ol>
+<pre><code>    1. 读入数据库连接相关参数
+    2. 配置数据连接池
+    3. 配置连接属性，可以不读配置项文件直接在这里写死
+    4. 配置c3p0，只配了几个常用的
+    5. 配置SqlSessionFactory对象（mybatis）
+    6. 扫描dao层接口，动态实现dao接口，也就是说不需要daoImpl，sql和参数都写在xml文件上
+</code></pre><p><strong>spring-mybatis</strong></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#75715e">&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+<span style="color:#f92672">&lt;beans</span> <span style="color:#a6e22e">xmlns=</span><span style="color:#e6db74">&#34;http://www.springframework.org/schema/beans&#34;</span>
+	<span style="color:#a6e22e">xmlns:xsi=</span><span style="color:#e6db74">&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span> <span style="color:#a6e22e">xmlns:context=</span><span style="color:#e6db74">&#34;http://www.springframework.org/schema/context&#34;</span>
+	<span style="color:#a6e22e">xsi:schemaLocation=</span><span style="color:#e6db74">&#34;http://www.springframework.org/schema/beans
+</span><span style="color:#e6db74">	http://www.springframework.org/schema/beans/spring-beans.xsd
+</span><span style="color:#e6db74">	http://www.springframework.org/schema/context
+</span><span style="color:#e6db74">	http://www.springframework.org/schema/context/spring-context.xsd&#34;</span><span style="color:#f92672">&gt;</span>
+	<span style="color:#75715e">&lt;!-- 整合mybatis --&gt;</span>
+	<span style="color:#75715e">&lt;!-- 1.配置数据库相关参数properties的属性：${url} --&gt;</span>
+	<span style="color:#f92672">&lt;context:property-placeholder</span> <span style="color:#a6e22e">location=</span><span style="color:#e6db74">&#34;classpath:config.properties&#34;</span> <span style="color:#f92672">/&gt;</span>
+
+	<span style="color:#75715e">&lt;!-- 2.配置数据源 --&gt;</span>
+	<span style="color:#f92672">&lt;bean</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;dataSource&#34;</span> <span style="color:#a6e22e">class=</span><span style="color:#e6db74">&#34;com.alibaba.druid.pool.DruidDataSource&#34;</span>
+		<span style="color:#a6e22e">init-method=</span><span style="color:#e6db74">&#34;init&#34;</span> <span style="color:#a6e22e">destroy-method=</span><span style="color:#e6db74">&#34;close&#34;</span><span style="color:#f92672">&gt;</span>
+		<span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;url&#34;</span> <span style="color:#a6e22e">value=</span><span style="color:#e6db74">&#34;${jdbc_url}&#34;</span> <span style="color:#f92672">/&gt;</span>
+		<span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;username&#34;</span> <span style="color:#a6e22e">value=</span><span style="color:#e6db74">&#34;${jdbc_username}&#34;</span> <span style="color:#f92672">/&gt;</span>
+		<span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;password&#34;</span> <span style="color:#a6e22e">value=</span><span style="color:#e6db74">&#34;${jdbc_password}&#34;</span> <span style="color:#f92672">/&gt;</span>
+
+		<span style="color:#75715e">&lt;!-- 初始化连接大小 --&gt;</span>
+		<span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;initialSize&#34;</span> <span style="color:#a6e22e">value=</span><span style="color:#e6db74">&#34;0&#34;</span> <span style="color:#f92672">/&gt;</span>
+		<span style="color:#75715e">&lt;!-- 连接池最大使用连接数量 --&gt;</span>
+		<span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;maxActive&#34;</span> <span style="color:#a6e22e">value=</span><span style="color:#e6db74">&#34;20&#34;</span> <span style="color:#f92672">/&gt;</span>
+		<span style="color:#75715e">&lt;!-- 连接池最大空闲 --&gt;</span>
+		<span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;maxIdle&#34;</span> <span style="color:#a6e22e">value=</span><span style="color:#e6db74">&#34;20&#34;</span> <span style="color:#f92672">/&gt;</span>
+		<span style="color:#75715e">&lt;!-- 连接池最小空闲 --&gt;</span>
+		<span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;minIdle&#34;</span> <span style="color:#a6e22e">value=</span><span style="color:#e6db74">&#34;0&#34;</span> <span style="color:#f92672">/&gt;</span>
+		<span style="color:#75715e">&lt;!-- 获取连接最大等待时间 --&gt;</span>
+		<span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;maxWait&#34;</span> <span style="color:#a6e22e">value=</span><span style="color:#e6db74">&#34;60000&#34;</span> <span style="color:#f92672">/&gt;</span>
+
+		<span style="color:#75715e">&lt;!-- &lt;property name=&#34;poolPreparedStatements&#34; value=&#34;true&#34; /&gt; &lt;property 
+</span><span style="color:#75715e">			name=&#34;maxPoolPreparedStatementPerConnectionSize&#34; value=&#34;33&#34; /&gt; --&gt;</span>
+
+		<span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;validationQuery&#34;</span> <span style="color:#a6e22e">value=</span><span style="color:#e6db74">&#34;${validationQuery}&#34;</span> <span style="color:#f92672">/&gt;</span>
+		<span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;testOnBorrow&#34;</span> <span style="color:#a6e22e">value=</span><span style="color:#e6db74">&#34;false&#34;</span> <span style="color:#f92672">/&gt;</span>
+		<span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;testOnReturn&#34;</span> <span style="color:#a6e22e">value=</span><span style="color:#e6db74">&#34;false&#34;</span> <span style="color:#f92672">/&gt;</span>
+		<span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;testWhileIdle&#34;</span> <span style="color:#a6e22e">value=</span><span style="color:#e6db74">&#34;true&#34;</span> <span style="color:#f92672">/&gt;</span>
+
+		<span style="color:#75715e">&lt;!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 --&gt;</span>
+		<span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;timeBetweenEvictionRunsMillis&#34;</span> <span style="color:#a6e22e">value=</span><span style="color:#e6db74">&#34;60000&#34;</span> <span style="color:#f92672">/&gt;</span>
+		<span style="color:#75715e">&lt;!-- 配置一个连接在池中最小生存的时间，单位是毫秒 --&gt;</span>
+		<span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;minEvictableIdleTimeMillis&#34;</span> <span style="color:#a6e22e">value=</span><span style="color:#e6db74">&#34;25200000&#34;</span> <span style="color:#f92672">/&gt;</span>
+
+		<span style="color:#75715e">&lt;!-- 打开removeAbandoned功能 --&gt;</span>
+		<span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;removeAbandoned&#34;</span> <span style="color:#a6e22e">value=</span><span style="color:#e6db74">&#34;true&#34;</span> <span style="color:#f92672">/&gt;</span>
+		<span style="color:#75715e">&lt;!-- 1800秒，也就是30分钟 --&gt;</span>
+		<span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;removeAbandonedTimeout&#34;</span> <span style="color:#a6e22e">value=</span><span style="color:#e6db74">&#34;1800&#34;</span> <span style="color:#f92672">/&gt;</span>
+		<span style="color:#75715e">&lt;!-- 关闭abanded连接时输出错误日志 --&gt;</span>
+		<span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;logAbandoned&#34;</span> <span style="color:#a6e22e">value=</span><span style="color:#e6db74">&#34;true&#34;</span> <span style="color:#f92672">/&gt;</span>
+
+		<span style="color:#75715e">&lt;!-- 监控数据库 --&gt;</span>
+		<span style="color:#75715e">&lt;!-- &lt;property name=&#34;filters&#34; value=&#34;stat&#34; /&gt; --&gt;</span>
+		<span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;filters&#34;</span> <span style="color:#a6e22e">value=</span><span style="color:#e6db74">&#34;mergeStat&#34;</span> <span style="color:#f92672">/&gt;</span>
+	<span style="color:#f92672">&lt;/bean&gt;</span>
+
+	<span style="color:#75715e">&lt;!-- 3.配置SqlSessionFactory对象 --&gt;</span>
+	<span style="color:#f92672">&lt;bean</span> <span style="color:#a6e22e">id=</span><span style="color:#e6db74">&#34;sqlSessionFactory&#34;</span> <span style="color:#a6e22e">class=</span><span style="color:#e6db74">&#34;org.mybatis.spring.SqlSessionFactoryBean&#34;</span><span style="color:#f92672">&gt;</span>
+		<span style="color:#75715e">&lt;!-- 注入数据库连接池 --&gt;</span>
+		<span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;dataSource&#34;</span> <span style="color:#a6e22e">ref=</span><span style="color:#e6db74">&#34;dataSource&#34;</span> <span style="color:#f92672">/&gt;</span>
+		<span style="color:#75715e">&lt;!-- 自动扫描sql配置文件:mapper需要的xml文件 --&gt;</span>
+		<span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;mapperLocations&#34;</span> <span style="color:#a6e22e">value=</span><span style="color:#e6db74">&#34;classpath:mapper/*.xml&#34;</span> <span style="color:#f92672">/&gt;</span>
+	<span style="color:#f92672">&lt;/bean&gt;</span>
+
+	<span style="color:#75715e">&lt;!-- 4.配置扫描Dao接口包，动态实现Dao接口，注入到spring容器中 --&gt;</span>
+	<span style="color:#f92672">&lt;bean</span> <span style="color:#a6e22e">class=</span><span style="color:#e6db74">&#34;org.mybatis.spring.mapper.MapperScannerConfigurer&#34;</span><span style="color:#f92672">&gt;</span>
+		<span style="color:#75715e">&lt;!-- 注入sqlSessionFactory --&gt;</span>
+		<span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;sqlSessionFactoryBeanName&#34;</span> <span style="color:#a6e22e">value=</span><span style="color:#e6db74">&#34;sqlSessionFactory&#34;</span> <span style="color:#f92672">/&gt;</span>
+		<span style="color:#75715e">&lt;!-- 给出需要扫描Dao接口包 --&gt;</span>
+		<span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;basePackage&#34;</span> <span style="color:#a6e22e">value=</span><span style="color:#e6db74">&#34;com.iamwyj.books.dao&#34;</span> <span style="color:#f92672">/&gt;</span>
+	<span style="color:#f92672">&lt;/bean&gt;</span>
+	<span style="color:#75715e">&lt;!-- 5.配置事务管理器 --&gt;</span>
+	<span style="color:#f92672">&lt;bean</span> <span style="color:#a6e22e">id=</span><span style="color:#e6db74">&#34;transactionManager&#34;</span>
+		<span style="color:#a6e22e">class=</span><span style="color:#e6db74">&#34;org.springframework.jdbc.datasource.DataSourceTransactionManager&#34;</span><span style="color:#f92672">&gt;</span>
+		<span style="color:#75715e">&lt;!-- 注入数据库连接池 --&gt;</span>
+		<span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;dataSource&#34;</span> <span style="color:#a6e22e">ref=</span><span style="color:#e6db74">&#34;dataSource&#34;</span> <span style="color:#f92672">/&gt;</span>
+	<span style="color:#f92672">&lt;/bean&gt;</span>
+<span style="color:#f92672">&lt;/beans&gt;</span>
+
+</code></pre></div><ol start="8">
+<li>配置Spring.xml</li>
+</ol>
+<pre><code>    1. 扫描service包所有注解 @Service
+    2. 配置事务管理器，把事务管理交由spring来完成
+    3. 配置基于注解的声明式事务，可以直接在方法上@Transaction
+</code></pre><p><strong>spring.xml</strong></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#75715e">&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+<span style="color:#f92672">&lt;beans</span> <span style="color:#a6e22e">xmlns=</span><span style="color:#e6db74">&#34;http://www.springframework.org/schema/beans&#34;</span>
+	<span style="color:#a6e22e">xmlns:xsi=</span><span style="color:#e6db74">&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span> 
+	<span style="color:#a6e22e">xmlns:context=</span><span style="color:#e6db74">&#34;http://www.springframework.org/schema/context&#34;</span>
+	<span style="color:#a6e22e">xmlns:tx=</span><span style="color:#e6db74">&#34;http://www.springframework.org/schema/tx&#34;</span>
+	<span style="color:#a6e22e">xsi:schemaLocation=</span><span style="color:#e6db74">&#34;http://www.springframework.org/schema/beans
+</span><span style="color:#e6db74">	http://www.springframework.org/schema/beans/spring-beans.xsd
+</span><span style="color:#e6db74">	http://www.springframework.org/schema/context
+</span><span style="color:#e6db74">	http://www.springframework.org/schema/context/spring-context.xsd
+</span><span style="color:#e6db74">	http://www.springframework.org/schema/tx
+</span><span style="color:#e6db74">	http://www.springframework.org/schema/tx/spring-tx.xsd&#34;</span><span style="color:#f92672">&gt;</span>
+	<span style="color:#75715e">&lt;!-- 扫描service包下所有使用注解的类型 --&gt;</span>
+	<span style="color:#f92672">&lt;context:component-scan</span> <span style="color:#a6e22e">base-package=</span><span style="color:#e6db74">&#34;com.iamwyj.books.service&#34;</span> <span style="color:#f92672">/&gt;</span>
+	<span style="color:#75715e">&lt;!-- 配置基于注解的声明式事务 --&gt;</span>
+	<span style="color:#f92672">&lt;tx:annotation-driven</span> <span style="color:#a6e22e">transaction-manager=</span><span style="color:#e6db74">&#34;transactionManager&#34;</span> <span style="color:#f92672">/&gt;</span>
+<span style="color:#f92672">&lt;/beans&gt;</span>
+</code></pre></div><ol start="9">
+<li>测试MyBatis与Spring是否整合成功
+新建BookServiceI接口并实现，编写相关方法，测试是否整合成功。</li>
+<li>配置spring-mvc.xml
+<strong>spring-mvc.xml</strong></li>
+</ol>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#75715e">&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+<span style="color:#f92672">&lt;beans</span> <span style="color:#a6e22e">xmlns=</span><span style="color:#e6db74">&#34;http://www.springframework.org/schema/beans&#34;</span>
+	<span style="color:#a6e22e">xmlns:xsi=</span><span style="color:#e6db74">&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span>
+	<span style="color:#a6e22e">xmlns:context=</span><span style="color:#e6db74">&#34;http://www.springframework.org/schema/context&#34;</span>
+	<span style="color:#a6e22e">xmlns:mvc=</span><span style="color:#e6db74">&#34;http://www.springframework.org/schema/mvc&#34;</span> 
+	<span style="color:#a6e22e">xsi:schemaLocation=</span><span style="color:#e6db74">&#34;http://www.springframework.org/schema/beans
+</span><span style="color:#e6db74">	http://www.springframework.org/schema/beans/spring-beans.xsd
+</span><span style="color:#e6db74">	http://www.springframework.org/schema/context
+</span><span style="color:#e6db74">	http://www.springframework.org/schema/context/spring-context.xsd
+</span><span style="color:#e6db74">	http://www.springframework.org/schema/mvc
+</span><span style="color:#e6db74">	http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd&#34;</span><span style="color:#f92672">&gt;</span>
+	<span style="color:#75715e">&lt;!-- 配置SpringMVC --&gt;</span>
+	<span style="color:#75715e">&lt;!-- 1.开启SpringMVC注解模式 --&gt;</span>
+	<span style="color:#75715e">&lt;!-- 简化配置： 
+</span><span style="color:#75715e">		(1)自动注册DefaultAnootationHandlerMapping,AnotationMethodHandlerAdapter 
+</span><span style="color:#75715e">		(2)提供一些列：数据绑定，数字和日期的format @NumberFormat, @DateTimeFormat, xml,json默认读写支持 
+</span><span style="color:#75715e">	--&gt;</span>
+	<span style="color:#f92672">&lt;mvc:annotation-driven</span> <span style="color:#f92672">/&gt;</span>
+	
+	<span style="color:#75715e">&lt;!-- 2.静态资源默认servlet配置
+</span><span style="color:#75715e">		(1)加入对静态资源的处理：js,gif,png
+</span><span style="color:#75715e">		(2)允许使用&#34;/&#34;做整体映射
+</span><span style="color:#75715e">	 --&gt;</span>
+	 <span style="color:#f92672">&lt;mvc:default-servlet-handler/&gt;</span>
+	 
+	 <span style="color:#75715e">&lt;!-- 3.解析模型视图 --&gt;</span>
+	 <span style="color:#f92672">&lt;bean</span> <span style="color:#a6e22e">class=</span><span style="color:#e6db74">&#34;org.springframework.web.servlet.view.InternalResourceViewResolver&#34;</span><span style="color:#f92672">&gt;</span>
+	 	<span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;viewClass&#34;</span> <span style="color:#a6e22e">value=</span><span style="color:#e6db74">&#34;org.springframework.web.servlet.view.JstlView&#34;</span> <span style="color:#f92672">/&gt;</span>
+	 	<span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;prefix&#34;</span> <span style="color:#a6e22e">value=</span><span style="color:#e6db74">&#34;/WEB-INF/jsp/&#34;</span> <span style="color:#f92672">/&gt;</span>
+	 	<span style="color:#f92672">&lt;property</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;suffix&#34;</span> <span style="color:#a6e22e">value=</span><span style="color:#e6db74">&#34;.jsp&#34;</span> <span style="color:#f92672">/&gt;</span>
+	 <span style="color:#f92672">&lt;/bean&gt;</span>
+	 
+	 <span style="color:#75715e">&lt;!-- 4.自动扫描controller包下的所有类 ，使其成为控制器--&gt;</span>
+	 <span style="color:#f92672">&lt;context:component-scan</span> <span style="color:#a6e22e">base-package=</span><span style="color:#e6db74">&#34;com.iamwyj.books.controller&#34;</span> <span style="color:#f92672">/&gt;</span>
+<span style="color:#f92672">&lt;/beans&gt;</span>
+</code></pre></div><ol start="11">
+<li>配置web.xml
+<strong>web.xml</strong></li>
+</ol>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#75715e">&lt;!DOCTYPE web-app PUBLIC
+</span><span style="color:#75715e"> &#34;-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN&#34;
+</span><span style="color:#75715e"> &#34;http://java.sun.com/dtd/web-app_2_3.dtd&#34; &gt;</span>
+
+<span style="color:#f92672">&lt;web-app&gt;</span>
+  <span style="color:#f92672">&lt;display-name&gt;</span>books<span style="color:#f92672">&lt;/display-name&gt;</span>
+  <span style="color:#f92672">&lt;context-param&gt;</span>
+		<span style="color:#f92672">&lt;param-name&gt;</span>contextConfigLocation<span style="color:#f92672">&lt;/param-name&gt;</span>
+		<span style="color:#f92672">&lt;param-value&gt;</span>classpath:spring.xml,classpath:spring-mybatis.xml<span style="color:#f92672">&lt;/param-value&gt;</span>
+	<span style="color:#f92672">&lt;/context-param&gt;</span>
+
+	<span style="color:#f92672">&lt;filter&gt;</span>
+		<span style="color:#f92672">&lt;filter-name&gt;</span>encodingFilter<span style="color:#f92672">&lt;/filter-name&gt;</span>
+		<span style="color:#f92672">&lt;description&gt;</span>字符集过滤器<span style="color:#f92672">&lt;/description&gt;</span>
+		<span style="color:#f92672">&lt;filter-class&gt;</span>org.springframework.web.filter.CharacterEncodingFilter<span style="color:#f92672">&lt;/filter-class&gt;</span>
+		
+		<span style="color:#f92672">&lt;init-param&gt;</span>
+		    <span style="color:#f92672">&lt;param-name&gt;</span>encoding<span style="color:#f92672">&lt;/param-name&gt;</span>
+		    <span style="color:#f92672">&lt;param-value&gt;</span>UTF-8<span style="color:#f92672">&lt;/param-value&gt;</span>
+			<span style="color:#f92672">&lt;description&gt;</span>字符集编码<span style="color:#f92672">&lt;/description&gt;</span>
+		<span style="color:#f92672">&lt;/init-param&gt;</span>
+	<span style="color:#f92672">&lt;/filter&gt;</span>
+	
+	<span style="color:#f92672">&lt;filter-mapping&gt;</span>
+		<span style="color:#f92672">&lt;filter-name&gt;</span>encodingFilter<span style="color:#f92672">&lt;/filter-name&gt;</span>
+		<span style="color:#f92672">&lt;url-pattern&gt;</span>/*<span style="color:#f92672">&lt;/url-pattern&gt;</span>
+	<span style="color:#f92672">&lt;/filter-mapping&gt;</span>
+	
+	<span style="color:#f92672">&lt;listener&gt;</span>
+		<span style="color:#f92672">&lt;listener-class&gt;</span>
+			org.springframework.web.util.IntrospectorCleanupListener
+		<span style="color:#f92672">&lt;/listener-class&gt;</span>
+	<span style="color:#f92672">&lt;/listener&gt;</span>
+
+	<span style="color:#75715e">&lt;!-- 配置spring-mvc servlet --&gt;</span>
+	<span style="color:#f92672">&lt;servlet&gt;</span>
+		<span style="color:#f92672">&lt;servlet-name&gt;</span>springmvc<span style="color:#f92672">&lt;/servlet-name&gt;</span>
+		<span style="color:#f92672">&lt;description&gt;</span>spring mvc servlet<span style="color:#f92672">&lt;/description&gt;</span>
+		<span style="color:#f92672">&lt;servlet-class&gt;</span>
+			org.springframework.web.servlet.DispatcherServlet
+		<span style="color:#f92672">&lt;/servlet-class&gt;</span>
+		<span style="color:#f92672">&lt;init-param&gt;</span>
+			<span style="color:#f92672">&lt;param-name&gt;</span>contextConfigLocation<span style="color:#f92672">&lt;/param-name&gt;</span>
+			<span style="color:#f92672">&lt;param-value&gt;</span>classpath:spring-mvc.xml<span style="color:#f92672">&lt;/param-value&gt;</span>
+			<span style="color:#f92672">&lt;description&gt;</span>springmvc配置文件<span style="color:#f92672">&lt;/description&gt;</span>
+		<span style="color:#f92672">&lt;/init-param&gt;</span>
+		<span style="color:#f92672">&lt;load-on-startup&gt;</span>1<span style="color:#f92672">&lt;/load-on-startup&gt;</span>
+	<span style="color:#f92672">&lt;/servlet&gt;</span>
+	<span style="color:#f92672">&lt;servlet-mapping&gt;</span>
+		<span style="color:#f92672">&lt;servlet-name&gt;</span>springmvc<span style="color:#f92672">&lt;/servlet-name&gt;</span>
+		<span style="color:#75715e">&lt;!-- 默认匹配所有请求 --&gt;</span>
+		<span style="color:#f92672">&lt;url-pattern&gt;</span>/<span style="color:#f92672">&lt;/url-pattern&gt;</span>
+	<span style="color:#f92672">&lt;/servlet-mapping&gt;</span>
+	
+<span style="color:#f92672">&lt;/web-app&gt;</span>
+</code></pre></div><ol start="12">
+<li>测试Spring是否整合成功
+新建BookController类和showBook.jsp，编写测试方法，添加路径映射，maven install并发布到Tomcat，访问路径测试是否整合成功</li>
+</ol>
+
+</article>
+
+
+<p class="post-meta">
+    Tags:&nbsp;
+    
+    
+    <a href="https://w-yj.github.io/tags/Java">Java</a>
+    
+</p>
+
+
+
+            </div>
+        </div>
+    </div>
+    <footer class="center">
+    <div class="p2 wrap">
+        <div class="measure mt1 center">
+            <small>
+                Copyright &#169; 2017<br>
+                Powered by <a href="http://gohugo.io/" target="_blank">Hugo</a> &amp; <a
+                    href="https://github.com/azmelanar/hugo-theme-pixyll" target="_blank">Pixyll</a>
+            </small>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Go Concurrency Patterns - WYJ&#39;s Notes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="keywords" content="">
+    <link rel="canonical" href="https://w-yj.github.io/post/go-concurrency-patterns/">
+
+    
+    
+    <link rel="stylesheet" type="text/css" href="https://w-yj.github.io/sass/pixyll.min.30e55e9fcc01694c576be315e114e0449103a0df1fb91cec0c2ada477ba30f6b.css">
+
+    
+    <link rel='stylesheet' type='text/css' href='//fonts.googleapis.com/css?family=Merriweather:900,900italic,300,300italic' >
+    <link rel='stylesheet' type='text/css' href='//fonts.googleapis.com/css?family=Lato:900,300'>
+</head>
+
+<body class="site">
+    <div class="site-wrap">
+        <header class="site-header px2 px-responsive">
+    <div class="mt2 wrap">
+        <div class="measure">
+            <a href="https://w-yj.github.io" class="site-title">WYJ&#39;s Notes</a>
+            <nav class="site-nav">
+                
+<div class="right">
+<a href="https://w-yj.github.io/about/">About</a>
+<a href="https://w-yj.github.io/tags/">Tags</a>
+<a href="https://w-yj.github.io/contact/">Contact</a>
+</div>
+            </nav>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</header>
+
+        <div class="post p2 p-responsive wrap" role="main">
+            <div class="measure">
+                
+<div class="post-header mb2">
+    <h1 class="py2">Go Concurrency Patterns</h1>
+    <span class="post-meta">
+        Dec 8, 2019
+        
+    </span>
+    <br>
+    
+</div>
+<article class="post-content">
+    <h2 id="go-concurrency-patterns">Go Concurrency Patterns</h2>
+<blockquote>
+<p>Read &ldquo;<a href="https://www.cs.cmu.edu/~crary/819-f09/Hoare78.pdf">Communicating Sequential Processes</a>&rdquo; Tony Hoare 1978</p>
+</blockquote>
+<!-- raw HTML omitted -->
+<ul>
+<li>What is concurrency?</li>
+<li>A Basic Example
+<ul>
+<li>Whate is a gorountine?</li>
+<li>Communication -&gt; Channels</li>
+<li>Synchronization</li>
+<li>An aside about buffered channels</li>
+<li>The go approach</li>
+</ul>
+</li>
+<li>&ldquo;Patterns&rdquo;
+<ul>
+<li>Generator: function that returns a channel</li>
+<li>Channels as a handle on a service</li>
+<li>Multiplexing</li>
+<li>Restoring sequencing</li>
+<li>Select
+<ul>
+<li>Fan-in again</li>
+</ul>
+</li>
+<li>Timeout using select</li>
+<li>Timeout for whole conversation using select</li>
+<li>Quit channel</li>
+<li>Receive on quit channel</li>
+<li>Daisy-chain</li>
+</ul>
+</li>
+<li>Google Search Example
+<ul>
+<li>A fake framework</li>
+<li>Google Search 1.0</li>
+<li>Google Search 2.0</li>
+<li>Google Search 2.1
+<ul>
+<li>Avoid timeout</li>
+</ul>
+</li>
+<li>Googel Search 3.0</li>
+<li>Summary</li>
+</ul>
+</li>
+<li>More party tricks</li>
+<li>Don&rsquo;t overdo it</li>
+<li>Conclusions</li>
+<li>Links</li>
+</ul>
+<!-- raw HTML omitted -->
+<h3 id="what-is-concurrency">What is concurrency?</h3>
+<ul>
+<li>Concurrency is the composition of independently executing computations.</li>
+<li>Concurrency is a way to structure software, particularly as a way to write clean code that interacts well with the real world.</li>
+<li>It is not parallelism
+<ul>
+<li>Concurrency is not parallelism, although it enables parallelism.</li>
+<li>If you have only one processor, your program can still be concurrent but it cannot be parallel.</li>
+<li>A well-written concurrent program might run efficiently in parallel on a multiprocessor. That property could be important&hellip;</li>
+</ul>
+</li>
+</ul>
+<h3 id="a-basic-example">A Basic Example</h3>
+<p>The go statement runs the function as usual, but doesn&rsquo;t make the caller wait. It launches a goroutine. The functionality is analogous to the &amp; on the end of a shell command.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+<span style="color:#f92672">import</span> (
+    <span style="color:#e6db74">&#34;fmt&#34;</span>
+    <span style="color:#e6db74">&#34;math/rand&#34;</span>
+    <span style="color:#e6db74">&#34;time&#34;</span>
+)
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#66d9ef">go</span> <span style="color:#a6e22e">boring</span>(<span style="color:#e6db74">&#34;boring&#34;</span>)
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">boring</span>(<span style="color:#a6e22e">msg</span> <span style="color:#66d9ef">string</span>) {
+    <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; ; <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
+        <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">msg</span>, <span style="color:#a6e22e">i</span>)
+        <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Sleep</span>(<span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Duration</span>(<span style="color:#a6e22e">rand</span>.<span style="color:#a6e22e">Intn</span>(<span style="color:#ae81ff">1e3</span>)) <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Millisecond</span>)
+    }
+}
+</code></pre></div><p>When main returns, the program exits and takes the boring function down with it. We can hang around a little, and on the way show that both main and the launched goroutine are running.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#66d9ef">go</span> <span style="color:#a6e22e">boring</span>(<span style="color:#e6db74">&#34;boring!&#34;</span>)
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;I&#39;m listening.&#34;</span>)
+    <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Sleep</span>(<span style="color:#ae81ff">2</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span>)
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;You&#39;re boring; I&#39;m leaving.&#34;</span>)
+}
+</code></pre></div><h4 id="whate-is-a-gorountine">Whate is a gorountine?</h4>
+<ul>
+<li>It&rsquo;s an independently executing function, launched by a go statement.</li>
+<li>It has its own call stack, which grows and shrinks as required.</li>
+<li>It&rsquo;s very cheap. It&rsquo;s practical to have thousands, even hundreds of thousands of goroutines.</li>
+<li>It&rsquo;s not a thread.</li>
+<li>There might be only one thread in a program with thousands of goroutines.</li>
+<li>Instread, go routines are multiplexed dynamically on to threads as needed to keep all the goroutines running.</li>
+<li>But if you think of it as very cheap thread, you won&rsquo;t be far off.</li>
+</ul>
+<h4 id="communication---channels">Communication -&gt; Channels</h4>
+<p>The boring examples as above cheated: the main function couldn&rsquo;t see the output from the other goroutine. It was just printed to the screen, where we pretended we saw a conversation. Real conversations require communication.</p>
+<p>A channel in Go provides a connection between two goroutines, allow them to communicate.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#75715e">//Decaring and initializing
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">c</span> <span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">int</span>
+<span style="color:#a6e22e">c</span> = make(<span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">int</span>)
+<span style="color:#75715e">//or
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">int</span>)
+
+<span style="color:#75715e">//Sending on a channel.
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">c</span> <span style="color:#f92672">&lt;-</span> <span style="color:#ae81ff">1</span>
+
+<span style="color:#75715e">//Receiving from a channel
+</span><span style="color:#75715e">//The &#34;arrow&#34; indicates the direction of data flow.
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">value</span> = <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">c</span>
+</code></pre></div><p>A channel connects the main and boring goroutines so they can communicate.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">string</span>)
+    <span style="color:#66d9ef">go</span> <span style="color:#a6e22e">boring</span>(<span style="color:#e6db74">&#34;boring!&#34;</span>, <span style="color:#a6e22e">c</span>)
+    <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span>&lt;<span style="color:#ae81ff">5</span>; <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
+        <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;You say: %q\n&#34;</span>, <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">c</span>)<span style="color:#75715e">// Receive expression is just a value.
+</span><span style="color:#75715e"></span>    }
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">boring</span>(<span style="color:#a6e22e">msg</span> <span style="color:#66d9ef">string</span>, <span style="color:#a6e22e">c</span> <span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">string</span>) {
+    <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; ; <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
+        <span style="color:#a6e22e">c</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Sprintf</span>(<span style="color:#e6db74">&#34;%s %d&#34;</span>, <span style="color:#a6e22e">msg</span>, <span style="color:#a6e22e">i</span>) <span style="color:#75715e">// Expression to be sent can be any suitable value.
+</span><span style="color:#75715e"></span>        <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Sleep</span>(<span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Duration</span>(<span style="color:#a6e22e">rand</span>.<span style="color:#a6e22e">Intn</span>(<span style="color:#a6e22e">le3</span>)) <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Millisecond</span>)
+    }
+}
+</code></pre></div><h4 id="synchronization">Synchronization</h4>
+<ul>
+<li>When the main function execute &lt;-c, it will wait for a value to be sent.</li>
+<li>Similarly, when the boring function executes c &lt;- value, it waits for a receiver to be ready.</li>
+<li>A sender and receiver must both be ready to play their part in the communication. Otherwise we wait until they are.</li>
+<li>Thus channels both communicate and synchronize.</li>
+</ul>
+<h4 id="an-aside-about-buffered-channels">An aside about buffered channels</h4>
+<ul>
+<li>Note for experts: Go channels can alse be created with a buffer.</li>
+<li>Buffering removes synchronization.</li>
+<li>Buffering makes them more like Erlang&rsquo;s mailboxes.</li>
+<li>Bufferd channels can be important for some problems but they are more subtle to reason about.</li>
+<li>We won&rsquo;t need them today.</li>
+</ul>
+<h4 id="the-go-approach">The go approach</h4>
+<p>Don&rsquo;t communicate by sharing memory, share memory by communicating.</p>
+<h3 id="patterns">&ldquo;Patterns&rdquo;</h3>
+<h4 id="generator-function-that-returns-a-channel">Generator: function that returns a channel</h4>
+<p>Channels are first-class values, just like strings or integers.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#75715e">//Function returning a channel
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">boring</span>(<span style="color:#e6db74">&#34;boring!&#34;</span>)
+    <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span><span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span>&lt;<span style="color:#ae81ff">5</span>; <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
+        <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;You say: %q\n&#34;</span>, <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">c</span>)
+    }
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;You&#39;re boring; I&#39;m leaving.&#34;</span>) 
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">boring</span>(<span style="color:#a6e22e">msg</span> <span style="color:#66d9ef">string</span>) <span style="color:#f92672">&lt;-</span><span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">string</span> {
+    <span style="color:#75715e">//Returns receive-only channel of strings.
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">string</span>)
+    <span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>() {
+        <span style="color:#75715e">// We launch the goroutine from inside the function.
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; ; <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
+            <span style="color:#a6e22e">c</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Sprintf</span>(<span style="color:#e6db74">&#34;%s %d&#34;</span>, <span style="color:#a6e22e">msg</span>, <span style="color:#a6e22e">i</span>)
+            <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Sleep</span>(<span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Duration</span>(<span style="color:#a6e22e">rand</span>.<span style="color:#a6e22e">Intn</span>(<span style="color:#ae81ff">1e3</span>)) <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Millisecond</span>)
+        }
+    }()
+    <span style="color:#75715e">//Return the channel to the caller
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">c</span> 
+}
+</code></pre></div><h4 id="channels-as-a-handle-on-a-service">Channels as a handle on a service</h4>
+<p>The boring function returns a channel that lets us communicate with the boring service it provides. We can have more instances of the service.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#a6e22e">joe</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">boring</span>(<span style="color:#e6db74">&#34;Joe&#34;</span>)
+    <span style="color:#a6e22e">ann</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">boring</span>(<span style="color:#e6db74">&#34;Ann&#34;</span>)
+    <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span> &lt; <span style="color:#ae81ff">5</span>; <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
+        <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">joe</span>)
+        <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">ann</span>)
+    }
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;You&#39;re both boring; I&#39;m leaving.&#34;</span>)
+}
+</code></pre></div><h4 id="multiplexing">Multiplexing</h4>
+<p>These programs make Joe and Ann count in lockstep. We can instead use a fan-in function to let whosoever is ready talk.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">fanIn</span>(<span style="color:#a6e22e">input1</span>, <span style="color:#a6e22e">input2</span> <span style="color:#f92672">&lt;-</span> <span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">string</span>) <span style="color:#f92672">&lt;-</span><span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">string</span> {
+    <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">string</span>)
+    <span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>() {
+        <span style="color:#66d9ef">for</span> {
+            <span style="color:#a6e22e">c</span> <span style="color:#f92672">&lt;-</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">input1</span> 
+        }
+    }()
+    <span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>() {
+        <span style="color:#66d9ef">for</span> {
+            <span style="color:#a6e22e">c</span> <span style="color:#f92672">&lt;-</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">input2</span> 
+        }
+    }()
+    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">c</span>
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span> () {
+    <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">fanIn</span>(<span style="color:#a6e22e">boring</span>(<span style="color:#e6db74">&#34;Joe&#34;</span>), <span style="color:#a6e22e">boring</span>(<span style="color:#e6db74">&#34;Ann&#34;</span>))
+    <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span>&lt;<span style="color:#ae81ff">10</span>; <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span>{
+        <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">c</span>)
+    }
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;You&#39;re both boring; I&#39;m leaving.&#34;</span>)
+}
+</code></pre></div><h4 id="restoring-sequencing">Restoring sequencing</h4>
+<ul>
+<li>Send a channel on a channel, making goroutine wait its turn.</li>
+<li>Recieve all messages, then enable them again by sending on a private channel.</li>
+<li>First we define a message type that contains a channel for the reply.</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Message</span> <span style="color:#66d9ef">struct</span> {
+    <span style="color:#a6e22e">str</span> <span style="color:#66d9ef">string</span>
+    <span style="color:#a6e22e">wait</span> <span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">bool</span>
+}
+</code></pre></div><ul>
+<li>Each speaker must wait for a go-ahead.</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+
+<span style="color:#f92672">import</span> (
+    <span style="color:#e6db74">&#34;fmt&#34;</span>
+    <span style="color:#e6db74">&#34;math/rand&#34;</span>
+    <span style="color:#e6db74">&#34;time&#34;</span>
+)
+
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Message</span> <span style="color:#66d9ef">struct</span> {
+    <span style="color:#a6e22e">str</span>  <span style="color:#66d9ef">string</span>
+    <span style="color:#a6e22e">wait</span> <span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">bool</span>
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">fanIn</span>(<span style="color:#a6e22e">boring</span>(<span style="color:#e6db74">&#34;Joe&#34;</span>), <span style="color:#a6e22e">boring</span>(<span style="color:#e6db74">&#34;Ann&#34;</span>))
+    <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span> &lt; <span style="color:#ae81ff">10</span>; <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
+        <span style="color:#75715e">//fmt.Println(&lt;-c)
+</span><span style="color:#75715e"></span>        <span style="color:#a6e22e">msg1</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">c</span>
+        <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">msg1</span>.<span style="color:#a6e22e">str</span>)
+        <span style="color:#a6e22e">msg2</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">c</span>
+        <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">msg2</span>.<span style="color:#a6e22e">str</span>)
+        <span style="color:#a6e22e">msg1</span>.<span style="color:#a6e22e">wait</span> <span style="color:#f92672">&lt;-</span> <span style="color:#66d9ef">true</span>
+        <span style="color:#a6e22e">msg2</span>.<span style="color:#a6e22e">wait</span> <span style="color:#f92672">&lt;-</span> <span style="color:#66d9ef">true</span>
+    }
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;You&#39;re boring; I&#39;m leaving.&#34;</span>)
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">fanIn</span>(<span style="color:#a6e22e">input1</span>, <span style="color:#a6e22e">input2</span> <span style="color:#f92672">&lt;-</span><span style="color:#66d9ef">chan</span> <span style="color:#a6e22e">Message</span>) <span style="color:#f92672">&lt;-</span><span style="color:#66d9ef">chan</span> <span style="color:#a6e22e">Message</span> {
+    <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">chan</span> <span style="color:#a6e22e">Message</span>)
+    <span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>() {
+        <span style="color:#66d9ef">for</span> {
+            <span style="color:#a6e22e">c</span> <span style="color:#f92672">&lt;-</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">input1</span>
+        }
+    }()
+    <span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>() {
+        <span style="color:#66d9ef">for</span> {
+            <span style="color:#a6e22e">c</span> <span style="color:#f92672">&lt;-</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">input2</span>
+        }
+    }()
+    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">c</span>
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">boring</span>(<span style="color:#a6e22e">msg</span> <span style="color:#66d9ef">string</span>) <span style="color:#f92672">&lt;-</span><span style="color:#66d9ef">chan</span> <span style="color:#a6e22e">Message</span> {
+    <span style="color:#75715e">// Returns receive-only channel of strings
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">chan</span> <span style="color:#a6e22e">Message</span>)
+    <span style="color:#75715e">// Shared between all messages.
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">waitForIt</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">bool</span>)
+    <span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>() {
+        <span style="color:#75715e">// We launch the goroutine from inside the function.
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; ; <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
+            <span style="color:#a6e22e">c</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">Message</span>{<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Sprintf</span>(<span style="color:#e6db74">&#34;%s: %d&#34;</span>, <span style="color:#a6e22e">msg</span>, <span style="color:#a6e22e">i</span>), <span style="color:#a6e22e">waitForIt</span>}
+            <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Sleep</span>(<span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Duration</span>(<span style="color:#a6e22e">rand</span>.<span style="color:#a6e22e">Intn</span>(<span style="color:#ae81ff">1e3</span>)) <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Millisecond</span>)
+            <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">waitForIt</span>
+        }
+    }()
+    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">c</span>
+}
+</code></pre></div><h4 id="select">Select</h4>
+<blockquote>
+<p>A control structure unique to concurrency. The reason channels and goroutines are built into the language.</p>
+</blockquote>
+<p>The select statement provides another way to handle multiple channels. It&rsquo;s like a switch, but each case is a communication:</p>
+<ul>
+<li>All channels are evaluated.</li>
+<li>Selection blocks unitl one communication can proceed, which then does.</li>
+<li>If multiple can proceed, select chooses pseudo-randomly.</li>
+<li>A default clause, if present, executes immediately if no channel is ready.</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#66d9ef">select</span> {
+<span style="color:#66d9ef">case</span> <span style="color:#a6e22e">v1</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">c1</span>:
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;received %v from c1\n&#34;</span>, <span style="color:#a6e22e">v1</span>)
+<span style="color:#66d9ef">case</span> <span style="color:#a6e22e">v2</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">c2</span>:
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;received %v from c2\n&#34;</span>, <span style="color:#a6e22e">v1</span>)
+<span style="color:#66d9ef">case</span> <span style="color:#a6e22e">c3</span> <span style="color:#f92672">&lt;-</span> <span style="color:#ae81ff">23</span>:
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;sent %v to c3\n&#34;</span>, <span style="color:#ae81ff">23</span>)
+<span style="color:#66d9ef">default</span>:
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;no one was ready to communicate\n&#34;</span>)
+}
+</code></pre></div><h5 id="fan-in-again">Fan-in again</h5>
+<p>Rewrite our original fanln function. Only one goroutine is needes.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#75715e">// Old 
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">fanIn</span>(<span style="color:#a6e22e">input1</span>, <span style="color:#a6e22e">input2</span> <span style="color:#f92672">&lt;-</span> <span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">string</span>) <span style="color:#f92672">&lt;-</span><span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">string</span> {
+    <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">string</span>)
+    <span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>() {
+        <span style="color:#66d9ef">for</span> {
+            <span style="color:#a6e22e">c</span> <span style="color:#f92672">&lt;-</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">input1</span> 
+        }
+    }()
+    <span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>() {
+        <span style="color:#66d9ef">for</span> {
+            <span style="color:#a6e22e">c</span> <span style="color:#f92672">&lt;-</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">input2</span> 
+        }
+    }()
+    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">c</span>
+}
+
+<span style="color:#75715e">// New
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">fanIn</span>(<span style="color:#a6e22e">input1</span>, <span style="color:#a6e22e">input2</span> <span style="color:#f92672">&lt;-</span> <span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">string</span>) <span style="color:#f92672">&lt;-</span><span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">string</span> {
+    <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">string</span>)
+    <span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>() {
+        <span style="color:#66d9ef">for</span> {
+            <span style="color:#66d9ef">select</span> {
+            <span style="color:#66d9ef">case</span> <span style="color:#a6e22e">s</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">input1</span>: <span style="color:#a6e22e">c</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">s</span>
+            <span style="color:#66d9ef">case</span> <span style="color:#a6e22e">s</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">input2</span>: <span style="color:#a6e22e">c</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">s</span>
+            }
+        }
+    }()
+    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">c</span>
+}
+</code></pre></div><h4 id="timeout-using-select">Timeout using select</h4>
+<p>The time.After function returns a channel that blocks for the specified duration. After the interval, the channel delivers the current time, once.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+
+<span style="color:#f92672">import</span> (
+    <span style="color:#e6db74">&#34;fmt&#34;</span>
+    <span style="color:#e6db74">&#34;math/rand&#34;</span>
+    <span style="color:#e6db74">&#34;time&#34;</span>
+)
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">boring</span>(<span style="color:#e6db74">&#34;Joe&#34;</span>)
+    <span style="color:#66d9ef">for</span> {
+        <span style="color:#66d9ef">select</span> {
+        <span style="color:#66d9ef">case</span> <span style="color:#a6e22e">s</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">c</span>:
+            <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">s</span>)
+        <span style="color:#66d9ef">case</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">After</span>(<span style="color:#ae81ff">1</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span>):
+            <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;You&#39;re too slow.&#34;</span>)
+            <span style="color:#66d9ef">return</span>
+        }
+    }
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">boring</span>(<span style="color:#a6e22e">msg</span> <span style="color:#66d9ef">string</span>) <span style="color:#f92672">&lt;-</span><span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">string</span> {
+    <span style="color:#75715e">// Returns receive-only channel of strings
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">string</span>)
+    <span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>() {
+        <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; ; <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
+            <span style="color:#a6e22e">c</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Sprintf</span>(<span style="color:#e6db74">&#34;%s %d&#34;</span>, <span style="color:#a6e22e">msg</span>, <span style="color:#a6e22e">i</span>)
+            <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Sleep</span>(<span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Duration</span>(<span style="color:#a6e22e">rand</span>.<span style="color:#a6e22e">Intn</span>(<span style="color:#ae81ff">1e3</span>)) <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Millisecond</span>)
+        }
+    }()
+    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">c</span>
+}
+</code></pre></div><h4 id="timeout-for-whole-conversation-using-select">Timeout for whole conversation using select</h4>
+<p>Create the timer once, outside the loop, to time out the entire conversation.(In the previous program, we had a timeout for each message.)</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">boring</span>(<span style="color:#e6db74">&#34;Joe&#34;</span>)
+    <span style="color:#a6e22e">timeout</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">After</span>(<span style="color:#ae81ff">5</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span>)
+    <span style="color:#66d9ef">for</span> {
+        <span style="color:#66d9ef">select</span> {
+        <span style="color:#66d9ef">case</span> <span style="color:#a6e22e">s</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">c</span>:
+            <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">s</span>)
+        <span style="color:#66d9ef">case</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">timeout</span>: 
+            <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;You talk too much.&#34;</span>)
+            <span style="color:#66d9ef">return</span>
+        }
+    }
+}
+</code></pre></div><h4 id="quit-channel">Quit channel</h4>
+<p>We can turn this around and tell Joe to stop when we&rsquo;re tired of listening to him.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+
+<span style="color:#f92672">import</span> (
+    <span style="color:#e6db74">&#34;fmt&#34;</span>
+    <span style="color:#e6db74">&#34;math/rand&#34;</span>
+)
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#a6e22e">quit</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">bool</span>)
+    <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">boring</span>(<span style="color:#e6db74">&#34;Joe&#34;</span>, <span style="color:#a6e22e">quit</span>)
+    <span style="color:#a6e22e">rand</span>.<span style="color:#a6e22e">Seed</span>(<span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Now</span>().<span style="color:#a6e22e">UnixNano</span>())
+    <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">rand</span>.<span style="color:#a6e22e">Intn</span>(<span style="color:#ae81ff">10</span>); <span style="color:#a6e22e">i</span> &gt; <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span><span style="color:#f92672">--</span> {
+        <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">c</span>)
+    }
+    <span style="color:#a6e22e">quit</span> <span style="color:#f92672">&lt;-</span> <span style="color:#66d9ef">true</span>
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">boring</span>(<span style="color:#a6e22e">msg</span> <span style="color:#66d9ef">string</span>, <span style="color:#a6e22e">quit</span> <span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">bool</span>) <span style="color:#f92672">&lt;-</span><span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">string</span> {
+    <span style="color:#75715e">// Returns receive-only channel of strings
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">string</span>)
+    <span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>() {
+        <span style="color:#75715e">// We launch the goroutine from inside the function.
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; ; <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
+            <span style="color:#66d9ef">select</span> {
+            <span style="color:#66d9ef">case</span> <span style="color:#a6e22e">c</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Sprintf</span>(<span style="color:#e6db74">&#34;%s: %d&#34;</span>, <span style="color:#a6e22e">msg</span>, <span style="color:#a6e22e">i</span>):
+            <span style="color:#75715e">// do nothing
+</span><span style="color:#75715e"></span>            <span style="color:#66d9ef">case</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">quit</span>:
+                <span style="color:#66d9ef">return</span>
+            }
+        }
+    }()
+    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">c</span>
+}
+
+</code></pre></div><h4 id="receive-on-quit-channel">Receive on quit channel</h4>
+<p>How do we know it&rsquo;s finished? Wait for it to tell us it&rsquo;s done: receive on the quit channel</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#a6e22e">quit</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">string</span>)
+    <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">boring</span>(<span style="color:#e6db74">&#34;Joe&#34;</span>, <span style="color:#a6e22e">quit</span>)
+    <span style="color:#a6e22e">rand</span>.<span style="color:#a6e22e">Seed</span>(<span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Now</span>().<span style="color:#a6e22e">UnixNano</span>())
+    <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">rand</span>.<span style="color:#a6e22e">Intn</span>(<span style="color:#ae81ff">10</span>); <span style="color:#a6e22e">i</span> &gt; <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span><span style="color:#f92672">--</span> {
+        <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">c</span>)
+    }
+    <span style="color:#a6e22e">quit</span> <span style="color:#f92672">&lt;-</span> <span style="color:#e6db74">&#34;Bye!&#34;</span>
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;Joe says: %q\n&#34;</span>, <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">quit</span>)
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">boring</span>(<span style="color:#a6e22e">msg</span> <span style="color:#66d9ef">string</span>, <span style="color:#a6e22e">quit</span> <span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">string</span>) <span style="color:#f92672">&lt;-</span><span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">string</span> {
+    <span style="color:#75715e">// Returns receive-only channel of strings
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">string</span>)
+    <span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>() {
+        <span style="color:#75715e">// We launch the goroutine from inside the function.
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; ; <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
+            <span style="color:#66d9ef">select</span> {
+            <span style="color:#66d9ef">case</span> <span style="color:#a6e22e">c</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Sprintf</span>(<span style="color:#e6db74">&#34;%s: %d&#34;</span>, <span style="color:#a6e22e">msg</span>, <span style="color:#a6e22e">i</span>):
+            <span style="color:#75715e">// do nothing
+</span><span style="color:#75715e"></span>            <span style="color:#66d9ef">case</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">quit</span>:
+                <span style="color:#75715e">//cleanup()
+</span><span style="color:#75715e"></span>                <span style="color:#a6e22e">quit</span> <span style="color:#f92672">&lt;-</span> <span style="color:#e6db74">&#34;See you!&#34;</span>
+                <span style="color:#66d9ef">return</span>
+            }
+        }
+    }()
+    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">c</span>
+}
+</code></pre></div><h4 id="daisy-chain">Daisy-chain</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">f</span>(<span style="color:#a6e22e">left</span>, <span style="color:#a6e22e">right</span> <span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">int</span>) {
+    <span style="color:#a6e22e">left</span> <span style="color:#f92672">&lt;-</span> <span style="color:#ae81ff">1</span> <span style="color:#f92672">+</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">right</span>
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>()  {
+    <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">n</span> = <span style="color:#ae81ff">100000</span>
+    <span style="color:#a6e22e">leftmost</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">int</span>)
+    <span style="color:#a6e22e">right</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">leftmost</span>
+    <span style="color:#a6e22e">left</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">leftmost</span>
+    <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span> &lt; <span style="color:#a6e22e">n</span>; <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
+        <span style="color:#a6e22e">right</span> = make(<span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">int</span>)
+        <span style="color:#66d9ef">go</span> <span style="color:#a6e22e">f</span>(<span style="color:#a6e22e">left</span>, <span style="color:#a6e22e">right</span>)
+        <span style="color:#a6e22e">left</span> = <span style="color:#a6e22e">right</span>
+    }
+    <span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>(<span style="color:#a6e22e">c</span> <span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">int</span>) {
+        <span style="color:#a6e22e">c</span> <span style="color:#f92672">&lt;-</span> <span style="color:#ae81ff">1</span>
+    }(<span style="color:#a6e22e">right</span>)
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">leftmost</span>)
+}
+</code></pre></div><h3 id="google-search-example">Google Search Example</h3>
+<blockquote>
+<p>Q: What does Google search do?<br>
+A: Given a query, return a page of search results(and some ads).<br>
+Q: How do we get the search results?<br>
+A: Send the query to Web search, image search, YouTube, Maps, New, etc., then mix the results.</p>
+</blockquote>
+<p>How do we implement this?</p>
+<h4 id="a-fake-framework">A fake framework</h4>
+<p>We can simulate the search function, much as we simulated conversation before.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+
+<span style="color:#f92672">import</span> (
+    <span style="color:#e6db74">&#34;fmt&#34;</span>
+    <span style="color:#e6db74">&#34;math/rand&#34;</span>
+    <span style="color:#e6db74">&#34;time&#34;</span>
+)
+
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Result</span> <span style="color:#66d9ef">string</span>
+
+<span style="color:#66d9ef">var</span> (
+    <span style="color:#a6e22e">Web</span>   = <span style="color:#a6e22e">fakeSearch</span>(<span style="color:#e6db74">&#34;web&#34;</span>)
+    <span style="color:#a6e22e">Image</span> = <span style="color:#a6e22e">fakeSearch</span>(<span style="color:#e6db74">&#34;image&#34;</span>)
+    <span style="color:#a6e22e">Video</span> = <span style="color:#a6e22e">fakeSearch</span>(<span style="color:#e6db74">&#34;video&#34;</span>)
+)
+
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Search</span> <span style="color:#66d9ef">func</span>(<span style="color:#a6e22e">query</span> <span style="color:#66d9ef">string</span>) <span style="color:#a6e22e">Result</span>
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">fakeSearch</span>(<span style="color:#a6e22e">kind</span> <span style="color:#66d9ef">string</span>) <span style="color:#a6e22e">Search</span> {
+    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">func</span>(<span style="color:#a6e22e">query</span> <span style="color:#66d9ef">string</span>) <span style="color:#a6e22e">Result</span> {
+        <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Sleep</span>(<span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Duration</span>(<span style="color:#a6e22e">rand</span>.<span style="color:#a6e22e">Intn</span>(<span style="color:#ae81ff">100</span>)) <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Millisecond</span>)
+        <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">Result</span>(<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Sprintf</span>(<span style="color:#e6db74">&#34;%s result for %q\n&#34;</span>, <span style="color:#a6e22e">kind</span>, <span style="color:#a6e22e">query</span>))
+    }
+}
+
+<span style="color:#75715e">// Test the framework
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#a6e22e">rand</span>.<span style="color:#a6e22e">Seed</span>(<span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Now</span>().<span style="color:#a6e22e">UnixNano</span>())
+    <span style="color:#a6e22e">start</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Now</span>()
+    <span style="color:#a6e22e">results</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">Google</span>(<span style="color:#e6db74">&#34;golang&#34;</span>)
+    <span style="color:#a6e22e">elapsed</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Since</span>(<span style="color:#a6e22e">start</span>)
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">results</span>)
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">elapsed</span>)
+}
+
+</code></pre></div><h4 id="google-search-10">Google Search 1.0</h4>
+<p>The Google function takes a query and returns a slice of Results (which are just strings). Google invokes Web, Image, and Video searches serially, appending them to the result slice.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">Google</span>(<span style="color:#a6e22e">query</span> <span style="color:#66d9ef">string</span>) (<span style="color:#a6e22e">results</span> []<span style="color:#a6e22e">Result</span>) {
+    <span style="color:#a6e22e">results</span> = append(<span style="color:#a6e22e">results</span>, <span style="color:#a6e22e">Web</span>(<span style="color:#a6e22e">query</span>))
+    <span style="color:#a6e22e">results</span> = append(<span style="color:#a6e22e">results</span>, <span style="color:#a6e22e">Image</span>(<span style="color:#a6e22e">query</span>))
+    <span style="color:#a6e22e">results</span> = append(<span style="color:#a6e22e">results</span>, <span style="color:#a6e22e">Video</span>(<span style="color:#a6e22e">query</span>))
+    <span style="color:#66d9ef">return</span>
+}
+</code></pre></div><h4 id="google-search-20">Google Search 2.0</h4>
+<p>Run the Web, Image, and Video searches concurrently, and wait for all results. No locks. No condition variables. No callbacks.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">Google</span>(<span style="color:#a6e22e">query</span> <span style="color:#66d9ef">string</span>) (<span style="color:#a6e22e">results</span> []<span style="color:#a6e22e">Result</span>) {
+    <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">chan</span> <span style="color:#a6e22e">Result</span>)
+    <span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>() { <span style="color:#a6e22e">c</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">Web</span>(<span style="color:#a6e22e">query</span>) }()
+    <span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>() { <span style="color:#a6e22e">c</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">Image</span>(<span style="color:#a6e22e">query</span>) }()
+    <span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>() { <span style="color:#a6e22e">c</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">Video</span>(<span style="color:#a6e22e">query</span>) }()
+
+    <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span>&lt;<span style="color:#ae81ff">3</span>; <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
+        <span style="color:#a6e22e">result</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">c</span>
+        <span style="color:#a6e22e">results</span> = append(<span style="color:#a6e22e">results</span>, <span style="color:#a6e22e">result</span>)
+    }
+    <span style="color:#66d9ef">return</span>
+}
+</code></pre></div><h4 id="google-search-21">Google Search 2.1</h4>
+<p>Don&rsquo;t wait for slow servers. No locks. No condition variables. No callbacks.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">Google</span>(<span style="color:#a6e22e">query</span> <span style="color:#66d9ef">string</span>) (<span style="color:#a6e22e">results</span> []<span style="color:#a6e22e">Result</span>) {
+    <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">chan</span> <span style="color:#a6e22e">Result</span>)
+    <span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>() { <span style="color:#a6e22e">c</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">Web</span>(<span style="color:#a6e22e">query</span>) }()
+    <span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>() { <span style="color:#a6e22e">c</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">Image</span>(<span style="color:#a6e22e">query</span>) }()
+    <span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>() { <span style="color:#a6e22e">c</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">Video</span>(<span style="color:#a6e22e">query</span>) }()
+
+    <span style="color:#a6e22e">timeout</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">After</span>(<span style="color:#ae81ff">80</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Millisecond</span>)
+    <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span>&lt;<span style="color:#ae81ff">3</span>; <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
+        <span style="color:#66d9ef">select</span> {
+        <span style="color:#66d9ef">case</span> <span style="color:#a6e22e">result</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">c</span>:
+            <span style="color:#a6e22e">results</span> = append(<span style="color:#a6e22e">results</span>, <span style="color:#a6e22e">result</span>)
+        <span style="color:#66d9ef">case</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">timeout</span>:
+            <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;time out&#34;</span>)
+            <span style="color:#66d9ef">return</span>
+        }
+    }
+    <span style="color:#66d9ef">return</span>
+}
+</code></pre></div><h5 id="avoid-timeout">Avoid timeout</h5>
+<p>Q: How do we avoid discarding results from slow servers?<br>
+A: Replicate the servers. Send requests to multiple replicas, and use the first response.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">First</span>(<span style="color:#a6e22e">query</span> <span style="color:#66d9ef">string</span>, <span style="color:#a6e22e">replicas</span> <span style="color:#f92672">...</span><span style="color:#a6e22e">Search</span>) <span style="color:#a6e22e">Result</span> {
+    <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">chan</span> <span style="color:#a6e22e">Result</span>)
+    <span style="color:#a6e22e">searchReplica</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">func</span>(<span style="color:#a6e22e">i</span> <span style="color:#66d9ef">int</span>) {
+        <span style="color:#a6e22e">c</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">replicas</span>[<span style="color:#a6e22e">i</span>](<span style="color:#a6e22e">query</span>)
+    }
+    <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span><span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">replicas</span> {
+        <span style="color:#66d9ef">go</span> <span style="color:#a6e22e">searchReplica</span>(<span style="color:#a6e22e">i</span>)
+    }
+    <span style="color:#66d9ef">return</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">c</span>
+}
+
+<span style="color:#75715e">// Test the framework
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#a6e22e">rand</span>.<span style="color:#a6e22e">Seed</span>(<span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Now</span>().<span style="color:#a6e22e">UnixNano</span>())
+    <span style="color:#a6e22e">start</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Now</span>()
+    <span style="color:#a6e22e">results</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">First</span>(<span style="color:#e6db74">&#34;golang&#34;</span>, <span style="color:#a6e22e">fakeSearch</span>(<span style="color:#e6db74">&#34;replica 1&#34;</span>), <span style="color:#a6e22e">fakeSearch</span>(<span style="color:#e6db74">&#34;replica 2&#34;</span>))
+    <span style="color:#a6e22e">elapsed</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Since</span>(<span style="color:#a6e22e">start</span>)
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">results</span>)
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">elapsed</span>)
+}
+</code></pre></div><h4 id="googel-search-30">Googel Search 3.0</h4>
+<p>Reduce tail latency using replicated search servers. No locks. No condition variables. No callbacks.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">chan</span> <span style="color:#a6e22e">Result</span>)
+<span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span> { <span style="color:#a6e22e">c</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">First</span>(<span style="color:#a6e22e">query</span>, <span style="color:#a6e22e">Web1</span>, <span style="color:#a6e22e">Web2</span>) }()
+<span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span> { <span style="color:#a6e22e">c</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">First</span>(<span style="color:#a6e22e">query</span>, <span style="color:#a6e22e">Image1</span>, <span style="color:#a6e22e">Image2</span>) }()
+<span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span> { <span style="color:#a6e22e">c</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">First</span>(<span style="color:#a6e22e">query</span>, <span style="color:#a6e22e">Video1</span>, <span style="color:#a6e22e">Video2</span>) }()
+<span style="color:#a6e22e">timeout</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">After</span>(<span style="color:#ae81ff">80</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Millisecond</span>)
+<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span>&lt;<span style="color:#ae81ff">3</span>; <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
+    <span style="color:#66d9ef">select</span> {
+    <span style="color:#66d9ef">case</span> <span style="color:#a6e22e">result</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">c</span><span style="color:#960050;background-color:#1e0010">：</span>
+        <span style="color:#a6e22e">results</span> = append(<span style="color:#a6e22e">results</span>, <span style="color:#a6e22e">result</span>)
+    <span style="color:#66d9ef">case</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">timeout</span>:
+        <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;timed out&#34;</span>)
+        <span style="color:#66d9ef">return</span>
+    }
+}
+<span style="color:#66d9ef">return</span>
+</code></pre></div><p>And still&hellip;</p>
+<h4 id="summary">Summary</h4>
+<p>In just a few simple transformations we used Go&rsquo;s concurrency primitives to convert a</p>
+<ul>
+<li>slow</li>
+<li>sequential</li>
+<li>failure-sensitive</li>
+</ul>
+<p>program into one that is</p>
+<ul>
+<li>fast</li>
+<li>concurrent</li>
+<li>repicated</li>
+<li>robust.</li>
+</ul>
+<h3 id="more-party-tricks">More party tricks</h3>
+<ul>
+<li><a href="http://tinyurl.com/gochatroulette">Chatroulette toy</a></li>
+<li><a href="http://tinyurl.com/goloadbalancer">Load balancer</a></li>
+<li><a href="http://tinyurl.com/gosieve">Concurrent prime sieve</a></li>
+<li><a href="http://tinyurl.com/gopowerseries">Concurrent power series (by Mcllroy)</a></li>
+</ul>
+<h3 id="dont-overdo-it">Don&rsquo;t overdo it</h3>
+<p>They&rsquo;re fun to play with, but don&rsquo;t overuse these ideas. Goroutines and channels are big ideas. They&rsquo;re tools for program construction. But sometimes all you need is a reference counter. Go has &ldquo;sync&rdquo; and &ldquo;sync/atomic&rdquo; packages that provides that provide mutexes, condition variables, etc. They provide tools for smaller problems. Often, these things will work together to solve a bigger problem. Always use the right tool for the job.</p>
+<h3 id="conclusions">Conclusions</h3>
+<p>Goroutines and channels make it easy to express complex operations dealing with</p>
+<ul>
+<li>multiple inputs</li>
+<li>multiple outputs</li>
+<li>timeouts</li>
+<li>failure</li>
+</ul>
+<p>And they&rsquo;re fun to use.</p>
+<h3 id="links">Links</h3>
+<ul>
+<li><a href="http://golang.org">Go Home Page</a></li>
+<li><a href="tour.golang.org">Go Tour(learn Go in your browser)</a></li>
+<li><a href="gokang.org/pkg">Package documentation</a></li>
+<li><a href="golang.org/doc">Article galore</a></li>
+<li><a href="tinyurl.com/goconcnotpar">Concurrency is not prarallelism</a></li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#75715e">// A concurrent prime sieve
+</span><span style="color:#75715e"></span>
+<span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+
+<span style="color:#75715e">// Send the sequence 2, 3, 4, ... to channel &#39;ch&#39;.
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">Generate</span>(<span style="color:#a6e22e">ch</span> <span style="color:#66d9ef">chan</span><span style="color:#f92672">&lt;-</span> <span style="color:#66d9ef">int</span>) {
+    <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">2</span>; ; <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
+        <span style="color:#a6e22e">ch</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">i</span> <span style="color:#75715e">// Send &#39;i&#39; to channel &#39;ch&#39;.
+</span><span style="color:#75715e"></span>    }
+}
+
+<span style="color:#75715e">// Copy the values from channel &#39;in&#39; to channel &#39;out&#39;,
+</span><span style="color:#75715e">// removing those divisible by &#39;prime&#39;.
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">Filter</span>(<span style="color:#a6e22e">in</span> <span style="color:#f92672">&lt;-</span><span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">int</span>, <span style="color:#a6e22e">out</span> <span style="color:#66d9ef">chan</span><span style="color:#f92672">&lt;-</span> <span style="color:#66d9ef">int</span>, <span style="color:#a6e22e">prime</span> <span style="color:#66d9ef">int</span>) {
+    <span style="color:#66d9ef">for</span> {
+        <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">in</span> <span style="color:#75715e">// Receive value from &#39;in&#39;.
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">i</span><span style="color:#f92672">%</span><span style="color:#a6e22e">prime</span> <span style="color:#f92672">!=</span> <span style="color:#ae81ff">0</span> {
+            <span style="color:#a6e22e">out</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">i</span> <span style="color:#75715e">// Send &#39;i&#39; to &#39;out&#39;.
+</span><span style="color:#75715e"></span>        }
+    }
+}
+
+<span style="color:#75715e">// The prime sieve: Daisy-chain Filter processes.
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#a6e22e">ch</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">int</span>) <span style="color:#75715e">// Create a new channel.
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">go</span> <span style="color:#a6e22e">Generate</span>(<span style="color:#a6e22e">ch</span>)      <span style="color:#75715e">// Launch Generate goroutine.
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span> &lt; <span style="color:#ae81ff">10</span>; <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
+        <span style="color:#a6e22e">prime</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">ch</span>
+        print(<span style="color:#a6e22e">prime</span>, <span style="color:#e6db74">&#34;\n&#34;</span>)
+        <span style="color:#a6e22e">ch1</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">int</span>)
+        <span style="color:#66d9ef">go</span> <span style="color:#a6e22e">Filter</span>(<span style="color:#a6e22e">ch</span>, <span style="color:#a6e22e">ch1</span>, <span style="color:#a6e22e">prime</span>)
+        <span style="color:#a6e22e">ch</span> = <span style="color:#a6e22e">ch1</span>
+    }
+}
+</code></pre></div>
+</article>
+
+
+<p class="post-meta">
+    Tags:&nbsp;
+    
+    
+    <a href="https://w-yj.github.io/tags/Go">Go</a>
+    
+</p>
+
+
+
+            </div>
+        </div>
+    </div>
+    <footer class="center">
+    <div class="p2 wrap">
+        <div class="measure mt1 center">
+            <small>
+                Copyright &#169; 2017<br>
+                Powered by <a href="http://gohugo.io/" target="_blank">Hugo</a> &amp; <a
+                    href="https://github.com/azmelanar/hugo-theme-pixyll" target="_blank">Pixyll</a>
+            </small>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

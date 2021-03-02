@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>XML - WYJ&#39;s Notes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="keywords" content="">
+    <link rel="canonical" href="https://w-yj.github.io/post/xml/">
+
+    
+    
+    <link rel="stylesheet" type="text/css" href="https://w-yj.github.io/sass/pixyll.min.30e55e9fcc01694c576be315e114e0449103a0df1fb91cec0c2ada477ba30f6b.css">
+
+    
+    <link rel='stylesheet' type='text/css' href='//fonts.googleapis.com/css?family=Merriweather:900,900italic,300,300italic' >
+    <link rel='stylesheet' type='text/css' href='//fonts.googleapis.com/css?family=Lato:900,300'>
+</head>
+
+<body class="site">
+    <div class="site-wrap">
+        <header class="site-header px2 px-responsive">
+    <div class="mt2 wrap">
+        <div class="measure">
+            <a href="https://w-yj.github.io" class="site-title">WYJ&#39;s Notes</a>
+            <nav class="site-nav">
+                
+<div class="right">
+<a href="https://w-yj.github.io/about/">About</a>
+<a href="https://w-yj.github.io/tags/">Tags</a>
+<a href="https://w-yj.github.io/contact/">Contact</a>
+</div>
+            </nav>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</header>
+
+        <div class="post p2 p-responsive wrap" role="main">
+            <div class="measure">
+                
+<div class="post-header mb2">
+    <h1 class="py2">XML</h1>
+    <span class="post-meta">
+        Jun 7, 2017
+        
+    </span>
+    <br>
+    
+</div>
+<article class="post-content">
+    <h1 id="xml">XML</h1>
+<blockquote>
+<p>XML常见应用：存储有关系的数据、软件配置文件用于描述程序模块之间的关系。</p>
+</blockquote>
+<!-- raw HTML omitted -->
+<ul>
+<li>XML语法
+<ul>
+<li>组成部分</li>
+<li>书写规范</li>
+<li>XML约束
+<ul>
+<li>DTD 约束
+<ul>
+<li>DTD 分类</li>
+<li>DTD 语法</li>
+</ul>
+</li>
+<li>Schema约束（主要）</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>XML解析
+<ul>
+<li>DOM &amp; SAX
+<ul>
+<li>DOM</li>
+<li>SAX</li>
+</ul>
+</li>
+<li>JAXP &amp; DOM4J
+<ul>
+<li>JAXP</li>
+<li>DOM4J</li>
+</ul>
+</li>
+<li>XML回写</li>
+</ul>
+</li>
+<li>XPath</li>
+</ul>
+<!-- raw HTML omitted -->
+<h2 id="xml语法">XML语法</h2>
+<h3 id="组成部分">组成部分</h3>
+<p>XML语法比HTML严谨，一个XML文件分为如下几部分内容：文档声明、元素、属性、注释、CDATA区 、特殊字符、处理指令</p>
+<p><strong>文档申明</strong></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#75715e">&lt;!-- 注意：1.空格使用英文空格  2.顶着1行1列书写 --&gt;</span>
+<span style="color:#75715e">&lt;!-- 最简单的声明语法 --&gt;</span>
+<span style="color:#75715e">&lt;?xml version=&#34;1.0&#34; ?&gt;</span>
+
+<span style="color:#75715e">&lt;!-- encoding属性说明文档的字符编码，standalone属性说明文档是否独立 --&gt;</span>
+<span style="color:#75715e">&lt;?xml version=&#34;1.0&#34; encoding=&#34;GB2312&#34;  standalone=&#34;yes&#34; ?&gt;</span>
+</code></pre></div><p><strong>元素</strong></p>
+<ol>
+<li>元素分为自闭合和有开始结束标签两部分两种，都需要闭合</li>
+<li>元素可以合理嵌套不能交叉嵌套</li>
+<li>格式良好的XML文档必须有且仅有一个根标签，其它标签都是这个根标签的子孙标签</li>
+<li>元素中的内容不能为了美化，加空格、回车、制表符之类的符号</li>
+<li>元素的命名可以包含字母、数字以及其它一些可见字符，但必须遵守下面的一些规范:
+<ul>
+<li>区分大小写</li>
+<li>不能以数字或下划线&rdquo;_&ldquo;开头</li>
+<li>不能以xml、XML、Xml等开头</li>
+<li>不能包含空格</li>
+<li>名称中间不能包含冒号</li>
+</ul>
+</li>
+</ol>
+<p><strong>属性</strong></p>
+<ol>
+<li>一个标签可以有多个属性，每个属性都有它自己的名称和取值</li>
+<li>必须是键值对</li>
+<li>值必须用单引号或双引号包裹</li>
+<li>属性必须出现在开始标签中</li>
+<li>属性的命名遵循与元素同样的规则</li>
+</ol>
+<p><strong>注释</strong></p>
+<blockquote>
+<p>&lt;!&ndash;注释&ndash;&gt;</p>
+</blockquote>
+<ol>
+<li>XML声明之前不能有注释</li>
+<li>注释不能嵌套</li>
+</ol>
+<p><strong>CDATA区</strong></p>
+<blockquote>
+<p>character data</p>
+</blockquote>
+<p>在编写XML文件时，有些内容可能不想让解析引擎解析执行，而是当作原始内容处理。遇到此种情况，可以把这些内容放在CDATA区里。对于CDATA区域内的内容，XML解析程序不会处理，而是直接原封不动的输出。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#75715e">&lt;![CDATA[               ]]&gt;</span>
+</code></pre></div><p><strong>特殊字符</strong></p>
+<table>
+<thead>
+<tr>
+<th>特殊字符</th>
+<th>替代符号</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>&amp;</td>
+<td><code>&amp;amp;</code></td>
+</tr>
+<tr>
+<td>&lt;</td>
+<td><code>&amp;lt;</code></td>
+</tr>
+<tr>
+<td>&gt;</td>
+<td><code>&amp;gt;</code></td>
+</tr>
+<tr>
+<td>&quot;</td>
+<td><code>&amp;quot;</code></td>
+</tr>
+<tr>
+<td>'</td>
+<td><code>&amp;apos;</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>处理指令</strong></p>
+<blockquote>
+<p>PI(processing instruction），</p>
+</blockquote>
+<p>处理指令用来指挥解析引擎如何解析XML文档内容。在XML文档中可以使用xml-stylesheet指令，通知XML解析引擎，应用css文件显示xml文档内容。处理指令必须以“<!-- raw HTML omitted -->”作为结尾，XML声明语句就是最常见的一种处理指令
+country.css</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-css" data-lang="css"><span style="color:#f92672">c1</span> {
+    <span style="color:#66d9ef">font-size</span>:<span style="color:#ae81ff">200</span><span style="color:#66d9ef">px</span>;
+    <span style="color:#66d9ef">color</span>:<span style="color:#66d9ef">red</span>;
+}
+<span style="color:#f92672">c2</span> {
+    <span style="color:#66d9ef">font-size</span>:<span style="color:#ae81ff">100</span><span style="color:#66d9ef">px</span>;
+    <span style="color:#66d9ef">color</span>:<span style="color:#66d9ef">green</span>;
+}
+<span style="color:#f92672">c3</span> {
+    <span style="color:#66d9ef">font-size</span>:<span style="color:#ae81ff">10</span><span style="color:#66d9ef">px</span>;
+    <span style="color:#66d9ef">color</span>:<span style="color:#66d9ef">yellow</span>;
+}
+<span style="color:#f92672">c4</span> {
+    <span style="color:#66d9ef">font-size</span>:<span style="color:#ae81ff">150</span><span style="color:#66d9ef">px</span>;
+    <span style="color:#66d9ef">color</span>:<span style="color:#66d9ef">blue</span>;
+}
+</code></pre></div><p>country.xml</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"> <span style="color:#75715e">&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+<span style="color:#75715e">&lt;?xml-stylesheet type=&#34;text/css&#34; href=&#34;country.css&#34;?&gt;</span>
+<span style="color:#f92672">&lt;c&gt;</span>
+    <span style="color:#f92672">&lt;c1&gt;</span>中国<span style="color:#f92672">&lt;/c1&gt;</span>
+    <span style="color:#f92672">&lt;c2&gt;</span>美国<span style="color:#f92672">&lt;/c2&gt;</span>
+    <span style="color:#f92672">&lt;c3&gt;</span>日本<span style="color:#f92672">&lt;/c3&gt;</span>
+    <span style="color:#f92672">&lt;c4&gt;</span>英国<span style="color:#f92672">&lt;/c4&gt;</span>
+<span style="color:#f92672">&lt;/c&gt;</span>
+</code></pre></div><h3 id="书写规范">书写规范</h3>
+<ul>
+<li>必须有XML文档声明；</li>
+<li>必须且仅能有一个根元素；</li>
+<li>XML命名分大小写，例如&lt;a&gt;和&lt;A&gt;是两个不同的元素；</li>
+<li>名称中可以包含：字母、数字、下划线、连字符和原点，但不能以数字、下划线开头；</li>
+<li>不能以xml开头，无论是大写还是小写都不可以，例如&lt;xml&gt;、&lt;Xml&gt;、&lt;XML&gt;;</li>
+<li>不能包含空格、例如&lt;ab cd&gt;是错误的；</li>
+<li>元素之间必须合理包含。</li>
+</ul>
+<h3 id="xml约束">XML约束</h3>
+<blockquote>
+<p>重点掌握如何导入</p>
+</blockquote>
+<h4 id="dtd-约束">DTD 约束</h4>
+<blockquote>
+<p>Document Type Definition</p>
+</blockquote>
+<p><strong>示例</strong><br>
+*.dtd</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-dtd" data-lang="dtd"><span style="color:#66d9ef">&lt;!ELEMENT</span> <span style="color:#f92672">students</span> <span style="color:#f92672">(</span><span style="color:#f92672">student</span><span style="color:#f92672">*)</span> <span style="color:#66d9ef">&gt;</span>
+<span style="color:#66d9ef">&lt;!ELEMENT</span> <span style="color:#f92672">student</span> <span style="color:#f92672">(</span><span style="color:#f92672">name</span><span style="color:#f92672">,</span><span style="color:#f92672">age</span><span style="color:#f92672">,</span><span style="color:#f92672">sex</span><span style="color:#f92672">)</span><span style="color:#66d9ef">&gt;</span>
+<span style="color:#66d9ef">&lt;!ELEMENT</span> <span style="color:#f92672">name</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">#PCDATA</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">&gt;</span>
+<span style="color:#66d9ef">&lt;!ELEMENT</span> <span style="color:#f92672">age</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">#PCDATA</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">&gt;</span>
+<span style="color:#66d9ef">&lt;!ELEMENT</span> <span style="color:#f92672">sex</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">#PCDATA</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">&gt;</span>
+<span style="color:#66d9ef">&lt;!ATTLIST</span> <span style="color:#f92672">student</span> <span style="color:#a6e22e">number</span> <span style="color:#66d9ef">ID</span> <span style="color:#66d9ef">#REQUIRED</span><span style="color:#66d9ef">&gt;</span>
+</code></pre></div><p>*.xml</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#75715e">&lt;?xml version=&#34;1.0&#34; encoding=&#34;utf-8&#34; ?&gt;</span>
+<span style="color:#75715e">&lt;!DOCTYPE students SYSTEM &#34;students.dtd&#34;&gt;</span>
+<span style="color:#f92672">&lt;students&gt;</span>
+    <span style="color:#f92672">&lt;student</span> <span style="color:#a6e22e">number=</span><span style="color:#e6db74">&#34;abc&#34;</span><span style="color:#f92672">&gt;</span>
+        <span style="color:#f92672">&lt;name&gt;&lt;/name&gt;</span>
+        <span style="color:#f92672">&lt;age&gt;</span>apple<span style="color:#f92672">&lt;/age&gt;</span>
+        <span style="color:#f92672">&lt;sex&gt;</span>pen<span style="color:#f92672">&lt;/sex&gt;</span>
+    <span style="color:#f92672">&lt;/student&gt;</span>
+<span style="color:#f92672">&lt;/students&gt;</span>
+</code></pre></div><h5 id="dtd-分类">DTD 分类</h5>
+<ul>
+<li>内部DTD:<!-- raw HTML omitted --></li>
+<li>外部DTD：
+<ul>
+<li>本地DTD（SYSTEM）：<code>&lt;!DOCTYPE 根元素名称 SYSTEM &quot;dtd文件路径&quot;&gt;</code></li>
+<li>网络DTD（PUBLIC）：<code>&lt;!DOCTYPE 根元素名称 PUBLIC &quot;描述信息例如：版本作者语言等等&quot; &quot;网络上DTD路径&quot;&gt;</code></li>
+</ul>
+</li>
+</ul>
+<h5 id="dtd-语法">DTD 语法</h5>
+<p><strong>定义元素</strong></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#75715e">&lt;!-- 定义名为name的元素，内容为文本类型(Parsed Character Data可被解析的字符数据文本数据) --&gt;</span>
+<span style="color:#75715e">&lt;!ELEMENT name(#PCDATA)&gt;</span>
+
+<span style="color:#75715e">&lt;!-- 定义名为student元素，内容依次为name、age、sex元素(后面所接符号表示子元素出现次数：*表示出现0~n次，+表示1~n次，？表示0~1次) --&gt;</span>
+<span style="color:#75715e">&lt;!ELEMENT student(name*,age+,sex?)&gt;</span>
+
+<span style="color:#75715e">&lt;!-- 定义名为student元素，内容任意 --&gt;</span>
+<span style="color:#75715e">&lt;!ELEMENT student ANY&gt;</span>
+
+<span style="color:#75715e">&lt;!-- 定义名为student元素，不能有内容，即空元素。注意：空元素是可以有属性的 --&gt;</span>
+<span style="color:#75715e">&lt;!ELEMENT student EMPTY&gt;</span>
+</code></pre></div><p><strong>定义属性</strong></p>
+<pre><code>&lt;!ATTLIST 元素名字 属性名 属性类型 设置说明&gt;
+
+属性类型    
+CDATA（文本类型）：&lt;!ATTLIST student number CDATA #REQUIRED&gt;
+Enumerated（枚举类型）：&lt;!ATTLIST student sex(male|female)&quot;male&quot;&gt;
+ID：ID类型的属性用来标识元素的唯一性，即元素的ID属性值不能与其他元素的ID属性值相同： 
+
+&lt;!ATTLIST student number ID #REQUIRED&gt;
+&lt;!ATTLIST student friend IDREF #IMPLIED&gt;
+IDREF（ID引用类型）：用来指定另一个元素，与另一个元素建立关联关系，IDREF类型的属性值必须是另一个元素的ID： 
+
+设置说明
+#REQUIRED：说明属性是必须的；
+#IMPLIED：说明属性是可选的；
+</code></pre><h4 id="schema约束主要">Schema约束（主要）</h4>
+<ul>
+<li>Schema是新的XML文档约束，DTD出现的比较早；</li>
+<li>Schema要比DTD强大很多，能对内容进行约束；</li>
+<li>Schema本身也是XML文档，但Schema文档的扩展名为xsd。</li>
+</ul>
+<p><strong>示例</strong><br>
+*.xsd</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#75715e">&lt;?xml version=&#34;1.0&#34;?&gt;</span>
+<span style="color:#f92672">&lt;xsd:schema</span> <span style="color:#a6e22e">xmlns=</span><span style="color:#e6db74">&#34;http://www.itcast.cn/xml&#34;</span>
+            <span style="color:#a6e22e">xmlns:xsd=</span><span style="color:#e6db74">&#34;http://www.w3.org/2001/XMLSchema&#34;</span>
+            <span style="color:#a6e22e">targetNamespace=</span><span style="color:#e6db74">&#34;http://www.itcast.cn/xml&#34;</span> <span style="color:#a6e22e">elementFormDefault=</span><span style="color:#e6db74">&#34;qualified&#34;</span><span style="color:#f92672">&gt;</span>
+    <span style="color:#f92672">&lt;xsd:element</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;students&#34;</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;studentsType&#34;</span><span style="color:#f92672">/&gt;</span>
+    <span style="color:#f92672">&lt;xsd:complexType</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;studentsType&#34;</span><span style="color:#f92672">&gt;</span>
+        <span style="color:#f92672">&lt;xsd:sequence&gt;</span>
+            <span style="color:#f92672">&lt;xsd:element</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;student&#34;</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;studentType&#34;</span> <span style="color:#a6e22e">minOccurs=</span><span style="color:#e6db74">&#34;0&#34;</span> <span style="color:#a6e22e">maxOccurs=</span><span style="color:#e6db74">&#34;unbounded&#34;</span><span style="color:#f92672">/&gt;</span>
+        <span style="color:#f92672">&lt;/xsd:sequence&gt;</span>
+    <span style="color:#f92672">&lt;/xsd:complexType&gt;</span>
+    <span style="color:#f92672">&lt;xsd:complexType</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;studentType&#34;</span><span style="color:#f92672">&gt;</span>
+        <span style="color:#f92672">&lt;xsd:sequence&gt;</span>
+            <span style="color:#f92672">&lt;xsd:element</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;name&#34;</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;xsd:string&#34;</span><span style="color:#f92672">/&gt;</span>
+            <span style="color:#f92672">&lt;xsd:element</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;age&#34;</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;ageType&#34;</span><span style="color:#f92672">/&gt;</span>
+            <span style="color:#f92672">&lt;xsd:element</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;sex&#34;</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;sexType&#34;</span><span style="color:#f92672">/&gt;</span>
+        <span style="color:#f92672">&lt;/xsd:sequence&gt;</span>
+        <span style="color:#f92672">&lt;xsd:attribute</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;number&#34;</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;numberType&#34;</span> <span style="color:#a6e22e">use=</span><span style="color:#e6db74">&#34;required&#34;</span><span style="color:#f92672">/&gt;</span>
+    <span style="color:#f92672">&lt;/xsd:complexType&gt;</span>
+    <span style="color:#f92672">&lt;xsd:simpleType</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;sexType&#34;</span><span style="color:#f92672">&gt;</span>
+        <span style="color:#f92672">&lt;xsd:restriction</span> <span style="color:#a6e22e">base=</span><span style="color:#e6db74">&#34;xsd:string&#34;</span><span style="color:#f92672">&gt;</span>
+            <span style="color:#f92672">&lt;xsd:enumeration</span> <span style="color:#a6e22e">value=</span><span style="color:#e6db74">&#34;male&#34;</span><span style="color:#f92672">/&gt;</span>
+            <span style="color:#f92672">&lt;xsd:enumeration</span> <span style="color:#a6e22e">value=</span><span style="color:#e6db74">&#34;female&#34;</span><span style="color:#f92672">/&gt;</span>
+        <span style="color:#f92672">&lt;/xsd:restriction&gt;</span>
+    <span style="color:#f92672">&lt;/xsd:simpleType&gt;</span>
+    <span style="color:#f92672">&lt;xsd:simpleType</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;ageType&#34;</span><span style="color:#f92672">&gt;</span>
+        <span style="color:#f92672">&lt;xsd:restriction</span> <span style="color:#a6e22e">base=</span><span style="color:#e6db74">&#34;xsd:integer&#34;</span><span style="color:#f92672">&gt;</span>
+            <span style="color:#f92672">&lt;xsd:minInclusive</span> <span style="color:#a6e22e">value=</span><span style="color:#e6db74">&#34;0&#34;</span><span style="color:#f92672">/&gt;</span>
+            <span style="color:#f92672">&lt;xsd:maxInclusive</span> <span style="color:#a6e22e">value=</span><span style="color:#e6db74">&#34;120&#34;</span><span style="color:#f92672">/&gt;</span>
+        <span style="color:#f92672">&lt;/xsd:restriction&gt;</span>
+    <span style="color:#f92672">&lt;/xsd:simpleType&gt;</span>
+    <span style="color:#f92672">&lt;xsd:simpleType</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;numberType&#34;</span><span style="color:#f92672">&gt;</span>
+        <span style="color:#f92672">&lt;xsd:restriction</span> <span style="color:#a6e22e">base=</span><span style="color:#e6db74">&#34;xsd:string&#34;</span><span style="color:#f92672">&gt;</span>
+            <span style="color:#f92672">&lt;xsd:pattern</span> <span style="color:#a6e22e">value=</span><span style="color:#e6db74">&#34;ITCAST_\d{4}&#34;</span><span style="color:#f92672">/&gt;</span>
+        <span style="color:#f92672">&lt;/xsd:restriction&gt;</span>
+    <span style="color:#f92672">&lt;/xsd:simpleType&gt;</span>
+<span style="color:#f92672">&lt;/xsd:schema&gt;</span>
+</code></pre></div><p>*.xml</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#75715e">&lt;!-- 引入Schema约束:
+</span><span style="color:#75715e">1. 书写根元素(因为xsd文件的引入是在根元素上进行的);
+</span><span style="color:#75715e">2. 在根元素上书写schemaLocation属性，填入命名空间，和xsd文件位置(可以引入多个，每队之间用 空格/回车 隔开);
+</span><span style="color:#75715e">3. 为引入的xsd定义一个前缀：xmlns=&#34;http://www.itcast.cn/xml&#34;;
+</span><span style="color:#75715e">4. 固定值：xmlns:xsi=&#34;http://www.w3.org/2001/XMLSchema-instance&#34;。
+</span><span style="color:#75715e"> --&gt;</span>
+<span style="color:#f92672">&lt;students</span>  <span style="color:#a6e22e">xmlns=</span><span style="color:#e6db74">&#34;http://www.itcast.cn/xml&#34;</span>
+          <span style="color:#a6e22e">xmlns:xsi=</span><span style="color:#e6db74">&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span>
+          <span style="color:#a6e22e">xsi:schemaLocation=</span><span style="color:#e6db74">&#34;http://www.itcast.cn/xml students.xsd&#34;</span> <span style="color:#f92672">&gt;</span>
+          <span style="color:#f92672">&lt;student</span> <span style="color:#a6e22e">number=</span><span style="color:#e6db74">&#34;ITCAST_0001&#34;</span><span style="color:#f92672">&gt;</span>
+              <span style="color:#f92672">&lt;name&gt;</span>tom<span style="color:#f92672">&lt;/name&gt;</span>
+              <span style="color:#f92672">&lt;age&gt;</span>18<span style="color:#f92672">&lt;/age&gt;</span>
+              <span style="color:#f92672">&lt;sex&gt;</span>male<span style="color:#f92672">&lt;/sex&gt;</span>
+          <span style="color:#f92672">&lt;/student&gt;</span>
+<span style="color:#f92672">&lt;/students&gt;</span>
+</code></pre></div><h2 id="xml解析">XML解析</h2>
+<blockquote>
+<p>系统从xml中读取数据的过程</p>
+</blockquote>
+<h3 id="dom--sax">DOM &amp; SAX</h3>
+<blockquote>
+<p>Document Object Model &amp; Simple API for XML: 两个常见的解析xml的思想</p>
+</blockquote>
+<h4 id="dom">DOM</h4>
+<p>DOM 是基于树形结构的XML解析方式，它会将整个XML文档读入内存并构建一个DOM树，基于这棵树形结构对于各个节点（Node）进行操作。XML文档中的每一个成分都是一个节点。一个XML文档解析后对应一个Document对象。</p>
+<ul>
+<li>优点：元素与元素之间的结构关系保留了下来，易于进行增删改查</li>
+<li>缺点：如果XML文档数据量较大，那么会造成较大的资源消耗</li>
+</ul>
+<p>DOM把所有内容封装成了五类对象：Document、Element、Attribute、Text、Commons，它们共同的父类是 Node</p>
+<p><strong>Node</strong></p>
+<ul>
+<li>自身属性：nodeType、nodeName、nodeValue</li>
+<li>导航属性：
+<blockquote>
+<p>寻找子节点的：firstChild, lastChild, childNodes<br>
+寻找父节点的：parentNode<br>
+寻找兄弟节点的：nextSibling, previousSibling</p>
+</blockquote>
+</li>
+</ul>
+<p><strong>获取Element的方式：</strong></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">      getElementById                    <span style="color:#75715e">// Document
+</span><span style="color:#75715e"></span>      getElementsByTagName              <span style="color:#75715e">// Document/Element
+</span><span style="color:#75715e"></span>      getElementsByClassName            <span style="color:#75715e">// Document/Element
+</span><span style="color:#75715e"></span>      getElementsByName                 <span style="color:#75715e">// Document
+</span></code></pre></div><p><strong>增删改查：</strong></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">      document<span style="color:#f92672">.</span><span style="color:#a6e22e">createElement</span>            <span style="color:#75715e">// 创建一个元素
+</span><span style="color:#75715e"></span>      element<span style="color:#f92672">.</span><span style="color:#a6e22e">appendChild</span> 
+      element<span style="color:#f92672">.</span><span style="color:#a6e22e">insertBefore</span>              <span style="color:#75715e">// 添加一个元素
+</span><span style="color:#75715e"></span>      element<span style="color:#f92672">.</span><span style="color:#a6e22e">replaceChild</span>              <span style="color:#75715e">// 替换一个元素
+</span><span style="color:#75715e"></span>      element<span style="color:#f92672">.</span><span style="color:#a6e22e">removeChild</span>               <span style="color:#75715e">// 删除一个元素
+</span></code></pre></div><p><strong>DOM示例</strong></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#75715e">&lt;?xml version=&#34;1.0&#34; encoding=&#34;utf-8&#34; ?&gt;</span>
+<span style="color:#f92672">&lt;students&gt;</span>
+    <span style="color:#f92672">&lt;student</span> <span style="color:#a6e22e">number=</span><span style="color:#e6db74">&#34;0001&#34;</span><span style="color:#f92672">&gt;</span>
+        <span style="color:#f92672">&lt;name&gt;</span>Wang<span style="color:#f92672">&lt;/name&gt;</span>
+        <span style="color:#f92672">&lt;age&gt;</span>19<span style="color:#f92672">&lt;/age&gt;</span>
+        <span style="color:#f92672">&lt;sex&gt;</span>male<span style="color:#f92672">&lt;/sex&gt;</span>
+    <span style="color:#f92672">&lt;/student&gt;</span>
+    <span style="color:#f92672">&lt;student</span> <span style="color:#a6e22e">number=</span><span style="color:#e6db74">&#34;002&#34;</span><span style="color:#f92672">&gt;</span>
+        <span style="color:#f92672">&lt;name&gt;</span>Gu<span style="color:#f92672">&lt;/name&gt;</span>
+        <span style="color:#f92672">&lt;age&gt;</span>18<span style="color:#f92672">&lt;/age&gt;</span>
+        <span style="color:#f92672">&lt;sex&gt;</span>female<span style="color:#f92672">&lt;/sex&gt;</span>
+    <span style="color:#f92672">&lt;/student&gt;</span>
+<span style="color:#f92672">&lt;/students&gt;</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> DOM<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> org.w3c.dom.Document<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.w3c.dom.Element<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.w3c.dom.Node<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.w3c.dom.NodeList<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> javax.xml.parsers.DocumentBuilder<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.xml.parsers.DocumentBuilderFactory<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> java.io.File<span style="color:#f92672">;</span>
+
+<span style="color:#75715e">// 使用DOM解析获得所有学生信息
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">DOM</span> <span style="color:#f92672">{</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#75715e">// 1.获得jaxp工厂
+</span><span style="color:#75715e"></span>        DocumentBuilderFactory factory <span style="color:#f92672">=</span> DocumentBuilderFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">newInstance</span><span style="color:#f92672">();</span>
+
+        <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+            <span style="color:#75715e">// 2.通过工厂获得解析器实现类
+</span><span style="color:#75715e"></span>            DocumentBuilder builder <span style="color:#f92672">=</span> factory<span style="color:#f92672">.</span><span style="color:#a6e22e">newDocumentBuilder</span><span style="color:#f92672">();</span>
+            <span style="color:#75715e">// 3.使用解析器加载xml文档
+</span><span style="color:#75715e"></span>            Document doc <span style="color:#f92672">=</span> builder<span style="color:#f92672">.</span><span style="color:#a6e22e">parse</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> File<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;src/DOM/students.xml&#34;</span><span style="color:#f92672">));</span>
+            <span style="color:#75715e">// 4.获得所有学生元素的集合
+</span><span style="color:#75715e"></span>            NodeList studentList <span style="color:#f92672">=</span> doc<span style="color:#f92672">.</span><span style="color:#a6e22e">getElementsByTagName</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;student&#34;</span><span style="color:#f92672">);</span>
+            <span style="color:#75715e">// 5.遍历集合
+</span><span style="color:#75715e"></span>            <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span> i <span style="color:#f92672">&lt;</span> studentList<span style="color:#f92672">.</span><span style="color:#a6e22e">getLength</span><span style="color:#f92672">();</span> i<span style="color:#f92672">++)</span> <span style="color:#f92672">{</span>
+                Element stuEle <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>Element<span style="color:#f92672">)</span> studentList<span style="color:#f92672">.</span><span style="color:#a6e22e">item</span><span style="color:#f92672">(</span>i<span style="color:#f92672">);</span>
+                <span style="color:#75715e">// 获得学生元素的number属性
+</span><span style="color:#75715e"></span>                String number <span style="color:#f92672">=</span> stuEle<span style="color:#f92672">.</span><span style="color:#a6e22e">getAttribute</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;number&#34;</span><span style="color:#f92672">);</span>
+                System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;学号:&#34;</span> <span style="color:#f92672">+</span> number<span style="color:#f92672">);</span>
+                <span style="color:#75715e">// 获得学生节点下的所有子节点
+</span><span style="color:#75715e"></span>                NodeList children <span style="color:#f92672">=</span> stuEle<span style="color:#f92672">.</span><span style="color:#a6e22e">getChildNodes</span><span style="color:#f92672">();</span>
+                <span style="color:#75715e">// 遍历集合并提取name, age, sex元素对象
+</span><span style="color:#75715e"></span>                <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> j <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span> j <span style="color:#f92672">&lt;</span> children<span style="color:#f92672">.</span><span style="color:#a6e22e">getLength</span><span style="color:#f92672">();</span> j<span style="color:#f92672">++)</span> <span style="color:#f92672">{</span>
+                    Node node <span style="color:#f92672">=</span> children<span style="color:#f92672">.</span><span style="color:#a6e22e">item</span><span style="color:#f92672">(</span>j<span style="color:#f92672">);</span>
+                    <span style="color:#75715e">// 方式1: if(node instanceof Element){ }
+</span><span style="color:#75715e"></span>                    <span style="color:#75715e">// 方式2：
+</span><span style="color:#75715e"></span>                    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>node<span style="color:#f92672">.</span><span style="color:#a6e22e">getNodeType</span><span style="color:#f92672">()</span> <span style="color:#f92672">==</span> Node<span style="color:#f92672">.</span><span style="color:#a6e22e">ELEMENT_NODE</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                        Element child <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>Element<span style="color:#f92672">)</span> node<span style="color:#f92672">;</span>
+                        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>child<span style="color:#f92672">.</span><span style="color:#a6e22e">getNodeName</span><span style="color:#f92672">().</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;name&#34;</span><span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+                            String name <span style="color:#f92672">=</span> child<span style="color:#f92672">.</span><span style="color:#a6e22e">getTextContent</span><span style="color:#f92672">();</span>
+                            System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;姓名:&#34;</span> <span style="color:#f92672">+</span> name<span style="color:#f92672">);</span>
+                        <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>child<span style="color:#f92672">.</span><span style="color:#a6e22e">getNodeName</span><span style="color:#f92672">().</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;age&#34;</span><span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+                            String age <span style="color:#f92672">=</span> child<span style="color:#f92672">.</span><span style="color:#a6e22e">getTextContent</span><span style="color:#f92672">();</span>
+                            System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;年龄:&#34;</span> <span style="color:#f92672">+</span> age<span style="color:#f92672">);</span>
+                        <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>child<span style="color:#f92672">.</span><span style="color:#a6e22e">getNodeName</span><span style="color:#f92672">().</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;sex&#34;</span><span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+                            String sex <span style="color:#f92672">=</span> child<span style="color:#f92672">.</span><span style="color:#a6e22e">getTextContent</span><span style="color:#f92672">();</span>
+                            System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;性别:&#34;</span> <span style="color:#f92672">+</span> sex<span style="color:#f92672">);</span>
+                        <span style="color:#f92672">}</span>
+                    <span style="color:#f92672">}</span>
+                <span style="color:#f92672">}</span>
+            <span style="color:#f92672">}</span>
+
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>Exception e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            e<span style="color:#f92672">.</span><span style="color:#a6e22e">printStackTrace</span><span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+
+</code></pre></div><h4 id="sax">SAX</h4>
+<p>SAX 是基于事件模型的XML解析方式，它并不需要将整个XML文档加载到内存中，而只需将XML文档的一部分加载到内存中，即可开始解析，在处理过程中并不会在内存中记录XML中的数据，所以占用的资源比较少。
+SAX解析将XML档的读取过程，划分出5类事件（文档开始/结束事件、元素开始/结束事件、文本事件），根据自己感兴趣的事件注册相应的回调函数。只需继承SAX提供的DefaultHandler基类，重写相应的事件处理方法并进行注册即可。事件是由解析器产生并通过回调函数发送给应用程序的，这种模式称作为“推模式”（Pull）。</p>
+<ul>
+<li>优点：因为文件内存占用小，所以适合解析大的XML</li>
+<li>缺点：因为不储存XML文档的结构，所以需要自己负责维护业务逻辑涉及的多层节点之间的关系。当XML文档非常复杂时，维护节点间关系的复杂度较高，工作量就会比较大。另一方面，因为是流式处理，所以处理过程只能从XML文档开始向后单项进行，无法像DOM方式那样自由导航到之前处理过的节点上重新处理，也无法支持XPath。SAX没有提供写XML文档的功能。</li>
+</ul>
+<p><strong>示例</strong></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> SAX<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> org.xml.sax.Attributes<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.xml.sax.SAXException<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.xml.sax.helpers.DefaultHandler<span style="color:#f92672">;</span>
+
+<span style="color:#75715e">// 使用SAX解析获取某个学生信息
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SAXHandler</span> <span style="color:#66d9ef">extends</span> DefaultHandler <span style="color:#f92672">{</span>
+    <span style="color:#75715e">// 学生学号
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">private</span> String number<span style="color:#f92672">;</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">SAXHandler</span><span style="color:#f92672">(</span>String number<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">super</span><span style="color:#f92672">();</span>
+        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">number</span> <span style="color:#f92672">=</span> number<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">boolean</span> flag <span style="color:#f92672">=</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">private</span> String current <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;</span><span style="color:#f92672">;</span>
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">startDocument</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> SAXException <span style="color:#f92672">{</span>
+
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#75715e">//参数3：告知开发者当前触发的元素 参数4：提供标签上的属性
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">startElement</span><span style="color:#f92672">(</span>String uri<span style="color:#f92672">,</span> String localName<span style="color:#f92672">,</span> String qName<span style="color:#f92672">,</span>
+                             Attributes attributes<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> SAXException <span style="color:#f92672">{</span>
+        current <span style="color:#f92672">=</span> qName<span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>qName<span style="color:#f92672">.</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;student&#34;</span><span style="color:#f92672">)</span> <span style="color:#f92672">&amp;&amp;</span> attributes<span style="color:#f92672">.</span><span style="color:#a6e22e">getValue</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;number&#34;</span><span style="color:#f92672">).</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span>number<span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+            flag <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">;</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">characters</span><span style="color:#f92672">(</span><span style="color:#66d9ef">char</span><span style="color:#f92672">[]</span> ch<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> start<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> length<span style="color:#f92672">)</span>
+            <span style="color:#66d9ef">throws</span> SAXException <span style="color:#f92672">{</span>
+        String str <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> String<span style="color:#f92672">(</span>ch<span style="color:#f92672">,</span> start<span style="color:#f92672">,</span> length<span style="color:#f92672">);</span>
+        <span style="color:#75715e">//去掉两端的空白字符 回车 空格 制表符
+</span><span style="color:#75715e"></span>        str <span style="color:#f92672">=</span> str<span style="color:#f92672">.</span><span style="color:#a6e22e">trim</span><span style="color:#f92672">();</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>flag <span style="color:#f92672">&amp;&amp;</span> str<span style="color:#f92672">.</span><span style="color:#a6e22e">length</span><span style="color:#f92672">()</span> <span style="color:#f92672">&gt;</span> 0<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>current<span style="color:#f92672">.</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;name&#34;</span><span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+                System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;姓名:&#34;</span> <span style="color:#f92672">+</span> str<span style="color:#f92672">);</span>
+            <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>current<span style="color:#f92672">.</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;age&#34;</span><span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+                System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;年龄:&#34;</span> <span style="color:#f92672">+</span> str<span style="color:#f92672">);</span>
+            <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>current<span style="color:#f92672">.</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;sex&#34;</span><span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+                System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;性别:&#34;</span> <span style="color:#f92672">+</span> str<span style="color:#f92672">);</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">endElement</span><span style="color:#f92672">(</span>String uri<span style="color:#f92672">,</span> String localName<span style="color:#f92672">,</span> String qName<span style="color:#f92672">)</span>
+            <span style="color:#66d9ef">throws</span> SAXException <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>qName<span style="color:#f92672">.</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;student&#34;</span><span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+            flag <span style="color:#f92672">=</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">endDocument</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> SAXException <span style="color:#f92672">{</span>
+
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> SAX<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> javax.xml.parsers.SAXParser<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.xml.parsers.SAXParserFactory<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> java.io.File<span style="color:#f92672">;</span>
+
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SAX</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#75715e">// 1.获得解析器工厂类
+</span><span style="color:#75715e"></span>        SAXParserFactory factory <span style="color:#f92672">=</span> SAXParserFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">newInstance</span><span style="color:#f92672">();</span>
+
+        <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+            <span style="color:#75715e">// 2.获得解析器
+</span><span style="color:#75715e"></span>            SAXParser parser <span style="color:#f92672">=</span> factory<span style="color:#f92672">.</span><span style="color:#a6e22e">newSAXParser</span><span style="color:#f92672">();</span>
+            <span style="color:#75715e">// 3.解析文档
+</span><span style="color:#75715e"></span>            parser<span style="color:#f92672">.</span><span style="color:#a6e22e">parse</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> File<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;src/SAX/students.xml&#34;</span><span style="color:#f92672">),</span> <span style="color:#66d9ef">new</span> SAXHandler<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;0001&#34;</span><span style="color:#f92672">));</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>Exception e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            e<span style="color:#f92672">.</span><span style="color:#a6e22e">printStackTrace</span><span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+<span style="color:#75715e">/*output:
+</span><span style="color:#75715e">* 姓名:Wang
+</span><span style="color:#75715e">* 年龄:19
+</span><span style="color:#75715e">* 性别:male 
+</span><span style="color:#75715e">* */</span>
+</code></pre></div><h3 id="jaxp--dom4j">JAXP &amp; DOM4J</h3>
+<h4 id="jaxp">JAXP</h4>
+<blockquote>
+<p>java api for xml parser</p>
+</blockquote>
+<p>JAXP是JDK提供的一套用于解析XML的API，它很好地支持DOM和SAX解析方式。</p>
+<h4 id="dom4j">DOM4J</h4>
+<blockquote>
+<p>Dom for java</p>
+</blockquote>
+<p>整合SAX和DOM两种思想，使用sax的思想做读取xml，又参照dom的思想，也在内存中创建了一颗对象关系树（优化后属于自己的新树，与dom树不是同一个树，有细节变动，但不影响，可参照之前我们学习的dom树）</p>
+<p><strong>CURD示例</strong></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> dom4j<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> org.dom4j.Document<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.dom4j.Element<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.dom4j.io.OutputFormat<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.dom4j.io.SAXReader<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.dom4j.io.XMLWriter<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> java.io.File<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> java.io.FileOutputStream<span style="color:#f92672">;</span>
+
+<span style="color:#75715e">// 添加一个学生元素: jack 0003 19 male
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Create</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        SAXReader reader <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> SAXReader<span style="color:#f92672">();</span>
+        <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+            Document document <span style="color:#f92672">=</span> reader<span style="color:#f92672">.</span><span style="color:#a6e22e">read</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> File<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;src/dom4j/students.xml&#34;</span><span style="color:#f92672">));</span>
+            Element root <span style="color:#f92672">=</span> document<span style="color:#f92672">.</span><span style="color:#a6e22e">getRootElement</span><span style="color:#f92672">();</span>
+
+            <span style="color:#75715e">// 1.添加student元素及其number属性
+</span><span style="color:#75715e"></span>            Element studentEle <span style="color:#f92672">=</span> root<span style="color:#f92672">.</span><span style="color:#a6e22e">addElement</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;student&#34;</span><span style="color:#f92672">).</span><span style="color:#a6e22e">addAttribute</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;number&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;0003&#34;</span><span style="color:#f92672">);</span>
+            <span style="color:#75715e">// 2.添加name、age、sex子元素并添加子元素中的文本
+</span><span style="color:#75715e"></span>            studentEle<span style="color:#f92672">.</span><span style="color:#a6e22e">addElement</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;name&#34;</span><span style="color:#f92672">).</span><span style="color:#a6e22e">addText</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;jack&#34;</span><span style="color:#f92672">);</span>
+            studentEle<span style="color:#f92672">.</span><span style="color:#a6e22e">addElement</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;age&#34;</span><span style="color:#f92672">).</span><span style="color:#a6e22e">addText</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;19&#34;</span><span style="color:#f92672">);</span>
+            studentEle<span style="color:#f92672">.</span><span style="color:#a6e22e">addElement</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;sex&#34;</span><span style="color:#f92672">).</span><span style="color:#a6e22e">addText</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;male&#34;</span><span style="color:#f92672">);</span>
+
+            <span style="color:#75715e">// 3.将document对象写到文件中
+</span><span style="color:#75715e"></span>            <span style="color:#75715e">// 创建格式化器
+</span><span style="color:#75715e"></span>            OutputFormat format <span style="color:#f92672">=</span> OutputFormat<span style="color:#f92672">.</span><span style="color:#a6e22e">createPrettyPrint</span><span style="color:#f92672">();</span>
+            format<span style="color:#f92672">.</span><span style="color:#a6e22e">setEncoding</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;UTF-8&#34;</span><span style="color:#f92672">);</span>
+            <span style="color:#75715e">// 创建写入器
+</span><span style="color:#75715e"></span>            <span style="color:#75715e">// XMLWriter writer = new XMLWriter(new FileWriter(&#34;src/students_copy.xml&#34;),format);
+</span><span style="color:#75715e"></span>            <span style="color:#75715e">// 使用字节流避免出现乱码
+</span><span style="color:#75715e"></span>            XMLWriter writer <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> XMLWriter<span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> FileOutputStream<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;src/dom4j/students_add.xml&#34;</span><span style="color:#f92672">),</span> format<span style="color:#f92672">);</span>
+            <span style="color:#75715e">// 写入
+</span><span style="color:#75715e"></span>            writer<span style="color:#f92672">.</span><span style="color:#a6e22e">write</span><span style="color:#f92672">(</span>document<span style="color:#f92672">);</span>
+            <span style="color:#75715e">// 关闭资源
+</span><span style="color:#75715e"></span>            writer<span style="color:#f92672">.</span><span style="color:#a6e22e">close</span><span style="color:#f92672">();</span>
+
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>Exception e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#75715e">// TODO Auto-generated catch block
+</span><span style="color:#75715e"></span>            e<span style="color:#f92672">.</span><span style="color:#a6e22e">printStackTrace</span><span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> dom4j<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> org.dom4j.Document<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.dom4j.Element<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.dom4j.io.OutputFormat<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.dom4j.io.SAXReader<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.dom4j.io.XMLWriter<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> java.io.File<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> java.io.FileOutputStream<span style="color:#f92672">;</span>
+
+<span style="color:#75715e">// 删除学生0001
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Delete</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        SAXReader reader <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> SAXReader<span style="color:#f92672">();</span>
+        <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+            Document document <span style="color:#f92672">=</span> reader<span style="color:#f92672">.</span><span style="color:#a6e22e">read</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> File<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;src/dom4j/students.xml&#34;</span><span style="color:#f92672">));</span>
+            Element root <span style="color:#f92672">=</span> document<span style="color:#f92672">.</span><span style="color:#a6e22e">getRootElement</span><span style="color:#f92672">();</span>
+
+            <span style="color:#75715e">// 使用XPath语言查询XML文档而非遍历，可提高效率
+</span><span style="color:#75715e"></span>            String xpath <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;//student[@number=&#39;0001&#39;]&#34;</span><span style="color:#f92672">;</span>
+            Element student <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>Element<span style="color:#f92672">)</span> document<span style="color:#f92672">.</span><span style="color:#a6e22e">selectSingleNode</span><span style="color:#f92672">(</span>xpath<span style="color:#f92672">);</span>
+            <span style="color:#75715e">// 删除：先获取父节点再删除该节点
+</span><span style="color:#75715e"></span>            System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>student<span style="color:#f92672">.</span><span style="color:#a6e22e">getParent</span><span style="color:#f92672">().</span><span style="color:#a6e22e">remove</span><span style="color:#f92672">(</span>student<span style="color:#f92672">));</span>
+
+            <span style="color:#75715e">// 回写
+</span><span style="color:#75715e"></span>            XMLWriter writer <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> XMLWriter<span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> FileOutputStream<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;src/dom4j/students_delete.xml&#34;</span><span style="color:#f92672">),</span> OutputFormat<span style="color:#f92672">.</span><span style="color:#a6e22e">createPrettyPrint</span><span style="color:#f92672">());</span>
+            writer<span style="color:#f92672">.</span><span style="color:#a6e22e">write</span><span style="color:#f92672">(</span>document<span style="color:#f92672">);</span>
+            writer<span style="color:#f92672">.</span><span style="color:#a6e22e">close</span><span style="color:#f92672">();</span>
+
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>Exception e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#75715e">// TODO Auto-generated catch block
+</span><span style="color:#75715e"></span>            e<span style="color:#f92672">.</span><span style="color:#a6e22e">printStackTrace</span><span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> dom4j<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> org.dom4j.Document<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.dom4j.Element<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.dom4j.io.OutputFormat<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.dom4j.io.SAXReader<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.dom4j.io.XMLWriter<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> java.io.File<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> java.io.FileOutputStream<span style="color:#f92672">;</span>
+
+<span style="color:#75715e">// 将学号为0001号的学生信息修改为：rose  16  female
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Update</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        SAXReader reader <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> SAXReader<span style="color:#f92672">();</span>
+        <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+            Document document <span style="color:#f92672">=</span> reader<span style="color:#f92672">.</span><span style="color:#a6e22e">read</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> File<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;src/students.xml&#34;</span><span style="color:#f92672">));</span>
+            String xpath <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;//student[@number=&#39;itcast_0001&#39;]&#34;</span><span style="color:#f92672">;</span>
+            Element studentEle <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>Element<span style="color:#f92672">)</span> document<span style="color:#f92672">.</span><span style="color:#a6e22e">selectSingleNode</span><span style="color:#f92672">(</span>xpath<span style="color:#f92672">);</span>
+            studentEle<span style="color:#f92672">.</span><span style="color:#a6e22e">element</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;name&#34;</span><span style="color:#f92672">).</span><span style="color:#a6e22e">setText</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;rose&#34;</span><span style="color:#f92672">);</span>
+            studentEle<span style="color:#f92672">.</span><span style="color:#a6e22e">element</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;age&#34;</span><span style="color:#f92672">).</span><span style="color:#a6e22e">setText</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;16&#34;</span><span style="color:#f92672">);</span>
+            studentEle<span style="color:#f92672">.</span><span style="color:#a6e22e">element</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;sex&#34;</span><span style="color:#f92672">).</span><span style="color:#a6e22e">setText</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;female&#34;</span><span style="color:#f92672">);</span>
+            
+            XMLWriter writer <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> XMLWriter<span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> FileOutputStream<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;src/students_edit.xml&#34;</span><span style="color:#f92672">),</span> OutputFormat<span style="color:#f92672">.</span><span style="color:#a6e22e">createPrettyPrint</span><span style="color:#f92672">());</span>
+            writer<span style="color:#f92672">.</span><span style="color:#a6e22e">write</span><span style="color:#f92672">(</span>document<span style="color:#f92672">);</span>
+            writer<span style="color:#f92672">.</span><span style="color:#a6e22e">close</span><span style="color:#f92672">();</span>
+
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>Exception e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#75715e">// TODO Auto-generated catch block
+</span><span style="color:#75715e"></span>            e<span style="color:#f92672">.</span><span style="color:#a6e22e">printStackTrace</span><span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> dom4j<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> org.dom4j.Document<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.dom4j.DocumentException<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.dom4j.Element<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.dom4j.io.SAXReader<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> java.io.File<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> java.util.List<span style="color:#f92672">;</span>
+
+<span style="color:#75715e">// 查询出所有学生的所有信息
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Retrieve</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+            SAXReader reader <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> SAXReader<span style="color:#f92672">();</span>
+            Document document <span style="color:#f92672">=</span> reader<span style="color:#f92672">.</span><span style="color:#a6e22e">read</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> File<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;src/students.xml&#34;</span><span style="color:#f92672">));</span>
+            <span style="color:#75715e">// 1.获得文档根节点
+</span><span style="color:#75715e"></span>            Element root <span style="color:#f92672">=</span> document<span style="color:#f92672">.</span><span style="color:#a6e22e">getRootElement</span><span style="color:#f92672">();</span>
+
+            <span style="color:#75715e">// 2.迭代根元素下的所有名叫student的子元素
+</span><span style="color:#75715e"></span>            <span style="color:#75715e">/*  方式一：
+</span><span style="color:#75715e">            for (Iterator&lt;Element&gt; it = root.elementIterator(&#34;student&#34;); it.hasNext(); ) {
+</span><span style="color:#75715e">                Element student = it.next();
+</span><span style="color:#75715e">                // ...
+</span><span style="color:#75715e">            }
+</span><span style="color:#75715e">            */</span>
+
+            <span style="color:#75715e">// 方式二：
+</span><span style="color:#75715e"></span>            List<span style="color:#f92672">&lt;</span>Element<span style="color:#f92672">&gt;</span> list <span style="color:#f92672">=</span> root<span style="color:#f92672">.</span><span style="color:#a6e22e">elements</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;student&#34;</span><span style="color:#f92672">);</span>
+            <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span>Element student <span style="color:#f92672">:</span> list<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                <span style="color:#75715e">//3.获得student元素的number属性
+</span><span style="color:#75715e"></span>                String number <span style="color:#f92672">=</span> student<span style="color:#f92672">.</span><span style="color:#a6e22e">attributeValue</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;number&#34;</span><span style="color:#f92672">);</span>
+                <span style="color:#75715e">//4.student子元素的内容(name age sex)
+</span><span style="color:#75715e"></span>                String name <span style="color:#f92672">=</span> student<span style="color:#f92672">.</span><span style="color:#a6e22e">elementText</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;name&#34;</span><span style="color:#f92672">);</span>
+                String age <span style="color:#f92672">=</span> student<span style="color:#f92672">.</span><span style="color:#a6e22e">elementText</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;age&#34;</span><span style="color:#f92672">);</span>
+                String sex <span style="color:#f92672">=</span> student<span style="color:#f92672">.</span><span style="color:#a6e22e">elementText</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;sex&#34;</span><span style="color:#f92672">);</span>
+                System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;学号:&#34;</span> <span style="color:#f92672">+</span> number <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;,姓名:&#34;</span> <span style="color:#f92672">+</span> name <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;,年龄:&#34;</span> <span style="color:#f92672">+</span> age <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;,性别:&#34;</span> <span style="color:#f92672">+</span> sex <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;&#34;</span><span style="color:#f92672">);</span>
+            <span style="color:#f92672">}</span>
+
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>DocumentException e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            e<span style="color:#f92672">.</span><span style="color:#a6e22e">printStackTrace</span><span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p><strong>节点相关操作</strong></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"> <span style="color:#75715e">// 获取文档的根节点
+</span><span style="color:#75715e"></span> SAXReader reader <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> SAXReader<span style="color:#f92672">();</span>    
+ Document document <span style="color:#f92672">=</span> reader<span style="color:#f92672">.</span><span style="color:#a6e22e">read</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> File<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;src/students.xml&#34;</span><span style="color:#f92672">));</span>  
+ Element root<span style="color:#f92672">=</span>document<span style="color:#f92672">.</span><span style="color:#a6e22e">getRootElement</span><span style="color:#f92672">();</span>
+
+ <span style="color:#75715e">// 获取某个节点的子节点 
+</span><span style="color:#75715e"></span> Element element<span style="color:#f92672">=</span>node<span style="color:#f92672">.</span><span style="color:#a6e22e">element</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;名称&#34;</span><span style="color:#f92672">);</span>
+ 
+ <span style="color:#75715e">// 获得节点的文字
+</span><span style="color:#75715e"></span> String text<span style="color:#f92672">=</span>node<span style="color:#f92672">.</span><span style="color:#a6e22e">getText</span><span style="color:#f92672">();</span>
+
+ <span style="color:#75715e">// 获得某节点下所有名为“member”的子节点，并进行遍历
+</span><span style="color:#75715e"></span> List nodes<span style="color:#f92672">=</span>rootElm<span style="color:#f92672">.</span><span style="color:#a6e22e">elements</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;member&#34;</span><span style="color:#f92672">);</span>
+ <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span>Iterator it<span style="color:#f92672">=</span>nodes<span style="color:#f92672">.</span><span style="color:#a6e22e">iterator</span><span style="color:#f92672">;</span>it<span style="color:#f92672">.</span><span style="color:#a6e22e">hasNext</span><span style="color:#f92672">();){</span>
+     Element elm<span style="color:#f92672">=(</span>Element<span style="color:#f92672">)</span>it<span style="color:#f92672">.</span><span style="color:#a6e22e">next</span><span style="color:#f92672">();</span>
+    <span style="color:#75715e">//do something 
+</span><span style="color:#75715e"></span> <span style="color:#f92672">}</span>
+
+ <span style="color:#75715e">// 对某节点的所有子节点进行遍历
+</span><span style="color:#75715e"></span> <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span>Iterator it<span style="color:#f92672">=</span>root<span style="color:#f92672">.</span><span style="color:#a6e22e">elementIterator</span><span style="color:#f92672">();</span>it<span style="color:#f92672">.</span><span style="color:#a6e22e">hasNext</span><span style="color:#f92672">();){</span>
+      Element elm<span style="color:#f92672">=(</span>Element<span style="color:#f92672">)</span>it<span style="color:#f92672">.</span><span style="color:#a6e22e">next</span><span style="color:#f92672">();</span>
+      <span style="color:#75715e">//do something 
+</span><span style="color:#75715e"></span> <span style="color:#f92672">}</span>
+ 
+ <span style="color:#75715e">// 对某节点下添加子节点
+</span><span style="color:#75715e"></span> Element ageElm<span style="color:#f92672">=</span>newMemberElm<span style="color:#f92672">.</span><span style="color:#a6e22e">addElement</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;age&#34;</span><span style="color:#f92672">);</span>
+
+ <span style="color:#75715e">// 设置节点文字
+</span><span style="color:#75715e"></span> element<span style="color:#f92672">.</span><span style="color:#a6e22e">setText</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;29&#34;</span><span style="color:#f92672">);</span>
+
+ <span style="color:#75715e">// 删除某节点
+</span><span style="color:#75715e"></span> parentElm<span style="color:#f92672">.</span><span style="color:#a6e22e">remove</span><span style="color:#f92672">(</span>childElm<span style="color:#f92672">);</span>   <span style="color:#75715e">// childElm是待删除的节点，parentElm是其父节点
+</span><span style="color:#75715e"></span>
+ <span style="color:#75715e">// 添加一个CDATA节点
+</span><span style="color:#75715e"></span> Element contentElm<span style="color:#f92672">=</span>infoElm<span style="color:#f92672">.</span><span style="color:#a6e22e">addElement</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;content&#34;</span><span style="color:#f92672">);</span>
+ contentElm<span style="color:#f92672">.</span><span style="color:#a6e22e">addCDATA</span><span style="color:#f92672">(</span>diary<span style="color:#f92672">.</span><span style="color:#a6e22e">getContent</span><span style="color:#f92672">);</span>
+ <span style="color:#f92672">......</span>
+</code></pre></div><p><strong>属性相关操作：</strong></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"> <span style="color:#75715e">// 获取某节点下的某属性
+</span><span style="color:#75715e"></span> Element root<span style="color:#f92672">=</span>document<span style="color:#f92672">.</span><span style="color:#a6e22e">getRootElement</span><span style="color:#f92672">();</span>
+ <span style="color:#75715e">// 属性名name
+</span><span style="color:#75715e"></span> Attribute attribute<span style="color:#f92672">=</span>root<span style="color:#f92672">.</span><span style="color:#a6e22e">attribute</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;size&#34;</span><span style="color:#f92672">);</span>
+
+ <span style="color:#75715e">// 获取属性的文字
+</span><span style="color:#75715e"></span> String text<span style="color:#f92672">=</span>attribute<span style="color:#f92672">.</span><span style="color:#a6e22e">getText</span><span style="color:#f92672">();</span>
+
+ <span style="color:#75715e">// 删除某属性
+</span><span style="color:#75715e"></span> Attribute attribute<span style="color:#f92672">=</span>root<span style="color:#f92672">.</span><span style="color:#a6e22e">attribute</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;size&#34;</span><span style="color:#f92672">);</span>
+ root<span style="color:#f92672">.</span><span style="color:#a6e22e">remove</span><span style="color:#f92672">(</span>attribute<span style="color:#f92672">);</span>
+
+ <span style="color:#75715e">// 遍历某节点的所有属性
+</span><span style="color:#75715e"></span> Element root<span style="color:#f92672">=</span>document<span style="color:#f92672">.</span><span style="color:#a6e22e">getRootElement</span><span style="color:#f92672">();</span>
+ <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span>Iterator it<span style="color:#f92672">=</span>root<span style="color:#f92672">.</span><span style="color:#a6e22e">attributeIterator</span><span style="color:#f92672">;</span>it<span style="color:#f92672">.</span><span style="color:#a6e22e">next</span><span style="color:#f92672">();){</span>
+      String text<span style="color:#f92672">=(</span>attribute<span style="color:#f92672">)</span>it<span style="color:#f92672">.</span><span style="color:#a6e22e">next</span><span style="color:#f92672">();</span>
+      System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>text<span style="color:#f92672">);</span>
+ <span style="color:#f92672">}</span>
+
+ <span style="color:#75715e">//设置某节点的属性和文字
+</span><span style="color:#75715e"></span> newMemberElm<span style="color:#f92672">.</span><span style="color:#a6e22e">addAttribute</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;name&#34;</span><span style="color:#f92672">,</span><span style="color:#e6db74">&#34;sitinspring&#34;</span><span style="color:#f92672">);</span>
+ 
+ <span style="color:#75715e">//设置属性的文字
+</span><span style="color:#75715e"></span>  Attribute attribute<span style="color:#f92672">=</span>root<span style="color:#f92672">.</span><span style="color:#a6e22e">attribute</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;name&#34;</span><span style="color:#f92672">);</span>
+  attribute<span style="color:#f92672">.</span><span style="color:#a6e22e">setText</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;sitinspring&#34;</span> <span style="color:#f92672">);</span>
+  <span style="color:#f92672">......</span>
+</code></pre></div><h3 id="xml回写">XML回写</h3>
+<p>1.文档中全为英文，不设置编码，直接写入的形式</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"> XMLWriter writer<span style="color:#f92672">=</span><span style="color:#66d9ef">new</span> XMLWriter<span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> FileWriter<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;output.xml&#34;</span><span style="color:#f92672">));</span>
+ writer<span style="color:#f92672">.</span><span style="color:#a6e22e">writer</span><span style="color:#f92672">(</span>document<span style="color:#f92672">);</span>
+ writer<span style="color:#f92672">.</span><span style="color:#a6e22e">close</span><span style="color:#f92672">();</span>
+</code></pre></div><p>2.文档中含有中文，设置编码格式如下：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"> OutputFormat format<span style="color:#f92672">=</span>OutputFormat<span style="color:#f92672">.</span><span style="color:#a6e22e">creatPrettyPrint</span><span style="color:#f92672">();</span>
+ format<span style="color:#f92672">.</span><span style="color:#a6e22e">setEncoding</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;GBK&#34;</span><span style="color:#f92672">);</span><span style="color:#75715e">//指定XML编码
+</span><span style="color:#75715e"></span> XMLWriter writer<span style="color:#f92672">=</span><span style="color:#66d9ef">new</span> XMLWriter<span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> FileWriter<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;output.xml&#34;</span><span style="color:#f92672">),</span>format<span style="color:#f92672">);</span>
+ writer<span style="color:#f92672">.</span><span style="color:#a6e22e">writer</span><span style="color:#f92672">(</span>document<span style="color:#f92672">);</span>
+ writer<span style="color:#f92672">.</span><span style="color:#a6e22e">close</span><span style="color:#f92672">();</span>
+</code></pre></div><p><strong>Q:使用dom4j如何避免乱码?</strong>
+保证写入的编码和读取的编码一致.</p>
+<ol>
+<li>
+<p>写入的编码如何控制?<br>
+<code>XMLWriter writer = new XMLWriter(new PrintWriter(&quot;src/students_copy.xml&quot;,&quot;UTF-8&quot;),format);</code></p>
+</li>
+<li>
+<p>读取的编码如何控制?<br>
+<code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;GBK&quot;?&gt;</code></p>
+</li>
+</ol>
+<blockquote>
+<p>其中encoding属性决定了读取时采用什么编码，而encoding属性由<code>format.setEncoding(&quot;GBK&quot;);</code>控制.</p>
+</blockquote>
+<p>以上方法太过繁琐，推荐使用使用字节流就不会出现乱码<br>
+<code>XMLWriter writer = new XMLWriter(new FileOutputStream(&quot;src/students_copy.xml&quot;),format);</code></p>
+<h2 id="xpath">XPath</h2>
+<blockquote>
+<p>XPath之于XML就好比SQL语言之于数据库</p>
+</blockquote>
+<p>XPath是一种为查询XML文档而设计的语言，它可以与DOM解析方式配合使用，实现对XML文档的解析。XPath使用路径表达式选取XML文档中指定的节点或者节点集合，与常见的URL路径类似。</p>
+<p><strong>XPath中常用表达式</strong></p>
+<table>
+<thead>
+<tr>
+<th>表达式</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>nodename</td>
+<td>选取指定节点的所有节点</td>
+</tr>
+<tr>
+<td>/</td>
+<td>从根节点选取指定节点</td>
+</tr>
+<tr>
+<td>//</td>
+<td>根据指定表达式，在整个文档中选取匹配的节点，不考虑匹配节点在文档中的位置</td>
+</tr>
+<tr>
+<td>.</td>
+<td>选取当前节点</td>
+</tr>
+<tr>
+<td>..</td>
+<td>选取当前节点的父节点</td>
+</tr>
+<tr>
+<td>@</td>
+<td>选取属性</td>
+</tr>
+<tr>
+<td>*</td>
+<td>匹配任何元素节点</td>
+</tr>
+<tr>
+<td>@*</td>
+<td>匹配任何属性节点</td>
+</tr>
+<tr>
+<td>node()</td>
+<td>匹配任何类型的节点</td>
+</tr>
+<tr>
+<td>text()</td>
+<td>匹配文本节点</td>
+</tr>
+<tr>
+<td>竖线</td>
+<td>选取若干路径</td>
+</tr>
+<tr>
+<td>[ ]</td>
+<td>指定某个节点，用于查找某个特定节点或包含某个指定值的节点</td>
+</tr>
+</tbody>
+</table>
+<p><strong>示例: 解析inventory.xml文档，查找作者为Neal Stephenson所有书籍的标题</strong></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#75715e">&lt;!-- inventory.xml --&gt;</span>
+<span style="color:#f92672">&lt;inventory&gt;</span>
+    <span style="color:#f92672">&lt;book</span> <span style="color:#a6e22e">year=</span><span style="color:#e6db74">&#34;2000&#34;</span><span style="color:#f92672">&gt;</span>
+        <span style="color:#f92672">&lt;title&gt;</span>Snow Crash<span style="color:#f92672">&lt;/title&gt;</span>
+        <span style="color:#f92672">&lt;author&gt;</span>Neal Stephenson<span style="color:#f92672">&lt;/author&gt;</span>
+        <span style="color:#f92672">&lt;publisher&gt;</span>Spectra<span style="color:#f92672">&lt;/publisher&gt;</span>
+        <span style="color:#f92672">&lt;isbn&gt;</span>0553380958<span style="color:#f92672">&lt;/isbn&gt;</span>
+        <span style="color:#f92672">&lt;price&gt;</span>14.95<span style="color:#f92672">&lt;/price&gt;</span>
+    <span style="color:#f92672">&lt;/book&gt;</span>
+    <span style="color:#f92672">&lt;book</span> <span style="color:#a6e22e">year=</span><span style="color:#e6db74">&#34;2005&#34;</span><span style="color:#f92672">&gt;</span>
+        <span style="color:#f92672">&lt;title&gt;</span>Burning Tower<span style="color:#f92672">&lt;/title&gt;</span>
+        <span style="color:#f92672">&lt;author&gt;</span>Larry Niven<span style="color:#f92672">&lt;/author&gt;</span>
+        <span style="color:#f92672">&lt;publisher&gt;</span>Jerry Pournelle<span style="color:#f92672">&lt;/publisher&gt;</span>
+        <span style="color:#f92672">&lt;isbn&gt;</span>0743416910<span style="color:#f92672">&lt;/isbn&gt;</span>
+        <span style="color:#f92672">&lt;price&gt;</span>5.99<span style="color:#f92672">&lt;/price&gt;</span>
+    <span style="color:#f92672">&lt;/book&gt;</span>
+    <span style="color:#f92672">&lt;book</span> <span style="color:#a6e22e">year=</span><span style="color:#e6db74">&#34;1995&#34;</span><span style="color:#f92672">&gt;</span>
+        <span style="color:#f92672">&lt;title&gt;</span>Zodiac<span style="color:#f92672">&lt;/title&gt;</span>
+        <span style="color:#f92672">&lt;author&gt;</span>Neal Stephenson<span style="color:#f92672">&lt;/author&gt;</span>
+        <span style="color:#f92672">&lt;publisher&gt;</span>Spectra<span style="color:#f92672">&lt;/publisher&gt;</span>
+        <span style="color:#f92672">&lt;isbn&gt;</span>0553573862<span style="color:#f92672">&lt;/isbn&gt;</span>
+        <span style="color:#f92672">&lt;price&gt;</span>7.50<span style="color:#f92672">&lt;/price&gt;</span>
+    <span style="color:#f92672">&lt;/book&gt;</span>
+    <span style="color:#75715e">&lt;!-- more books...--&gt;</span>
+<span style="color:#f92672">&lt;/inventory&gt;</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> xpath<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> org.w3c.dom.Document<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.w3c.dom.NodeList<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.xml.sax.ErrorHandler<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.xml.sax.SAXException<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.xml.sax.SAXParseException<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> javax.xml.parsers.DocumentBuilder<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.xml.parsers.DocumentBuilderFactory<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.xml.parsers.ParserConfigurationException<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.xml.xpath.*<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> java.io.IOException<span style="color:#f92672">;</span>
+
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">XPathTest</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> ParserConfigurationException<span style="color:#f92672">,</span> IOException<span style="color:#f92672">,</span> SAXException<span style="color:#f92672">,</span> XPathExpressionException <span style="color:#f92672">{</span>
+        DocumentBuilderFactory documentBuilderFactory <span style="color:#f92672">=</span> DocumentBuilderFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">newInstance</span><span style="color:#f92672">();</span>
+
+        <span style="color:#75715e">// 开启验证
+</span><span style="color:#75715e"></span>        documentBuilderFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">setValidating</span><span style="color:#f92672">(</span><span style="color:#66d9ef">true</span><span style="color:#f92672">);</span>
+        documentBuilderFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">setNamespaceAware</span><span style="color:#f92672">(</span><span style="color:#66d9ef">false</span><span style="color:#f92672">);</span>
+        documentBuilderFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">setIgnoringComments</span><span style="color:#f92672">(</span><span style="color:#66d9ef">true</span><span style="color:#f92672">);</span>
+        documentBuilderFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">setIgnoringElementContentWhitespace</span><span style="color:#f92672">(</span><span style="color:#66d9ef">false</span><span style="color:#f92672">);</span>
+        documentBuilderFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">setCoalescing</span><span style="color:#f92672">(</span><span style="color:#66d9ef">false</span><span style="color:#f92672">);</span>
+        documentBuilderFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">setExpandEntityReferences</span><span style="color:#f92672">(</span><span style="color:#66d9ef">true</span><span style="color:#f92672">);</span>
+
+        <span style="color:#75715e">// 创建DocumentBuilder
+</span><span style="color:#75715e"></span>        DocumentBuilder builder <span style="color:#f92672">=</span> documentBuilderFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">newDocumentBuilder</span><span style="color:#f92672">();</span>
+
+        <span style="color:#75715e">// 设置异常处理对象
+</span><span style="color:#75715e"></span>        builder<span style="color:#f92672">.</span><span style="color:#a6e22e">setErrorHandler</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> ErrorHandler<span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+            <span style="color:#a6e22e">@Override</span>
+            <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">warning</span><span style="color:#f92672">(</span>SAXParseException exception<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> SAXException <span style="color:#f92672">{</span>
+                System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;WARN:&#34;</span> <span style="color:#f92672">+</span> exception<span style="color:#f92672">.</span><span style="color:#a6e22e">getMessage</span><span style="color:#f92672">());</span>
+            <span style="color:#f92672">}</span>
+
+            <span style="color:#a6e22e">@Override</span>
+            <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">error</span><span style="color:#f92672">(</span>SAXParseException exception<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> SAXException <span style="color:#f92672">{</span>
+                System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;fatalError:&#34;</span> <span style="color:#f92672">+</span> exception<span style="color:#f92672">.</span><span style="color:#a6e22e">getMessage</span><span style="color:#f92672">());</span>
+            <span style="color:#f92672">}</span>
+
+            <span style="color:#a6e22e">@Override</span>
+            <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">fatalError</span><span style="color:#f92672">(</span>SAXParseException exception<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> SAXException <span style="color:#f92672">{</span>
+                System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;error:&#34;</span> <span style="color:#f92672">+</span> exception<span style="color:#f92672">.</span><span style="color:#a6e22e">getMessage</span><span style="color:#f92672">());</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">});</span>
+
+        <span style="color:#75715e">// 将文档加载到一个Document对象中
+</span><span style="color:#75715e"></span>        Document doc <span style="color:#f92672">=</span> builder<span style="color:#f92672">.</span><span style="color:#a6e22e">parse</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;src/xpath/inventory.xml&#34;</span><span style="color:#f92672">);</span>
+        <span style="color:#75715e">// 创建 XPathFactory
+</span><span style="color:#75715e"></span>        XPathFactory factory <span style="color:#f92672">=</span> XPathFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">newInstance</span><span style="color:#f92672">();</span>
+        <span style="color:#75715e">// 创建 XPath 对象
+</span><span style="color:#75715e"></span>        XPath xpath <span style="color:#f92672">=</span> factory<span style="color:#f92672">.</span><span style="color:#a6e22e">newXPath</span><span style="color:#f92672">();</span>
+        <span style="color:#75715e">// 编译 XPath 表达式，查询作者为Neal Stephenson的图书的标题
+</span><span style="color:#75715e"></span>        XPathExpression expr <span style="color:#f92672">=</span> xpath<span style="color:#f92672">.</span><span style="color:#a6e22e">compile</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;//book[author=&#39;Neal Stephenson&#39;]/title/text()&#34;</span><span style="color:#f92672">);</span>
+
+        <span style="color:#75715e">/*
+</span><span style="color:#75715e">         * 执行XPath表达式得到结果
+</span><span style="color:#75715e">         * 第一个参数指定了XPath表达式进行查询的上下文节点，本例查询整个文档
+</span><span style="color:#75715e">         * 第二个参数指定XPath表达式的返回类型，XPathConstants类提供了nodeset、boolean、number、string 和 Node 五种类型
+</span><span style="color:#75715e">         * */</span>
+        Object result <span style="color:#f92672">=</span> expr<span style="color:#f92672">.</span><span style="color:#a6e22e">evaluate</span><span style="color:#f92672">(</span>doc<span style="color:#f92672">,</span> XPathConstants<span style="color:#f92672">.</span><span style="color:#a6e22e">NODESET</span><span style="color:#f92672">);</span>
+        NodeList nodes <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>NodeList<span style="color:#f92672">)</span> result<span style="color:#f92672">;</span> <span style="color:#75715e">//强制类型转换
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span> i <span style="color:#f92672">&lt;</span> nodes<span style="color:#f92672">.</span><span style="color:#a6e22e">getLength</span><span style="color:#f92672">();</span> i<span style="color:#f92672">++)</span> <span style="color:#f92672">{</span>
+            System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>nodes<span style="color:#f92672">.</span><span style="color:#a6e22e">item</span><span style="color:#f92672">(</span>i<span style="color:#f92672">).</span><span style="color:#a6e22e">getNodeValue</span><span style="color:#f92672">());</span>
+        <span style="color:#f92672">}</span>
+
+        <span style="color:#75715e">// 查询1997年之后的图书的标题
+</span><span style="color:#75715e"></span>        <span style="color:#75715e">/*
+</span><span style="color:#75715e">        * 如果XPath表达式只使用一次，可以跳过编译步骤直接调用XPath对象的evaluate()方法进行查询。
+</span><span style="color:#75715e">        * 如果需要重复使用多次，先进行编译在查询，可提高性能
+</span><span style="color:#75715e">        * */</span>
+        nodes <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>NodeList<span style="color:#f92672">)</span> xpath<span style="color:#f92672">.</span><span style="color:#a6e22e">evaluate</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;//book[@year&gt;1997]/title/text()&#34;</span><span style="color:#f92672">,</span> doc<span style="color:#f92672">,</span> XPathConstants<span style="color:#f92672">.</span><span style="color:#a6e22e">NODESET</span><span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span> i <span style="color:#f92672">&lt;</span> nodes<span style="color:#f92672">.</span><span style="color:#a6e22e">getLength</span><span style="color:#f92672">();</span> i<span style="color:#f92672">++)</span> <span style="color:#f92672">{</span>
+            System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>nodes<span style="color:#f92672">.</span><span style="color:#a6e22e">item</span><span style="color:#f92672">(</span>i<span style="color:#f92672">).</span><span style="color:#a6e22e">getNodeValue</span><span style="color:#f92672">());</span>
+        <span style="color:#f92672">}</span>
+
+        <span style="color:#75715e">// 查询1997年之后的图书的属性和标题
+</span><span style="color:#75715e"></span>        nodes <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>NodeList<span style="color:#f92672">)</span> xpath<span style="color:#f92672">.</span><span style="color:#a6e22e">evaluate</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;//book[@year&gt;1997]/@*|//book[@year&gt;1997]/title/text()&#34;</span><span style="color:#f92672">,</span> doc<span style="color:#f92672">,</span> XPathConstants<span style="color:#f92672">.</span><span style="color:#a6e22e">NODESET</span><span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span> i <span style="color:#f92672">&lt;</span> nodes<span style="color:#f92672">.</span><span style="color:#a6e22e">getLength</span><span style="color:#f92672">();</span> i<span style="color:#f92672">++)</span> <span style="color:#f92672">{</span>
+            System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>nodes<span style="color:#f92672">.</span><span style="color:#a6e22e">item</span><span style="color:#f92672">(</span>i<span style="color:#f92672">).</span><span style="color:#a6e22e">getNodeValue</span><span style="color:#f92672">());</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div>
+</article>
+
+
+<p class="post-meta">
+    Tags:&nbsp;
+    
+    
+    <a href="https://w-yj.github.io/tags/Java">Java</a>
+    
+</p>
+
+
+
+            </div>
+        </div>
+    </div>
+    <footer class="center">
+    <div class="p2 wrap">
+        <div class="measure mt1 center">
+            <small>
+                Copyright &#169; 2017<br>
+                Powered by <a href="http://gohugo.io/" target="_blank">Hugo</a> &amp; <a
+                    href="https://github.com/azmelanar/hugo-theme-pixyll" target="_blank">Pixyll</a>
+            </small>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

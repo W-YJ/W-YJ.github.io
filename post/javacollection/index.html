@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Java Collection - WYJ&#39;s Notes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="keywords" content="">
+    <link rel="canonical" href="https://w-yj.github.io/post/javacollection/">
+
+    
+    
+    <link rel="stylesheet" type="text/css" href="https://w-yj.github.io/sass/pixyll.min.30e55e9fcc01694c576be315e114e0449103a0df1fb91cec0c2ada477ba30f6b.css">
+
+    
+    <link rel='stylesheet' type='text/css' href='//fonts.googleapis.com/css?family=Merriweather:900,900italic,300,300italic' >
+    <link rel='stylesheet' type='text/css' href='//fonts.googleapis.com/css?family=Lato:900,300'>
+</head>
+
+<body class="site">
+    <div class="site-wrap">
+        <header class="site-header px2 px-responsive">
+    <div class="mt2 wrap">
+        <div class="measure">
+            <a href="https://w-yj.github.io" class="site-title">WYJ&#39;s Notes</a>
+            <nav class="site-nav">
+                
+<div class="right">
+<a href="https://w-yj.github.io/about/">About</a>
+<a href="https://w-yj.github.io/tags/">Tags</a>
+<a href="https://w-yj.github.io/contact/">Contact</a>
+</div>
+            </nav>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</header>
+
+        <div class="post p2 p-responsive wrap" role="main">
+            <div class="measure">
+                
+<div class="post-header mb2">
+    <h1 class="py2">Java Collection</h1>
+    <span class="post-meta">
+        Mar 26, 2017
+        
+    </span>
+    <br>
+    
+</div>
+<article class="post-content">
+    <h1 id="java-collection">Java Collection</h1>
+<!-- raw HTML omitted -->
+<ul>
+<li>All kinds Maps implementation
+<ul>
+<li>java.util.HashTable</li>
+<li>java.util.HashMap</li>
+<li>java.util.LinkedHashMap</li>
+<li>java.util.TreeMap</li>
+<li>java.util.IdentityHashMap</li>
+<li>java.util.EnumMap</li>
+<li>java.util.WeakHashMap</li>
+<li>Collections.synchronizedMap(aMap)</li>
+<li>java.util.concurrent.ConcurrentHashMap</li>
+<li>java.util.concurret.ConcurrentSkipListMap</li>
+</ul>
+</li>
+</ul>
+<!-- raw HTML omitted -->
+<h2 id="all-kinds-maps-implementation">All kinds Maps implementation</h2>
+<p><img src="https://w-yj.github.io/img/JavaCollection/Container.png" alt="All Container Taxonomy"></p>
+<h3 id="javautilhashtable">java.util.HashTable</h3>
+<ul>
+<li>Legacy associative array implementation; Inducted to collection family by implementing Map interface later;</li>
+<li>All methods are &ldquo;thread-safe&rdquo;;</li>
+<li>there is &ldquo;synchronozed&rdquo; keyword on each public method such as(put,get,remove etc).</li>
+<li>overhead in an environment where Map is initialized once and the read by multiple threads.</li>
+</ul>
+<h3 id="javautilhashmap">java.util.HashMap</h3>
+<ul>
+<li>Map implementation that satisfies most of the basic use cases.</li>
+<li>Not &ldquo;thread-safe&rdquo;.</li>
+<li>Iteration not guaranteed in insertion order.</li>
+<li>Need to use &ldquo;synchronized&rdquo; operations when manipulating from mutiple threads(concurrent adds/removes/iterations)</li>
+<li>Most enterprise applications populate the map once and then read many times from many threads. Given this HashMap suffices for all such scenarios, without any worries of performance overheads.</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> collection<span style="color:#f92672">;</span>
+<span style="color:#75715e">/**
+</span><span style="color:#75715e"> * Map的特点是一个键值对（key-&gt;value)，其中key是唯一的，key和value都是对象
+</span><span style="color:#75715e"> * put(key,value)往map中添加一个键值对,
+</span><span style="color:#75715e"> * map.entrySet()把键和值作为一个Set中的一个元素
+</span><span style="color:#75715e"> *
+</span><span style="color:#75715e"> * Hashtable和HashMap的比较：
+</span><span style="color:#75715e"> * Hashtable：JDK1.2之前的，底层实现的数据结构是hash表，是线程安全的（也就是同步的），key和value是不可以使用null
+</span><span style="color:#75715e"> * 的，否则会抛出空指针异常的，效率是比较低的，一般我们不用它
+</span><span style="color:#75715e"> * HashMap：JDK1.2之后的，底层实现的数据结构是hash表，是线程不安全的(也就是没有使用同步），key和value是可以为空的
+</span><span style="color:#75715e"> * 效率是比较高的，在引用中建议大家使用它，
+</span><span style="color:#75715e"> */</span>
+<span style="color:#f92672">import</span> java.util.*<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> java.util.Map.Entry<span style="color:#f92672">;</span>
+
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">TableMap</span> <span style="color:#f92672">{</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        Hashtable<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span> String<span style="color:#f92672">&gt;</span> ht <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Hashtable<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span> String<span style="color:#f92672">&gt;();</span>
+        ht<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;sadfa&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;werwerwer&#34;</span><span style="color:#f92672">);</span>
+        ht<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;34534&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;werwefasf&#34;</span><span style="color:#f92672">);</span>
+        ht<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;99999&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;988666565&#34;</span><span style="color:#f92672">);</span>
+        <span style="color:#75715e">//ht.put(null, null);
+</span><span style="color:#75715e"></span>        <span style="color:#75715e">//ht.put(&#34;8888&#34;, null);
+</span><span style="color:#75715e"></span>        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>ht<span style="color:#f92672">.</span><span style="color:#a6e22e">size</span><span style="color:#f92672">());</span>
+        Enumeration<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> keys <span style="color:#f92672">=</span> ht<span style="color:#f92672">.</span><span style="color:#a6e22e">keys</span><span style="color:#f92672">();</span>
+        <span style="color:#66d9ef">while</span> <span style="color:#f92672">(</span>keys<span style="color:#f92672">.</span><span style="color:#a6e22e">hasMoreElements</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
+            String key <span style="color:#f92672">=</span> keys<span style="color:#f92672">.</span><span style="color:#a6e22e">nextElement</span><span style="color:#f92672">();</span>
+            System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;key=&#34;</span> <span style="color:#f92672">+</span> key <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; ,value&#34;</span> <span style="color:#f92672">+</span> ht<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>key<span style="color:#f92672">));</span>
+        <span style="color:#f92672">}</span>
+
+        Enumeration<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> values <span style="color:#f92672">=</span> ht<span style="color:#f92672">.</span><span style="color:#a6e22e">elements</span><span style="color:#f92672">();</span>
+        <span style="color:#66d9ef">while</span> <span style="color:#f92672">(</span>values<span style="color:#f92672">.</span><span style="color:#a6e22e">hasMoreElements</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
+            String value <span style="color:#f92672">=</span> values<span style="color:#f92672">.</span><span style="color:#a6e22e">nextElement</span><span style="color:#f92672">();</span>
+            System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;value=&#34;</span> <span style="color:#f92672">+</span> value<span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;--------------------------&#34;</span><span style="color:#f92672">);</span>
+        Map<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span> String<span style="color:#f92672">&gt;</span> map <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HashMap<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span> String<span style="color:#f92672">&gt;();</span>
+        map<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;001&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;wangwu&#34;</span><span style="color:#f92672">);</span>
+        map<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;001&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;lisi&#34;</span><span style="color:#f92672">);</span>
+        map<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;009&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;sdafasdf&#34;</span><span style="color:#f92672">);</span>
+        map<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;003&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;asdfsdfsdf&#34;</span><span style="color:#f92672">);</span>
+
+        Set<span style="color:#f92672">&lt;</span>Map<span style="color:#f92672">.</span><span style="color:#a6e22e">Entry</span><span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span> String<span style="color:#f92672">&gt;&gt;</span> set <span style="color:#f92672">=</span> map<span style="color:#f92672">.</span><span style="color:#a6e22e">entrySet</span><span style="color:#f92672">();</span>
+        Iterator<span style="color:#f92672">&lt;</span>Map<span style="color:#f92672">.</span><span style="color:#a6e22e">Entry</span><span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span> String<span style="color:#f92672">&gt;&gt;</span> it <span style="color:#f92672">=</span> set<span style="color:#f92672">.</span><span style="color:#a6e22e">iterator</span><span style="color:#f92672">();</span>
+        <span style="color:#66d9ef">while</span> <span style="color:#f92672">(</span>it<span style="color:#f92672">.</span><span style="color:#a6e22e">hasNext</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
+            Entry<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span> String<span style="color:#f92672">&gt;</span> key_value <span style="color:#f92672">=</span> it<span style="color:#f92672">.</span><span style="color:#a6e22e">next</span><span style="color:#f92672">();</span>
+            System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;key=&#34;</span> <span style="color:#f92672">+</span> key_value<span style="color:#f92672">.</span><span style="color:#a6e22e">getKey</span><span style="color:#f92672">()</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; ,value=&#34;</span> <span style="color:#f92672">+</span> key_value<span style="color:#f92672">.</span><span style="color:#a6e22e">getValue</span><span style="color:#f92672">());</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+<span style="color:#75715e">/*output:
+</span><span style="color:#75715e">3
+</span><span style="color:#75715e">key=sadfa ,valuewerwerwer
+</span><span style="color:#75715e">key=34534 ,valuewerwefasf
+</span><span style="color:#75715e">key=99999 ,value988666565
+</span><span style="color:#75715e">value=werwerwer
+</span><span style="color:#75715e">value=werwefasf
+</span><span style="color:#75715e">value=988666565
+</span><span style="color:#75715e">--------------------------
+</span><span style="color:#75715e">key=001 ,value=lisi
+</span><span style="color:#75715e">key=003 ,value=asdfsdfsdf
+</span><span style="color:#75715e">key=009 ,value=sdafasdf */</span>
+</code></pre></div><p><strong>Q: How does HashMap work in Java?</strong></p>
+<p>ITS A MAP IMPLEMENTATION</p>
+<ul>
+<li>A Map is an associative array data structure. &ldquo;key 1&rdquo;——&gt;value, &ldquo;key2&rdquo;——&gt;value, &ldquo;key3&rdquo;——&gt;value so on.</li>
+<li><strong>Hashing</strong>: transformation of a string of characters(Text) to a shorted fixed-length value that represents original string. A shorter value helps in indexing and faster searches.</li>
+<li>In Java every object has method <code>public int hashcode()</code> that will return a hash value for given object.</li>
+<li>use bitwise operation</li>
+</ul>
+<p><strong>Q: WHAT&rsquo;S THE BIG DEAL IN JAVA 8?</strong></p>
+<ul>
+<li>In java 8, when we have too many unequal keys which gives same hashcode(Index) - when the number of items in a hash bucket grows beyond certain threshold(TREEIFY_THRESHOLD = 8), content of the bucket switches from using a linked list of Entry objects to a balanced tree. This theoretically improves the worst-case performance from O(n) to O(log n);</li>
+<li>Balanced search tree, where left nodes have lesser weight(HashCode or Comparable result) for the keys involved.</li>
+<li>When HashMap reaches its threshold limit of 0.75 or 75% it re-size by creating a new array of double the previous size HashMap, and then start putting every old element into that new bucket array and this is called rehashing and it also applies hash function to find new bucket location.﻿</li>
+</ul>
+<h3 id="javautillinkedhashmap">java.util.LinkedHashMap</h3>
+<ul>
+<li>Very similar to HashMap</li>
+<li>Iteration is guaranteed in insertion order</li>
+<li>Maintains separate doubly linked list of all entries that is kept in entry insertion order.</li>
+<li>Can be used in use-cases where hash map like behavior is needed at the same time order of insertion has to be preserved.</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> collection<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> java.util.Iterator<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> java.util.LinkedHashMap<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> java.util.Set<span style="color:#f92672">;</span>
+
+<span style="color:#75715e">/*
+</span><span style="color:#75715e"> * LinkedHashMap是HashMap的子类
+</span><span style="color:#75715e"> * 底层实现的结构是链表和hash表，添加的顺序和取出的顺序相同
+</span><span style="color:#75715e"> * 线程不安全的（非同步的，效率是高的）
+</span><span style="color:#75715e"> * 如果对map进行频繁的插入和删除操作的话可以使用LinkedHashMap
+</span><span style="color:#75715e"> * key和value同样可以为空，也就是可以添加null，要注意和Hashtable区分
+</span><span style="color:#75715e"> */</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">LinkedHashMapDemo</span> <span style="color:#f92672">{</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        LinkedHashMap<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span> String<span style="color:#f92672">&gt;</span> lhm <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> LinkedHashMap<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span> String<span style="color:#f92672">&gt;();</span>
+        lhm<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;092101&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;zhjangsan&#34;</span><span style="color:#f92672">);</span>
+        lhm<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;092102&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;zhjsdfsan&#34;</span><span style="color:#f92672">);</span>
+        lhm<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;092103&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;zh345gsan&#34;</span><span style="color:#f92672">);</span>
+        lhm<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;092104&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;zhja76876san&#34;</span><span style="color:#f92672">);</span>
+        lhm<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;092104&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;zhja76876san&#34;</span><span style="color:#f92672">);</span>
+        lhm<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#66d9ef">null</span><span style="color:#f92672">,</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">);</span>
+        lhm<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#66d9ef">null</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;dsfasdf&#34;</span><span style="color:#f92672">);</span>
+        lhm<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;sdfasf&#34;</span><span style="color:#f92672">,</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">);</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>lhm<span style="color:#f92672">.</span><span style="color:#a6e22e">size</span><span style="color:#f92672">());</span>
+
+        Set<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> set <span style="color:#f92672">=</span> lhm<span style="color:#f92672">.</span><span style="color:#a6e22e">keySet</span><span style="color:#f92672">();</span>
+        Iterator<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> it <span style="color:#f92672">=</span> set<span style="color:#f92672">.</span><span style="color:#a6e22e">iterator</span><span style="color:#f92672">();</span>
+        <span style="color:#66d9ef">while</span> <span style="color:#f92672">(</span>it<span style="color:#f92672">.</span><span style="color:#a6e22e">hasNext</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
+            String key <span style="color:#f92672">=</span> it<span style="color:#f92672">.</span><span style="color:#a6e22e">next</span><span style="color:#f92672">();</span>
+            String value <span style="color:#f92672">=</span> lhm<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>key<span style="color:#f92672">);</span>
+            System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;key=&#34;</span> <span style="color:#f92672">+</span> key <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; ,value=&#34;</span> <span style="color:#f92672">+</span> value<span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+<span style="color:#75715e">/*output:
+</span><span style="color:#75715e">6
+</span><span style="color:#75715e">key=092101 ,value=zhjangsan
+</span><span style="color:#75715e">key=092102 ,value=zhjsdfsan
+</span><span style="color:#75715e">key=092103 ,value=zh345gsan
+</span><span style="color:#75715e">key=092104 ,value=zhja76876san
+</span><span style="color:#75715e">key=null ,value=dsfasdf
+</span><span style="color:#75715e">key=sdfasf ,value=null */</span>
+</code></pre></div><h3 id="javautiltreemap">java.util.TreeMap</h3>
+<ul>
+<li>Implementation of SortedMap and NavigableMap interfaces.</li>
+<li>Iteration is guaranteed in &ldquo;natural sorted&rdquo; order of keys.</li>
+<li>Either the keys should implement &ldquo;Comparable&rdquo; interface(If not exception will be thrown: ClassCastException); If not we need to provide an explicit Comparator in the constructor;</li>
+<li>Red-black tree based implementation. NavigableMap interface provides methods that can return closes match to the key(floorEntry()&hellip;)</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> collection.treemap<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> java.util.*<span style="color:#f92672">;</span>
+
+<span style="color:#75715e">/**
+</span><span style="color:#75715e"> * 自然排序：和TreeSet一样，要让我们的自定义类本身具有可比较性
+</span><span style="color:#75715e"> * 也就是要让我们的自定义类实现Comparable接口，并实现compareTo()方法
+</span><span style="color:#75715e"> */</span>
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Employee</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">private</span> String name<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">int</span> salary<span style="color:#f92672">;</span>
+
+    <span style="color:#66d9ef">public</span> String <span style="color:#a6e22e">getName</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> name<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">setName</span><span style="color:#f92672">(</span>String name<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">name</span> <span style="color:#f92672">=</span> name<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">getSalary</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> salary<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">setSalary</span><span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> salary<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">salary</span> <span style="color:#f92672">=</span> salary<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">Employee</span><span style="color:#f92672">(</span>String name<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> salary<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">super</span><span style="color:#f92672">();</span>
+        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">name</span> <span style="color:#f92672">=</span> name<span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">salary</span> <span style="color:#f92672">=</span> salary<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> String <span style="color:#a6e22e">toString</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#75715e">// TODO Auto-generated method stub
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;姓名：&#34;</span> <span style="color:#f92672">+</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">name</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; ,薪水：&#34;</span> <span style="color:#f92672">+</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">salary</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#75715e">//方法一
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">/*public int compareTo(Employee u) {
+</span><span style="color:#75715e">        if (this.getSalary() - u.getSalary() &lt; 0) {
+</span><span style="color:#75715e">            return 1;
+</span><span style="color:#75715e">        }
+</span><span style="color:#75715e">        if (this.getSalary() - u.getSalary() &gt; 0) {
+</span><span style="color:#75715e">            return -1;
+</span><span style="color:#75715e">        }
+</span><span style="color:#75715e">        return this.name.compareTo(u.name);
+</span><span style="color:#75715e">    }*/</span>
+
+<span style="color:#f92672">}</span>
+
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">TreeMapDemo</span> <span style="color:#f92672">{</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        TreeMap<span style="color:#f92672">&lt;</span>Employee<span style="color:#f92672">,</span> String<span style="color:#f92672">&gt;</span> map <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> TreeMap<span style="color:#f92672">&lt;</span>Employee<span style="color:#f92672">,</span> String<span style="color:#f92672">&gt;(</span><span style="color:#66d9ef">new</span> Comparator<span style="color:#f92672">&lt;</span>Employee<span style="color:#f92672">&gt;()</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">compare</span><span style="color:#f92672">(</span>Employee o1<span style="color:#f92672">,</span> Employee o2<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>o1<span style="color:#f92672">.</span><span style="color:#a6e22e">getSalary</span><span style="color:#f92672">()</span> <span style="color:#f92672">-</span> o2<span style="color:#f92672">.</span><span style="color:#a6e22e">getSalary</span><span style="color:#f92672">()</span> <span style="color:#f92672">&gt;</span> 0<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                    <span style="color:#66d9ef">return</span> <span style="color:#f92672">-</span>1<span style="color:#f92672">;</span>
+                <span style="color:#f92672">}</span>
+                <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>o1<span style="color:#f92672">.</span><span style="color:#a6e22e">getSalary</span><span style="color:#f92672">()</span> <span style="color:#f92672">-</span> o2<span style="color:#f92672">.</span><span style="color:#a6e22e">getSalary</span><span style="color:#f92672">()</span> <span style="color:#f92672">&lt;</span> 0<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                    <span style="color:#66d9ef">return</span> 1<span style="color:#f92672">;</span>
+                <span style="color:#f92672">}</span>
+                <span style="color:#66d9ef">return</span> o1<span style="color:#f92672">.</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">().</span><span style="color:#a6e22e">compareTo</span><span style="color:#f92672">(</span>o2<span style="color:#f92672">.</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">());</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">});</span>
+
+        map<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Employee<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;zhangsan&#34;</span><span style="color:#f92672">,</span> 6000<span style="color:#f92672">),</span> <span style="color:#e6db74">&#34;员工一&#34;</span><span style="color:#f92672">);</span>
+        map<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Employee<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;zhangsan&#34;</span><span style="color:#f92672">,</span> 6000<span style="color:#f92672">),</span> <span style="color:#e6db74">&#34;员工一&#34;</span><span style="color:#f92672">);</span>
+        map<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Employee<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;zhang12&#34;</span><span style="color:#f92672">,</span> 7000<span style="color:#f92672">),</span> <span style="color:#e6db74">&#34;员工3&#34;</span><span style="color:#f92672">);</span>
+        map<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Employee<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;zhangs4&#34;</span><span style="color:#f92672">,</span> 2000<span style="color:#f92672">),</span> <span style="color:#e6db74">&#34;员工4&#34;</span><span style="color:#f92672">);</span>
+        map<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Employee<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;zhang0&#34;</span><span style="color:#f92672">,</span> 1000<span style="color:#f92672">),</span> <span style="color:#e6db74">&#34;员工5&#34;</span><span style="color:#f92672">);</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;==========================&#34;</span><span style="color:#f92672">);</span>
+        Set<span style="color:#f92672">&lt;</span>Map<span style="color:#f92672">.</span><span style="color:#a6e22e">Entry</span><span style="color:#f92672">&lt;</span>Employee<span style="color:#f92672">,</span> String<span style="color:#f92672">&gt;&gt;</span> set <span style="color:#f92672">=</span> map<span style="color:#f92672">.</span><span style="color:#a6e22e">entrySet</span><span style="color:#f92672">();</span>
+        Iterator<span style="color:#f92672">&lt;</span>Map<span style="color:#f92672">.</span><span style="color:#a6e22e">Entry</span><span style="color:#f92672">&lt;</span>Employee<span style="color:#f92672">,</span> String<span style="color:#f92672">&gt;&gt;</span> it <span style="color:#f92672">=</span> set<span style="color:#f92672">.</span><span style="color:#a6e22e">iterator</span><span style="color:#f92672">();</span>
+        <span style="color:#66d9ef">while</span> <span style="color:#f92672">(</span>it<span style="color:#f92672">.</span><span style="color:#a6e22e">hasNext</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
+            Map<span style="color:#f92672">.</span><span style="color:#a6e22e">Entry</span> mapEntry <span style="color:#f92672">=</span> it<span style="color:#f92672">.</span><span style="color:#a6e22e">next</span><span style="color:#f92672">();</span>
+            System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>mapEntry<span style="color:#f92672">.</span><span style="color:#a6e22e">getKey</span><span style="color:#f92672">()</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;   &#34;</span> <span style="color:#f92672">+</span> mapEntry<span style="color:#f92672">.</span><span style="color:#a6e22e">getValue</span><span style="color:#f92672">());</span>
+
+        <span style="color:#f92672">}</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;===========descendingMap()===============&#34;</span><span style="color:#f92672">);</span>
+        Map<span style="color:#f92672">&lt;</span>Employee<span style="color:#f92672">,</span> String<span style="color:#f92672">&gt;</span> map2 <span style="color:#f92672">=</span> map<span style="color:#f92672">.</span><span style="color:#a6e22e">descendingMap</span><span style="color:#f92672">();</span>
+        Set<span style="color:#f92672">&lt;</span>Map<span style="color:#f92672">.</span><span style="color:#a6e22e">Entry</span><span style="color:#f92672">&lt;</span>Employee<span style="color:#f92672">,</span> String<span style="color:#f92672">&gt;&gt;</span> set2 <span style="color:#f92672">=</span> map2<span style="color:#f92672">.</span><span style="color:#a6e22e">entrySet</span><span style="color:#f92672">();</span>
+        Iterator<span style="color:#f92672">&lt;</span>Map<span style="color:#f92672">.</span><span style="color:#a6e22e">Entry</span><span style="color:#f92672">&lt;</span>Employee<span style="color:#f92672">,</span> String<span style="color:#f92672">&gt;&gt;</span> it2 <span style="color:#f92672">=</span> set2<span style="color:#f92672">.</span><span style="color:#a6e22e">iterator</span><span style="color:#f92672">();</span>
+        <span style="color:#66d9ef">while</span> <span style="color:#f92672">(</span>it2<span style="color:#f92672">.</span><span style="color:#a6e22e">hasNext</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
+            Map<span style="color:#f92672">.</span><span style="color:#a6e22e">Entry</span> mapEntry <span style="color:#f92672">=</span> it2<span style="color:#f92672">.</span><span style="color:#a6e22e">next</span><span style="color:#f92672">();</span>
+            System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>mapEntry<span style="color:#f92672">.</span><span style="color:#a6e22e">getKey</span><span style="color:#f92672">()</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;   &#34;</span> <span style="color:#f92672">+</span> mapEntry<span style="color:#f92672">.</span><span style="color:#a6e22e">getValue</span><span style="color:#f92672">());</span>
+
+        <span style="color:#f92672">}</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;========min==============&#34;</span><span style="color:#f92672">);</span>
+        Map<span style="color:#f92672">.</span><span style="color:#a6e22e">Entry</span><span style="color:#f92672">&lt;</span>Employee<span style="color:#f92672">,</span> String<span style="color:#f92672">&gt;</span> me <span style="color:#f92672">=</span> map<span style="color:#f92672">.</span><span style="color:#a6e22e">firstEntry</span><span style="color:#f92672">();</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;min.key=&#34;</span> <span style="color:#f92672">+</span> me<span style="color:#f92672">.</span><span style="color:#a6e22e">getKey</span><span style="color:#f92672">()</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; ,min_value=&#34;</span> <span style="color:#f92672">+</span> me<span style="color:#f92672">.</span><span style="color:#a6e22e">getValue</span><span style="color:#f92672">());</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;=======floor==============&#34;</span><span style="color:#f92672">);</span>
+        Map<span style="color:#f92672">.</span><span style="color:#a6e22e">Entry</span><span style="color:#f92672">&lt;</span>Employee<span style="color:#f92672">,</span> String<span style="color:#f92672">&gt;</span> me2 <span style="color:#f92672">=</span> map<span style="color:#f92672">.</span><span style="color:#a6e22e">floorEntry</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Employee<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;zhang12&#34;</span><span style="color:#f92672">,</span> 8000<span style="color:#f92672">));</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;min.key=&#34;</span> <span style="color:#f92672">+</span> me<span style="color:#f92672">.</span><span style="color:#a6e22e">getKey</span><span style="color:#f92672">()</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; ,min_value=&#34;</span> <span style="color:#f92672">+</span> me<span style="color:#f92672">.</span><span style="color:#a6e22e">getValue</span><span style="color:#f92672">());</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+<span style="color:#75715e">/*output
+</span><span style="color:#75715e">==========================
+</span><span style="color:#75715e">姓名：zhang12 ,薪水：7000   员工3
+</span><span style="color:#75715e">姓名：zhangsan ,薪水：6000   员工一
+</span><span style="color:#75715e">姓名：zhangs4 ,薪水：2000   员工4
+</span><span style="color:#75715e">姓名：zhang0 ,薪水：1000   员工5
+</span><span style="color:#75715e">===========descendingMap()===============
+</span><span style="color:#75715e">姓名：zhang0 ,薪水：1000   员工5
+</span><span style="color:#75715e">姓名：zhangs4 ,薪水：2000   员工4
+</span><span style="color:#75715e">姓名：zhangsan ,薪水：6000   员工一
+</span><span style="color:#75715e">姓名：zhang12 ,薪水：7000   员工3
+</span><span style="color:#75715e">========min==============
+</span><span style="color:#75715e">min.key=姓名：zhang12 ,薪水：7000 ,min_value=员工3
+</span><span style="color:#75715e">=======floor==============
+</span><span style="color:#75715e">min.key=姓名：zhang12 ,薪水：7000 ,min_value=员工3 */</span>
+</code></pre></div><h3 id="javautilidentityhashmap">java.util.IdentityHashMap</h3>
+<ul>
+<li>Uses identity to store and retrieve key values.</li>
+<li>Use reference equality; meaning r1==r2 rather than r1.equals(r2). For hashing, System.identityHashCode(givenKey) is invoked rather than givenKey.hashCode()</li>
+<li>Used in seiralization/deep copying or your key is &ldquo;Class&rdquo; object or interned strings - memory footprint comparatively smaller than a hashmap as there no Entry/Node created.</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> collection<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> java.util.IdentityHashMap<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> java.util.Iterator<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> java.util.Set<span style="color:#f92672">;</span>
+
+<span style="color:#75715e">/*
+</span><span style="color:#75715e"> * IdentityHashMap:
+</span><span style="color:#75715e"> * 继承结构：java.lang.Object  java.util.AbstractMap&lt;K,V&gt;   java.util.IdentityHashMap&lt;K,V&gt;
+</span><span style="color:#75715e"> * 底层结构是哈希表，比较键（和值）时使用引用相等性代替对象相等性。
+</span><span style="color:#75715e"> * 换句话说，在 IdentityHashMap 中，当且仅当 (k1==k2) 时，才认为两个键k1和k2相等,
+</span><span style="color:#75715e"> * 在正常Map实现（如 HashMap）中，当且仅当满足(k1==null ? k2==null : e1.equals(e2))时才认为两个键k1和k2相等。
+</span><span style="color:#75715e"> * key是比较地址，只要是通过new方式来创建的key，即使他们的每个属性都相等,而且也复写了hashCode和equals方法，
+</span><span style="color:#75715e"> * 该“相同的”key也是可以放到map中的，因为key他们比较的是地址
+</span><span style="color:#75715e"> */</span>
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">User</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">private</span> String name<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">int</span> age<span style="color:#f92672">;</span>
+
+    <span style="color:#66d9ef">public</span> String <span style="color:#a6e22e">getName</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> name<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">setName</span><span style="color:#f92672">(</span>String name<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">name</span> <span style="color:#f92672">=</span> name<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">getAge</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> age<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">setAge</span><span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> age<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">age</span> <span style="color:#f92672">=</span> age<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">hashCode</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">name</span><span style="color:#f92672">.</span><span style="color:#a6e22e">hashCode</span><span style="color:#f92672">()</span> <span style="color:#f92672">^</span> 123 <span style="color:#f92672">+</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">age</span> <span style="color:#f92672">*</span> 34<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span>Object obj<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">this</span> <span style="color:#f92672">==</span> obj<span style="color:#f92672">)</span> <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(!(</span>obj <span style="color:#66d9ef">instanceof</span> User<span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#66d9ef">final</span> User u <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>User<span style="color:#f92672">)</span> obj<span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>u<span style="color:#f92672">.</span><span style="color:#a6e22e">getAge</span><span style="color:#f92672">()</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">getAge</span><span style="color:#f92672">()</span> <span style="color:#f92672">&amp;&amp;</span> u<span style="color:#f92672">.</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">().</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">()))</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">;</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> String <span style="color:#a6e22e">toString</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#75715e">// TODO Auto-generated method stub
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;name=&#34;</span> <span style="color:#f92672">+</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">name</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; ,age=&#34;</span> <span style="color:#f92672">+</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">age</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">User</span><span style="color:#f92672">(</span>String name<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> age<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">super</span><span style="color:#f92672">();</span>
+        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">name</span> <span style="color:#f92672">=</span> name<span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">age</span> <span style="color:#f92672">=</span> age<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+<span style="color:#f92672">}</span>
+
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">IdentityHashMapDemo</span> <span style="color:#f92672">{</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        IdentityHashMap<span style="color:#f92672">&lt;</span>User<span style="color:#f92672">,</span> String<span style="color:#f92672">&gt;</span> map <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> IdentityHashMap<span style="color:#f92672">&lt;</span>User<span style="color:#f92672">,</span> String<span style="color:#f92672">&gt;();</span>
+        map<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> User<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;zhangsan&#34;</span><span style="color:#f92672">,</span> 20<span style="color:#f92672">),</span> <span style="color:#e6db74">&#34;asdfsdaf&#34;</span><span style="color:#f92672">);</span>
+        map<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> User<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;zhangsan&#34;</span><span style="color:#f92672">,</span> 20<span style="color:#f92672">),</span> <span style="color:#e6db74">&#34;wamgwu&#34;</span><span style="color:#f92672">);</span>
+
+        Set<span style="color:#f92672">&lt;</span>User<span style="color:#f92672">&gt;</span> set <span style="color:#f92672">=</span> map<span style="color:#f92672">.</span><span style="color:#a6e22e">keySet</span><span style="color:#f92672">();</span>
+        Iterator<span style="color:#f92672">&lt;</span>User<span style="color:#f92672">&gt;</span> it <span style="color:#f92672">=</span> set<span style="color:#f92672">.</span><span style="color:#a6e22e">iterator</span><span style="color:#f92672">();</span>
+        <span style="color:#66d9ef">while</span> <span style="color:#f92672">(</span>it<span style="color:#f92672">.</span><span style="color:#a6e22e">hasNext</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
+            User key <span style="color:#f92672">=</span> it<span style="color:#f92672">.</span><span style="color:#a6e22e">next</span><span style="color:#f92672">();</span>
+            String value <span style="color:#f92672">=</span> map<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>key<span style="color:#f92672">);</span>
+            System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>key <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;  &#34;</span> <span style="color:#f92672">+</span> value<span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;==============identityHashMap=====String=======&#34;</span><span style="color:#f92672">);</span>
+        IdentityHashMap<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span> String<span style="color:#f92672">&gt;</span> map2 <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> IdentityHashMap<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span> String<span style="color:#f92672">&gt;();</span>
+        map2<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> String<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;99999&#34;</span><span style="color:#f92672">),</span> <span style="color:#e6db74">&#34;000000&#34;</span><span style="color:#f92672">);</span>
+        map2<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> String<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;99999&#34;</span><span style="color:#f92672">),</span> <span style="color:#e6db74">&#34;111111&#34;</span><span style="color:#f92672">);</span>
+        map2<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;99999&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;333333&#34;</span><span style="color:#f92672">);</span>
+        map2<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;99999&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;444444&#34;</span><span style="color:#f92672">);</span>
+        Set<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> set2 <span style="color:#f92672">=</span> map2<span style="color:#f92672">.</span><span style="color:#a6e22e">keySet</span><span style="color:#f92672">();</span>
+        <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span>Iterator<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> it2 <span style="color:#f92672">=</span> set2<span style="color:#f92672">.</span><span style="color:#a6e22e">iterator</span><span style="color:#f92672">();</span> it2<span style="color:#f92672">.</span><span style="color:#a6e22e">hasNext</span><span style="color:#f92672">();</span> <span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            String key <span style="color:#f92672">=</span> it2<span style="color:#f92672">.</span><span style="color:#a6e22e">next</span><span style="color:#f92672">();</span>
+            System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;key=&#34;</span> <span style="color:#f92672">+</span> key <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; value=&#34;</span> <span style="color:#f92672">+</span> map2<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>key<span style="color:#f92672">));</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+<span style="color:#75715e">/*output:
+</span><span style="color:#75715e">name=zhangsan ,age=20  wamgwu
+</span><span style="color:#75715e">name=zhangsan ,age=20  asdfsdaf
+</span><span style="color:#75715e">==============identityHashMap=====String=======
+</span><span style="color:#75715e">key=99999 value=111111
+</span><span style="color:#75715e">key=99999 value=000000
+</span><span style="color:#75715e">key=99999 value=444444 */</span>
+</code></pre></div><h3 id="javautilenummap">java.util.EnumMap</h3>
+<ul>
+<li>EnumMap&lt;K extends Enum<!-- raw HTML omitted -->, V&gt;</li>
+<li>for use with enum type keys. All of the keys in an enum map must come from a single enum type that is specified, explicitly or implicitly, when the map is created.</li>
+<li>Null keys not permitted. Not synchronized.</li>
+<li>Iterator does not fail-fast —— if you create an enum map and add some enumeration key value pairs into the enum map and then iterate all the keys and then try to put something into the map in between it does not fail(throw ConcurrentModificationException)
+ConCurrentModificationException —— When trying to read from a certain list or a map, some other thread or this current thread(与多线程无关) itself is trying to modify that list or map, so in that kind of scenario this exception is thrown.</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">  <span style="color:#f92672">package</span> scratch<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> java.util.HashMap<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> java.util.Iterator<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> java.util.Map<span style="color:#f92672">;</span>
+
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ConcEx</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        Map<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span> Integer<span style="color:#f92672">&gt;</span> scores <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HashMap<span style="color:#f92672">&lt;&gt;();</span>
+        scores<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;user1&#34;</span><span style="color:#f92672">,</span> 6<span style="color:#f92672">);</span>
+        scores<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;user2&#34;</span><span style="color:#f92672">,</span> 6<span style="color:#f92672">);</span>
+        scores<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;user3&#34;</span><span style="color:#f92672">,</span> 6<span style="color:#f92672">);</span>
+        scores<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;user4&#34;</span><span style="color:#f92672">,</span> 6<span style="color:#f92672">);</span>
+        scores<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;user5&#34;</span><span style="color:#f92672">,</span> 6<span style="color:#f92672">);</span>
+        scores<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;user6&#34;</span><span style="color:#f92672">,</span> 6<span style="color:#f92672">);</span>
+        scores<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;user7&#34;</span><span style="color:#f92672">,</span> 6<span style="color:#f92672">);</span>
+        scores<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;user8&#34;</span><span style="color:#f92672">,</span> 6<span style="color:#f92672">);</span>
+
+        Iterator<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> userItr <span style="color:#f92672">=</span> scores<span style="color:#f92672">.</span><span style="color:#a6e22e">keySet</span><span style="color:#f92672">().</span><span style="color:#a6e22e">iterator</span><span style="color:#f92672">();</span>
+        <span style="color:#66d9ef">while</span><span style="color:#f92672">(</span>userItr<span style="color:#f92672">.</span><span style="color:#a6e22e">hasNext</span><span style="color:#f92672">()){</span>
+            System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>scores<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>userItr<span style="color:#f92672">.</span><span style="color:#a6e22e">next</span><span style="color:#f92672">()));</span>
+            scores<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;user9&#34;</span><span style="color:#f92672">,</span> 6<span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p><img src="https://w-yj.github.io/img/JavaCollection/1.png" alt="运行结果"></p>
+<h3 id="javautilweakhashmap">java.util.WeakHashMap</h3>
+<ul>
+<li>Elements in a weak hashmap can be reclaimed by the garbage collector if there are no other strong references to the object, this makes them useful for caches/lookup storage.</li>
+<li>Keys inserted gets wrapped in java.lang.ref.WeakReference</li>
+<li>Useful only if the desired lifetime of cache entries is determined by external references to the key, not the value</li>
+<li>SoftHashMap??</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> scratch<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> java.util.Map<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> java.util.WeakHashMap<span style="color:#f92672">;</span>
+
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Order</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">int</span> orderId<span style="color:#f92672">;</span>
+    String details<span style="color:#f92672">;</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">Order</span><span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> orderId<span style="color:#f92672">,</span> String details<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">orderId</span> <span style="color:#f92672">=</span> orderId<span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">details</span> <span style="color:#f92672">=</span> details<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">WKHMap</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        Map<span style="color:#f92672">&lt;</span>Order<span style="color:#f92672">,</span> Integer<span style="color:#f92672">&gt;</span> orders <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> WeakHashMap<span style="color:#f92672">&lt;&gt;();</span>
+        <span style="color:#75715e">// Weak References
+</span><span style="color:#75715e"></span>        orders<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Order<span style="color:#f92672">(</span>1<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;fdfsfs&#34;</span><span style="color:#f92672">),</span> 100<span style="color:#f92672">);</span>
+        orders<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Order<span style="color:#f92672">(</span>2<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;asdfa&#34;</span><span style="color:#f92672">),</span> 200<span style="color:#f92672">);</span>
+
+        <span style="color:#75715e">// Strong References
+</span><span style="color:#75715e"></span>        Order o3 <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Order<span style="color:#f92672">(</span>3<span style="color:#f92672">,</span><span style="color:#e6db74">&#34;ggsggsg&#34;</span><span style="color:#f92672">);</span>
+        orders<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span>o3<span style="color:#f92672">,</span> 300<span style="color:#f92672">);</span>
+
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>orders<span style="color:#f92672">.</span><span style="color:#a6e22e">size</span><span style="color:#f92672">());</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">gc</span><span style="color:#f92672">();</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>orders<span style="color:#f92672">.</span><span style="color:#a6e22e">size</span><span style="color:#f92672">());</span>
+
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+<span style="color:#75715e">/*Output:
+</span><span style="color:#75715e"> 3
+</span><span style="color:#75715e"> 1 */</span>
+</code></pre></div><h3 id="collectionssynchronizedmapamap">Collections.synchronizedMap(aMap)</h3>
+<ul>
+<li>A convenient &ldquo;decorator&rdquo; to create fully synchronized map.</li>
+<li>Return type is Collections.SynchronizedMap instance. It wraps around passed map instance and marks all APIs as synchronized, effectively making it similar to HashTable</li>
+<li>Provide as a convenience as of 1.2 to users. Feel free not to use it.</li>
+</ul>
+<h3 id="javautilconcurrentconcurrenthashmap">java.util.concurrent.ConcurrentHashMap</h3>
+<ul>
+<li>Supports full <strong>concurrency during retrieval</strong>. Means, retrieval operations do not block even if adds are during concurrently(mostly)</li>
+<li>Reads can happen fast, while writes require a lock. Write lock is acquired at granular level, whole table is not locked only segments are locked. So a very rare chance of read waiting on write to complete.</li>
+<li>By defalut the concurrent hash map is divided into sixteen segments and we can add sixteen threads to write into the hash map at the given time.</li>
+<li>Iterations do not throw concurrent modification exception(with in same thread).</li>
+<li>Can be used in cases where a lot of concurrent addition happens followed by concurrent reads later on.</li>
+<li>Null key not allowed. If map.get(null) returns null, it is not sure if null is not mapped or if null is mapped to a null value. In a non-concurrent map, we could use contains() call, but in a concurrent map, values can change between API calls.</li>
+<li>Operation not atomic.</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> scratch<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> java.util.Map<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> java.util.concurrent.ConcurrentHashMap<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> java.util.concurrent.ExecutorService<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> java.util.concurrent.Executors<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> java.util.concurrent.TimeUnit<span style="color:#f92672">;</span>
+
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ConcHmapExample</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">static</span> Map<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span> Long<span style="color:#f92672">&gt;</span> orders <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ConcurrentHashMap<span style="color:#f92672">&lt;&gt;();</span>
+
+    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">processOrders</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span>String city <span style="color:#f92672">:</span> orders<span style="color:#f92672">.</span><span style="color:#a6e22e">keySet</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span> i <span style="color:#f92672">&lt;</span> 50<span style="color:#f92672">;</span> i<span style="color:#f92672">++)</span> <span style="color:#f92672">{</span>
+                Long oldOrder <span style="color:#f92672">=</span> orders<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>city<span style="color:#f92672">);</span>
+                orders<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span>city<span style="color:#f92672">,</span> oldOrder<span style="color:#f92672">+</span>1<span style="color:#f92672">);</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        orders<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Bombay&#34;</span><span style="color:#f92672">,</span> 0l<span style="color:#f92672">);</span>
+        orders<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Beijing&#34;</span><span style="color:#f92672">,</span> 0l<span style="color:#f92672">);</span>
+        orders<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;London&#34;</span><span style="color:#f92672">,</span> 0l<span style="color:#f92672">);</span>
+        orders<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;New York&#34;</span><span style="color:#f92672">,</span> 0l<span style="color:#f92672">);</span>
+
+        ExecutorService service <span style="color:#f92672">=</span> Executors<span style="color:#f92672">.</span><span style="color:#a6e22e">newFixedThreadPool</span><span style="color:#f92672">(</span>2<span style="color:#f92672">);</span>
+        service<span style="color:#f92672">.</span><span style="color:#a6e22e">submit</span><span style="color:#f92672">(</span>ConcHmapExample<span style="color:#f92672">::</span>processOrders<span style="color:#f92672">);</span>
+        service<span style="color:#f92672">.</span><span style="color:#a6e22e">submit</span><span style="color:#f92672">(</span>ConcHmapExample<span style="color:#f92672">::</span>processOrders<span style="color:#f92672">);</span>
+
+        <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+            service<span style="color:#f92672">.</span><span style="color:#a6e22e">awaitTermination</span><span style="color:#f92672">(</span>1<span style="color:#f92672">,</span> TimeUnit<span style="color:#f92672">.</span><span style="color:#a6e22e">SECONDS</span><span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>InterruptedException e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            e<span style="color:#f92672">.</span><span style="color:#a6e22e">printStackTrace</span><span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span>
+        service<span style="color:#f92672">.</span><span style="color:#a6e22e">shutdown</span><span style="color:#f92672">();</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>orders<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>预计运行结果：
+<img src="https://w-yj.github.io/img/JavaCollection/2.png" alt="预计运行结果"><br>
+在多线程情况下，运行结果如下
+在终端运行结果：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">wyj Java Contanier
+$ cd bin
+wyj bin
+$ <span style="color:#66d9ef">while</span> <span style="color:#66d9ef">true</span>
+<span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">do</span>
+<span style="color:#f92672">&gt;</span> java scratch<span style="color:#f92672">.</span><span style="color:#a6e22e">ConcHmapExample</span>
+<span style="color:#f92672">&gt;</span> done<span style="color:#f92672">;</span>
+<span style="color:#f92672">{</span>Beijing<span style="color:#f92672">=</span>59<span style="color:#f92672">,</span> New York<span style="color:#f92672">=</span>55<span style="color:#f92672">,</span> Bombay<span style="color:#f92672">=</span>51<span style="color:#f92672">,</span> London<span style="color:#f92672">=</span>55<span style="color:#f92672">}</span>
+<span style="color:#f92672">{</span>Beijing<span style="color:#f92672">=</span>61<span style="color:#f92672">,</span> New York<span style="color:#f92672">=</span>56<span style="color:#f92672">,</span> Bombay<span style="color:#f92672">=</span>57<span style="color:#f92672">,</span> London<span style="color:#f92672">=</span>77<span style="color:#f92672">}</span>
+<span style="color:#f92672">{</span>Beijing<span style="color:#f92672">=</span>51<span style="color:#f92672">,</span> New York<span style="color:#f92672">=</span>50<span style="color:#f92672">,</span> Bombay<span style="color:#f92672">=</span>51<span style="color:#f92672">,</span> London<span style="color:#f92672">=</span>71<span style="color:#f92672">}</span>
+<span style="color:#f92672">{</span>Beijing<span style="color:#f92672">=</span>54<span style="color:#f92672">,</span> New York<span style="color:#f92672">=</span>60<span style="color:#f92672">,</span> Bombay<span style="color:#f92672">=</span>84<span style="color:#f92672">,</span> London<span style="color:#f92672">=</span>90<span style="color:#f92672">}</span>
+<span style="color:#f92672">{</span>Beijing<span style="color:#f92672">=</span>61<span style="color:#f92672">,</span> New York<span style="color:#f92672">=</span>49<span style="color:#f92672">,</span> Bombay<span style="color:#f92672">=</span>66<span style="color:#f92672">,</span> London<span style="color:#f92672">=</span>65<span style="color:#f92672">}</span>
+<span style="color:#f92672">{</span>Beijing<span style="color:#f92672">=</span>50<span style="color:#f92672">,</span> New York<span style="color:#f92672">=</span>57<span style="color:#f92672">,</span> Bombay<span style="color:#f92672">=</span>55<span style="color:#f92672">,</span> London<span style="color:#f92672">=</span>96<span style="color:#f92672">}</span>
+<span style="color:#f92672">{</span>Beijing<span style="color:#f92672">=</span>65<span style="color:#f92672">,</span> New York<span style="color:#f92672">=</span>53<span style="color:#f92672">,</span> Bombay<span style="color:#f92672">=</span>67<span style="color:#f92672">,</span> London<span style="color:#f92672">=</span>58<span style="color:#f92672">}</span>
+<span style="color:#f92672">{</span>Beijing<span style="color:#f92672">=</span>70<span style="color:#f92672">,</span> New York<span style="color:#f92672">=</span>62<span style="color:#f92672">,</span> Bombay<span style="color:#f92672">=</span>61<span style="color:#f92672">,</span> London<span style="color:#f92672">=</span>80<span style="color:#f92672">}</span>
+<span style="color:#f92672">{</span>Beijing<span style="color:#f92672">=</span>65<span style="color:#f92672">,</span> New York<span style="color:#f92672">=</span>68<span style="color:#f92672">,</span> Bombay<span style="color:#f92672">=</span>70<span style="color:#f92672">,</span> London<span style="color:#f92672">=</span>85<span style="color:#f92672">}</span>
+<span style="color:#f92672">{</span>Beijing<span style="color:#f92672">=</span>57<span style="color:#f92672">,</span> New York<span style="color:#f92672">=</span>55<span style="color:#f92672">,</span> Bombay<span style="color:#f92672">=</span>56<span style="color:#f92672">,</span> London<span style="color:#f92672">=</span>55<span style="color:#f92672">}</span>
+<span style="color:#f92672">{</span>Beijing<span style="color:#f92672">=</span>65<span style="color:#f92672">,</span> New York<span style="color:#f92672">=</span>70<span style="color:#f92672">,</span> Bombay<span style="color:#f92672">=</span>69<span style="color:#f92672">,</span> London<span style="color:#f92672">=</span>50<span style="color:#f92672">}</span>
+<span style="color:#f92672">{</span>Beijing<span style="color:#f92672">=</span>72<span style="color:#f92672">,</span> New York<span style="color:#f92672">=</span>67<span style="color:#f92672">,</span> Bombay<span style="color:#f92672">=</span>76<span style="color:#f92672">,</span> London<span style="color:#f92672">=</span>100<span style="color:#f92672">}</span>
+<span style="color:#f92672">{</span>Beijing<span style="color:#f92672">=</span>97<span style="color:#f92672">,</span> New York<span style="color:#f92672">=</span>79<span style="color:#f92672">,</span> Bombay<span style="color:#f92672">=</span>75<span style="color:#f92672">,</span> London<span style="color:#f92672">=</span>73<span style="color:#f92672">}</span>
+<span style="color:#f92672">{</span>Beijing<span style="color:#f92672">=</span>54<span style="color:#f92672">,</span> New York<span style="color:#f92672">=</span>54<span style="color:#f92672">,</span> Bombay<span style="color:#f92672">=</span>69<span style="color:#f92672">,</span> London<span style="color:#f92672">=</span>66<span style="color:#f92672">}</span>
+<span style="color:#f92672">{</span>Beijing<span style="color:#f92672">=</span>50<span style="color:#f92672">,</span> New York<span style="color:#f92672">=</span>58<span style="color:#f92672">,</span> Bombay<span style="color:#f92672">=</span>53<span style="color:#f92672">,</span> London<span style="color:#f92672">=</span>75<span style="color:#f92672">}</span>
+<span style="color:#f92672">{</span>Beijing<span style="color:#f92672">=</span>82<span style="color:#f92672">,</span> New York<span style="color:#f92672">=</span>76<span style="color:#f92672">,</span> Bombay<span style="color:#f92672">=</span>96<span style="color:#f92672">,</span> London<span style="color:#f92672">=</span>100<span style="color:#f92672">}</span>
+<span style="color:#f92672">{</span>Beijing<span style="color:#f92672">=</span>50<span style="color:#f92672">,</span> New York<span style="color:#f92672">=</span>67<span style="color:#f92672">,</span> Bombay<span style="color:#f92672">=</span>72<span style="color:#f92672">,</span> London<span style="color:#f92672">=</span>79<span style="color:#f92672">}</span>
+<span style="color:#f92672">{</span>Beijing<span style="color:#f92672">=</span>61<span style="color:#f92672">,</span> New York<span style="color:#f92672">=</span>66<span style="color:#f92672">,</span> Bombay<span style="color:#f92672">=</span>70<span style="color:#f92672">,</span> London<span style="color:#f92672">=</span>100<span style="color:#f92672">}</span>
+<span style="color:#f92672">{</span>Beijing<span style="color:#f92672">=</span>56<span style="color:#f92672">,</span> New York<span style="color:#f92672">=</span>55<span style="color:#f92672">,</span> Bombay<span style="color:#f92672">=</span>73<span style="color:#f92672">,</span> London<span style="color:#f92672">=</span>84<span style="color:#f92672">}</span>
+<span style="color:#f92672">{</span>Beijing<span style="color:#f92672">=</span>65<span style="color:#f92672">,</span> New York<span style="color:#f92672">=</span>59<span style="color:#f92672">,</span> Bombay<span style="color:#f92672">=</span>66<span style="color:#f92672">,</span> London<span style="color:#f92672">=</span>82<span style="color:#f92672">}</span>
+<span style="color:#960050;background-color:#1e0010">········</span>
+</code></pre></div><p>we get inconsistent output as 100.
+Reasons:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">Long oldOrder <span style="color:#f92672">=</span> orders<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>city<span style="color:#f92672">);</span> 
+orders<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span>city<span style="color:#f92672">,</span> oldOrder<span style="color:#f92672">+</span>1<span style="color:#f92672">);</span>
+</code></pre></div><p>Operations above are not atomic.</p>
+<p>Improvement
+method 1: synchcronize them;
+Method 2: Use atomic types —— writes chang before any other read happens in the memory.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> scratch<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> java.util.Map<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> java.util.concurrent.ConcurrentHashMap<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> java.util.concurrent.ExecutorService<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> java.util.concurrent.Executors<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> java.util.concurrent.TimeUnit<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> java.util.concurrent.atomic.AtomicLong<span style="color:#f92672">;</span>
+
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ConcHmapExample</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">static</span> Map<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span> AtomicLong<span style="color:#f92672">&gt;</span> orders <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ConcurrentHashMap<span style="color:#f92672">&lt;&gt;();</span>
+
+    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">processOrders</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span>String city <span style="color:#f92672">:</span> orders<span style="color:#f92672">.</span><span style="color:#a6e22e">keySet</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span> i <span style="color:#f92672">&lt;</span> 50<span style="color:#f92672">;</span> i<span style="color:#f92672">++)</span> <span style="color:#f92672">{</span>
+                <span style="color:#75715e">// atomic operation on the atomicLone.
+</span><span style="color:#75715e"></span>                orders<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>city<span style="color:#f92672">).</span><span style="color:#a6e22e">getAndIncrement</span><span style="color:#f92672">();</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        orders<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Bombay&#34;</span><span style="color:#f92672">,</span> <span style="color:#66d9ef">new</span> AtomicLong<span style="color:#f92672">());</span>
+        orders<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Beijing&#34;</span><span style="color:#f92672">,</span> <span style="color:#66d9ef">new</span> AtomicLong<span style="color:#f92672">());</span>
+        orders<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;London&#34;</span><span style="color:#f92672">,</span> <span style="color:#66d9ef">new</span> AtomicLong<span style="color:#f92672">());</span>
+        orders<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;New York&#34;</span><span style="color:#f92672">,</span> <span style="color:#66d9ef">new</span> AtomicLong<span style="color:#f92672">());</span>
+
+        ExecutorService service <span style="color:#f92672">=</span> Executors<span style="color:#f92672">.</span><span style="color:#a6e22e">newFixedThreadPool</span><span style="color:#f92672">(</span>2<span style="color:#f92672">);</span>
+        service<span style="color:#f92672">.</span><span style="color:#a6e22e">submit</span><span style="color:#f92672">(</span>ConcHmapExample<span style="color:#f92672">::</span>processOrders<span style="color:#f92672">);</span>
+        service<span style="color:#f92672">.</span><span style="color:#a6e22e">submit</span><span style="color:#f92672">(</span>ConcHmapExample<span style="color:#f92672">::</span>processOrders<span style="color:#f92672">);</span>
+
+        <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+            service<span style="color:#f92672">.</span><span style="color:#a6e22e">awaitTermination</span><span style="color:#f92672">(</span>1<span style="color:#f92672">,</span> TimeUnit<span style="color:#f92672">.</span><span style="color:#a6e22e">SECONDS</span><span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>InterruptedException e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            e<span style="color:#f92672">.</span><span style="color:#a6e22e">printStackTrace</span><span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span>
+        service<span style="color:#f92672">.</span><span style="color:#a6e22e">shutdown</span><span style="color:#f92672">();</span>
+
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>orders<span style="color:#f92672">);</span>
+
+
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>运行结果：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">wyj bin
+$ <span style="color:#66d9ef">while</span> <span style="color:#66d9ef">true</span>
+<span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">do</span> 
+<span style="color:#f92672">&gt;</span> java scratch<span style="color:#f92672">.</span><span style="color:#a6e22e">ConcHmapExample</span>
+<span style="color:#f92672">&gt;</span> done<span style="color:#f92672">;</span>
+<span style="color:#f92672">{</span>Beijing<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> New York<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> Bombay<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> London<span style="color:#f92672">=</span>100<span style="color:#f92672">}</span>
+<span style="color:#f92672">{</span>Beijing<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> New York<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> Bombay<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> London<span style="color:#f92672">=</span>100<span style="color:#f92672">}</span>
+<span style="color:#f92672">{</span>Beijing<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> New York<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> Bombay<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> London<span style="color:#f92672">=</span>100<span style="color:#f92672">}</span>
+<span style="color:#f92672">{</span>Beijing<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> New York<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> Bombay<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> London<span style="color:#f92672">=</span>100<span style="color:#f92672">}</span>
+<span style="color:#f92672">{</span>Beijing<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> New York<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> Bombay<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> London<span style="color:#f92672">=</span>100<span style="color:#f92672">}</span>
+<span style="color:#f92672">{</span>Beijing<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> New York<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> Bombay<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> London<span style="color:#f92672">=</span>100<span style="color:#f92672">}</span>
+<span style="color:#f92672">{</span>Beijing<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> New York<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> Bombay<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> London<span style="color:#f92672">=</span>100<span style="color:#f92672">}</span>
+<span style="color:#f92672">{</span>Beijing<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> New York<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> Bombay<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> London<span style="color:#f92672">=</span>100<span style="color:#f92672">}</span>
+<span style="color:#f92672">{</span>Beijing<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> New York<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> Bombay<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> London<span style="color:#f92672">=</span>100<span style="color:#f92672">}</span>
+<span style="color:#f92672">{</span>Beijing<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> New York<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> Bombay<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> London<span style="color:#f92672">=</span>100<span style="color:#f92672">}</span>
+<span style="color:#f92672">{</span>Beijing<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> New York<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> Bombay<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> London<span style="color:#f92672">=</span>100<span style="color:#f92672">}</span>
+<span style="color:#f92672">{</span>Beijing<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> New York<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> Bombay<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> London<span style="color:#f92672">=</span>100<span style="color:#f92672">}</span>
+<span style="color:#f92672">{</span>Beijing<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> New York<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> Bombay<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> London<span style="color:#f92672">=</span>100<span style="color:#f92672">}</span>
+<span style="color:#f92672">{</span>Beijing<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> New York<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> Bombay<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> London<span style="color:#f92672">=</span>100<span style="color:#f92672">}</span>
+<span style="color:#f92672">{</span>Beijing<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> New York<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> Bombay<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> London<span style="color:#f92672">=</span>100<span style="color:#f92672">}</span>
+<span style="color:#f92672">{</span>Beijing<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> New York<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> Bombay<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> London<span style="color:#f92672">=</span>100<span style="color:#f92672">}</span>
+<span style="color:#f92672">{</span>Beijing<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> New York<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> Bombay<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> London<span style="color:#f92672">=</span>100<span style="color:#f92672">}</span>
+<span style="color:#f92672">{</span>Beijing<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> New York<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> Bombay<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> London<span style="color:#f92672">=</span>100<span style="color:#f92672">}</span>
+<span style="color:#f92672">{</span>Beijing<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> New York<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> Bombay<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> London<span style="color:#f92672">=</span>100<span style="color:#f92672">}</span>
+<span style="color:#f92672">{</span>Beijing<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> New York<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> Bombay<span style="color:#f92672">=</span>100<span style="color:#f92672">,</span> London<span style="color:#f92672">=</span>100<span style="color:#f92672">}</span>
+<span style="color:#f92672">........</span>
+</code></pre></div><h3 id="javautilconcurretconcurrentskiplistmap">java.util.concurret.ConcurrentSkipListMap</h3>
+<ul>
+<li>An equivalent of TreeMap in the concurrent word.</li>
+<li>A scalable concurrent ConcurrentNavigableMap/SortedMap implementation.</li>
+<li>Gurantees average O(log(n)) performance on a wide variety of opearations. ConcurrentHashMap does not guarantee operation time as part of its contrast.</li>
+</ul>
+
+</article>
+
+
+<p class="post-meta">
+    Tags:&nbsp;
+    
+    
+    <a href="https://w-yj.github.io/tags/Java">Java</a>
+    
+</p>
+
+
+
+            </div>
+        </div>
+    </div>
+    <footer class="center">
+    <div class="p2 wrap">
+        <div class="measure mt1 center">
+            <small>
+                Copyright &#169; 2017<br>
+                Powered by <a href="http://gohugo.io/" target="_blank">Hugo</a> &amp; <a
+                    href="https://github.com/azmelanar/hugo-theme-pixyll" target="_blank">Pixyll</a>
+            </small>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

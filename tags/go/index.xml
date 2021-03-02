@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Go on WYJ&#39;s Notes</title>
+    <link>https://w-yj.github.io/tags/go/</link>
+    <description>Recent content in Go on WYJ&#39;s Notes</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 10 Dec 2019 09:42:15 +0000</lastBuildDate>
+    
+	<atom:link href="https://w-yj.github.io/tags/go/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Advanced Go Concurrency Patterns</title>
+      <link>https://w-yj.github.io/post/advanced-go-concurrency-patterns/</link>
+      <pubDate>Tue, 10 Dec 2019 09:42:15 +0000</pubDate>
+      
+      <guid>https://w-yj.github.io/post/advanced-go-concurrency-patterns/</guid>
+      <description>&lt;a href=&#34;https://www.youtube.com/watch?v=QDDwwePbDtw&#34;&gt;Advanced Go Concurrency Patterns by Sameer Ajmani&lt;/a&gt;学习笔记</description>
+    </item>
+    
+    <item>
+      <title>Go Concurrency Patterns</title>
+      <link>https://w-yj.github.io/post/go-concurrency-patterns/</link>
+      <pubDate>Sun, 08 Dec 2019 09:42:15 +0000</pubDate>
+      
+      <guid>https://w-yj.github.io/post/go-concurrency-patterns/</guid>
+      <description>&lt;a href=&#34;https://www.youtube.com/watch?v=f6kdp27TYZs&#34;&gt;Go Concurrency Patterns by Rob Pike&lt;/a&gt;学习笔记</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Deploying Kubernetes on Bare Metal - WYJ&#39;s Notes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="keywords" content="">
+    <link rel="canonical" href="https://w-yj.github.io/post/k8s-install/">
+
+    
+    
+    <link rel="stylesheet" type="text/css" href="https://w-yj.github.io/sass/pixyll.min.30e55e9fcc01694c576be315e114e0449103a0df1fb91cec0c2ada477ba30f6b.css">
+
+    
+    <link rel='stylesheet' type='text/css' href='//fonts.googleapis.com/css?family=Merriweather:900,900italic,300,300italic' >
+    <link rel='stylesheet' type='text/css' href='//fonts.googleapis.com/css?family=Lato:900,300'>
+</head>
+
+<body class="site">
+    <div class="site-wrap">
+        <header class="site-header px2 px-responsive">
+    <div class="mt2 wrap">
+        <div class="measure">
+            <a href="https://w-yj.github.io" class="site-title">WYJ&#39;s Notes</a>
+            <nav class="site-nav">
+                
+<div class="right">
+<a href="https://w-yj.github.io/about/">About</a>
+<a href="https://w-yj.github.io/tags/">Tags</a>
+<a href="https://w-yj.github.io/contact/">Contact</a>
+</div>
+            </nav>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</header>
+
+        <div class="post p2 p-responsive wrap" role="main">
+            <div class="measure">
+                
+<div class="post-header mb2">
+    <h1 class="py2">Deploying Kubernetes on Bare Metal</h1>
+    <span class="post-meta">
+        Apr 19, 2020
+        
+    </span>
+    <br>
+    
+</div>
+<article class="post-content">
+    <h1 id="deploying-kubernetes-on-bare-metal">Deploying Kubernetes on Bare Metal</h1>
+<!-- raw HTML omitted -->
+<ul>
+<li>VMs Env Prepare</li>
+<li>Step 1: Precheck</li>
+<li>Step 2: Installing runtime</li>
+<li>Step 3: Installing kubeadm</li>
+<li>Step 4: Initializing control-plane node</li>
+<li>Step 5: Installing a Pod network add-on</li>
+<li>Step 6: Joining your nodes</li>
+<li>Step 7: Clean up
+<ul>
+<li>Remove the node</li>
+<li>Clean up the control plane</li>
+</ul>
+</li>
+<li>Troubleshooting</li>
+</ul>
+<!-- raw HTML omitted -->
+<h3 id="vms-env-prepare">VMs Env Prepare</h3>
+<ul>
+<li>Master Node - 16.186.77.143</li>
+</ul>
+<h3 id="step-1-precheck">Step 1: Precheck</h3>
+<ul>
+<li>Letting iptables see bridged traffic
+<ul>
+<li>Check that the br_netfilter module is loaded: <code>lsmod | grep br_netfilter</code></li>
+<li>To load it explicitly: <code>sudo modprobe br_netfilter</code></li>
+<li>ensure net.bridge.bridge-nf-call-iptables is set to 1 in your sysctl config</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">cat <span style="color:#e6db74">&lt;&lt;EOF | sudo tee /etc/modules-load.d/k8s.conf
+</span><span style="color:#e6db74">br_netfilter
+</span><span style="color:#e6db74">EOF</span>
+
+cat <span style="color:#e6db74">&lt;&lt;EOF | sudo tee /etc/sysctl.d/k8s.conf
+</span><span style="color:#e6db74">net.bridge.bridge-nf-call-ip6tables = 1
+</span><span style="color:#e6db74">net.bridge.bridge-nf-call-iptables = 1
+</span><span style="color:#e6db74">EOF</span>
+sudo sysctl --system
+</code></pre></div><ul>
+<li><a href="https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#check-required-ports">Check required ports</a></li>
+</ul>
+<h3 id="step-2-installing-runtimehttpskubernetesiodocssetupproduction-environmentcontainer-runtimesdocker">Step 2: <a href="https://kubernetes.io/docs/setup/production-environment/container-runtimes/#docker">Installing runtime</a></h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e"># (Install Docker CE)</span>
+<span style="color:#75715e">## Set up the repository</span>
+<span style="color:#75715e">### Install required packages</span>
+sudo yum install -y yum-utils device-mapper-persistent-data lvm2
+
+<span style="color:#75715e">## Add the Docker repository</span>
+sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+<span style="color:#75715e"># Install Docker CE</span>
+sudo yum update -y <span style="color:#f92672">&amp;&amp;</span> sudo yum install -y <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>  containerd.io-1.2.13 <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>  docker-ce-19.03.11 <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>  docker-ce-cli-19.03.11
+
+<span style="color:#75715e">## Create /etc/docker</span>
+sudo mkdir /etc/docker
+
+<span style="color:#75715e"># Set up the Docker daemon</span>
+cat <span style="color:#e6db74">&lt;&lt;EOF | sudo tee /etc/docker/daemon.json
+</span><span style="color:#e6db74">{
+</span><span style="color:#e6db74">  &#34;exec-opts&#34;: [&#34;native.cgroupdriver=systemd&#34;],
+</span><span style="color:#e6db74">  &#34;log-driver&#34;: &#34;json-file&#34;,
+</span><span style="color:#e6db74">  &#34;log-opts&#34;: {
+</span><span style="color:#e6db74">    &#34;max-size&#34;: &#34;100m&#34;
+</span><span style="color:#e6db74">  },
+</span><span style="color:#e6db74">  &#34;storage-driver&#34;: &#34;overlay2&#34;,
+</span><span style="color:#e6db74">  &#34;storage-opts&#34;: [
+</span><span style="color:#e6db74">    &#34;overlay2.override_kernel_check=true&#34;
+</span><span style="color:#e6db74">  ]
+</span><span style="color:#e6db74">}
+</span><span style="color:#e6db74">EOF</span>
+
+<span style="color:#75715e"># Create /etc/systemd/system/docker.service.d</span>
+sudo mkdir -p /etc/systemd/system/docker.service.d
+
+<span style="color:#75715e"># Restart Docker</span>
+sudo systemctl daemon-reload
+sudo systemctl restart docker
+
+<span style="color:#75715e"># If you want the docker service to start on boot, run the following command:</span>
+sudo systemctl enable docker
+</code></pre></div><h3 id="step-3-installing-kubeadm">Step 3: Installing kubeadm</h3>
+<ul>
+<li><a href="https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#installing-kubeadm-kubelet-and-kubectl">Installing kubeadm, kubelet and kubectl</a></li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">cat <span style="color:#e6db74">&lt;&lt;EOF | sudo tee /etc/yum.repos.d/kubernetes.repo
+</span><span style="color:#e6db74">[kubernetes]
+</span><span style="color:#e6db74">name=Kubernetes
+</span><span style="color:#e6db74">baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-\$basearch
+</span><span style="color:#e6db74">enabled=1
+</span><span style="color:#e6db74">gpgcheck=1
+</span><span style="color:#e6db74">repo_gpgcheck=1
+</span><span style="color:#e6db74">gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+</span><span style="color:#e6db74">exclude=kubelet kubeadm kubectl
+</span><span style="color:#e6db74">EOF</span>
+
+<span style="color:#75715e"># Set SELinux in permissive mode (effectively disabling it)</span>
+sudo setenforce <span style="color:#ae81ff">0</span>
+sudo sed -i <span style="color:#e6db74">&#39;s/^SELINUX=enforcing$/SELINUX=permissive/&#39;</span> /etc/selinux/config
+
+sudo yum install -y kubelet kubeadm kubectl --disableexcludes<span style="color:#f92672">=</span>kubernetes
+
+sudo systemctl enable --now kubelet
+</code></pre></div><ul>
+<li><a href="https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#configure-cgroup-driver-used-by-kubelet-on-control-plane-node">Configure cgroup driver used by kubelet on control-plane node</a> - required when doesn&rsquo;t use docker</li>
+</ul>
+<h3 id="step-4-initializing-control-plane-node">Step 4: Initializing control-plane node</h3>
+<ul>
+<li>Run <code>kubeadm config images pull</code> prior to kubeadm init to verify connectivity to the gcr.io container image registry.</li>
+<li>kubeadm init &ndash;apiserver-advertise-address=16.186.77.143 &ndash;pod-network-cidr 10.244.0.0/16</li>
+<li>systemctl enable kubelet.service</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e"># kubeconfig setup</span>
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown <span style="color:#66d9ef">$(</span>id -u<span style="color:#66d9ef">)</span>:<span style="color:#66d9ef">$(</span>id -g<span style="color:#66d9ef">)</span> $HOME/.kube/config
+</code></pre></div><ul>
+<li>(Optional)Control plane node isolation: <code>kubectl taint nodes --all node-role.kubernetes.io/master-</code></li>
+</ul>
+<h3 id="step-5-installing-a-pod-network-add-onhttpskubernetesiodocssetupproduction-environmenttoolskubeadmcreate-cluster-kubeadmpod-network">Step 5: <a href="https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/#pod-network">Installing a Pod network add-on</a></h3>
+<ul>
+<li><code>wget https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml</code></li>
+<li>Set network CIDR for net-conf.json in kube-flannel.yml</li>
+<li><code>kubectl apply -f kube-flannel.yml -n kube-system</code></li>
+</ul>
+<h3 id="step-6-joining-your-nodeshttpskubernetesiodocssetupproduction-environmenttoolskubeadmcreate-cluster-kubeadmjoin-nodes">Step 6: <a href="https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/#join-nodes">Joining your nodes</a></h3>
+<ul>
+<li>SSH to the machine and Become root (e.g. sudo su -)</li>
+<li><code>kubeadm join 16.186.77.143:6443 --token p9lnj7.k6mso572xodjkgqn  --discovery-token-ca-cert-hash sha256:be13c400e2cd6826abf0f2a292044d3297aadd98e98a93b2f464aee01ca7df1c</code></li>
+<li><code>kubeadm token list/create</code></li>
+<li>kubectl create (cluster)rolebinding.
+<ul>
+<li><code>kubeadm alpha kubeconfig user --client-name &lt;CN&gt;</code> - generate an unique credential to which you grant privileges.</li>
+<li><code>kubectl create (cluster)rolebinding</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="step-7-clean-up">Step 7: Clean up</h3>
+<h4 id="remove-the-node">Remove the node</h4>
+<ul>
+<li>Talking to the control-plane node with the appropriate credentials: <code>kubectl drain &lt;node name&gt; --delete-local-data --force --ignore-daemonsets</code></li>
+<li><code>kubeadm reset</code></li>
+<li>reset or clean up iptables rules or IPVS tables: <code>iptables -F &amp;&amp; iptables -t nat -F &amp;&amp; iptables -t mangle -F &amp;&amp; iptables -X</code></li>
+<li>reset the IPVS tables: <code>ipvsadm -C</code></li>
+<li>remove the node: <code>kubectl delete node &lt;node name&gt;</code></li>
+</ul>
+<h4 id="clean-up-the-control-plane">Clean up the control plane</h4>
+<ul>
+<li>kubeadm reset</li>
+<li>systemctl stop kubelet</li>
+<li>systemctl stop docker</li>
+<li>rm -rf /var/lib/cni/</li>
+<li>rm -rf /var/lib/kubelet/*</li>
+<li>rm -rf /etc/cni/</li>
+<li>ifconfig cni0 down</li>
+<li>ifconfig flannel.1 down</li>
+<li>ifconfig docker0 down</li>
+</ul>
+<p>###Troubleshooting</p>
+<ul>
+<li>NetworkPlugin cni failed to set up pod “xxxxx” network: failed to set bridge addr: “cni0” already has an IP address different from10.x.x.x - Error</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ip link set cni0 down
+<span style="color:#75715e"># if cannot delete, restart the vm</span>
+brctl delbr cni0 
+</code></pre></div><ul>
+<li>The route problem can be solved by flush iptables: &ldquo;dial tcp 10.96.0.1:443: connect: no route to host&hellip;&rdquo;</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">systemctl stop kubelet
+systemctl stop docker
+iptables --flush
+iptables -tnat --flush
+systemctl start kubelet
+systemctl start docker
+</code></pre></div>
+</article>
+
+
+<p class="post-meta">
+    Tags:&nbsp;
+    
+    
+    <a href="https://w-yj.github.io/tags/Kubernetes">Kubernetes</a>
+    
+</p>
+
+
+
+            </div>
+        </div>
+    </div>
+    <footer class="center">
+    <div class="p2 wrap">
+        <div class="measure mt1 center">
+            <small>
+                Copyright &#169; 2017<br>
+                Powered by <a href="http://gohugo.io/" target="_blank">Hugo</a> &amp; <a
+                    href="https://github.com/azmelanar/hugo-theme-pixyll" target="_blank">Pixyll</a>
+            </small>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

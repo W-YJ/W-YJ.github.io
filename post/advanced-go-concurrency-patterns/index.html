@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Advanced Go Concurrency Patterns - WYJ&#39;s Notes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="keywords" content="">
+    <link rel="canonical" href="https://w-yj.github.io/post/advanced-go-concurrency-patterns/">
+
+    
+    
+    <link rel="stylesheet" type="text/css" href="https://w-yj.github.io/sass/pixyll.min.30e55e9fcc01694c576be315e114e0449103a0df1fb91cec0c2ada477ba30f6b.css">
+
+    
+    <link rel='stylesheet' type='text/css' href='//fonts.googleapis.com/css?family=Merriweather:900,900italic,300,300italic' >
+    <link rel='stylesheet' type='text/css' href='//fonts.googleapis.com/css?family=Lato:900,300'>
+</head>
+
+<body class="site">
+    <div class="site-wrap">
+        <header class="site-header px2 px-responsive">
+    <div class="mt2 wrap">
+        <div class="measure">
+            <a href="https://w-yj.github.io" class="site-title">WYJ&#39;s Notes</a>
+            <nav class="site-nav">
+                
+<div class="right">
+<a href="https://w-yj.github.io/about/">About</a>
+<a href="https://w-yj.github.io/tags/">Tags</a>
+<a href="https://w-yj.github.io/contact/">Contact</a>
+</div>
+            </nav>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</header>
+
+        <div class="post p2 p-responsive wrap" role="main">
+            <div class="measure">
+                
+<div class="post-header mb2">
+    <h1 class="py2">Advanced Go Concurrency Patterns</h1>
+    <span class="post-meta">
+        Dec 10, 2019
+        
+    </span>
+    <br>
+    
+</div>
+<article class="post-content">
+    <h2 id="advanced-go-concurrency-patterns">Advanced Go Concurrency Patterns</h2>
+<blockquote>
+<p>Go supports conncurrency in the language and runtime, not a library. This changes how you structure your programs.</p>
+</blockquote>
+<!-- raw HTML omitted -->
+<ul>
+<li>Basics Quick Review: Goroutines and Channels</li>
+<li>Ping-Pong Example
+<ul>
+<li>Deadlock detection</li>
+<li>Panic dumps the stacks</li>
+<li>It&rsquo;s easy to go, but how to stop?</li>
+</ul>
+</li>
+<li>Feed Reader Example
+<ul>
+<li>Find an RSS client</li>
+<li>Naive Implementation</li>
+<li>Solution
+<ul>
+<li>Select and nil channels</li>
+</ul>
+</li>
+<li>Improve loop further</li>
+<li>Implemented Subscribe</li>
+<li>Conclusion</li>
+<li>Links</li>
+</ul>
+</li>
+</ul>
+<!-- raw HTML omitted -->
+<h3 id="basics-quick-review-goroutines-and-channels">Basics Quick Review: Goroutines and Channels</h3>
+<ul>
+<li>Goroutines are independantly exuecuting functions in the same address space.</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#66d9ef">go</span> <span style="color:#a6e22e">f</span>()
+<span style="color:#66d9ef">go</span> <span style="color:#a6e22e">g</span>(<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>)
+</code></pre></div><ul>
+<li>Channels are typed values that allow goroutines to synchronize the exchange information.</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">int</span>)
+<span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>() {
+    <span style="color:#a6e22e">c</span> <span style="color:#f92672">&lt;-</span> <span style="color:#ae81ff">3</span>
+}()
+<span style="color:#a6e22e">n</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">c</span>
+</code></pre></div><h3 id="ping-pong-example">Ping-Pong Example</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Ball</span> <span style="color:#66d9ef">struct</span>{ <span style="color:#a6e22e">hits</span> <span style="color:#66d9ef">int</span> }
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#a6e22e">table</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">chan</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Ball</span>)
+    <span style="color:#66d9ef">go</span> <span style="color:#a6e22e">player</span>(<span style="color:#e6db74">&#34;ping&#34;</span>, <span style="color:#a6e22e">table</span>)
+    <span style="color:#66d9ef">go</span> <span style="color:#a6e22e">player</span>(<span style="color:#e6db74">&#34;pong&#34;</span>, <span style="color:#a6e22e">table</span>)
+
+    <span style="color:#a6e22e">table</span> <span style="color:#f92672">&lt;-</span> new(<span style="color:#a6e22e">Ball</span>) <span style="color:#75715e">// game on; toss the ball 
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Sleep</span>(<span style="color:#ae81ff">1</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span>)
+    <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">table</span> <span style="color:#75715e">//game over; grap the ball
+</span><span style="color:#75715e"></span>}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">player</span>(<span style="color:#a6e22e">name</span> <span style="color:#66d9ef">string</span>, <span style="color:#a6e22e">table</span> <span style="color:#66d9ef">chan</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Ball</span>) {
+    <span style="color:#66d9ef">for</span> {
+        <span style="color:#a6e22e">ball</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">table</span>
+        <span style="color:#a6e22e">ball</span>.<span style="color:#a6e22e">hits</span><span style="color:#f92672">++</span>
+        <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">name</span>, <span style="color:#a6e22e">ball</span>.<span style="color:#a6e22e">hits</span>)
+        <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Sleep</span>(<span style="color:#ae81ff">100</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Millisecond</span>)
+        <span style="color:#a6e22e">table</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">ball</span>
+    }
+}
+</code></pre></div><h4 id="deadlock-detection">Deadlock detection</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Ball</span> <span style="color:#66d9ef">struct</span>{ <span style="color:#a6e22e">hits</span> <span style="color:#66d9ef">int</span> }
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#a6e22e">table</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">chan</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Ball</span>)
+    <span style="color:#66d9ef">go</span> <span style="color:#a6e22e">player</span>(<span style="color:#e6db74">&#34;ping&#34;</span>, <span style="color:#a6e22e">table</span>)
+    <span style="color:#66d9ef">go</span> <span style="color:#a6e22e">player</span>(<span style="color:#e6db74">&#34;pong&#34;</span>, <span style="color:#a6e22e">table</span>)
+
+    <span style="color:#75715e">//table &lt;- new(Ball) // game on; toss the ball 
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Sleep</span>(<span style="color:#ae81ff">1</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span>)
+    <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">table</span> <span style="color:#75715e">//game over; grap the ball
+</span><span style="color:#75715e"></span>}
+</code></pre></div><h4 id="panic-dumps-the-stacks">Panic dumps the stacks</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Ball</span> <span style="color:#66d9ef">struct</span>{ <span style="color:#a6e22e">hits</span> <span style="color:#66d9ef">int</span> }
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#a6e22e">table</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">chan</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Ball</span>)
+    <span style="color:#66d9ef">go</span> <span style="color:#a6e22e">player</span>(<span style="color:#e6db74">&#34;ping&#34;</span>, <span style="color:#a6e22e">table</span>)
+    <span style="color:#66d9ef">go</span> <span style="color:#a6e22e">player</span>(<span style="color:#e6db74">&#34;pong&#34;</span>, <span style="color:#a6e22e">table</span>)
+
+    <span style="color:#a6e22e">table</span> <span style="color:#f92672">&lt;-</span> new(<span style="color:#a6e22e">Ball</span>) <span style="color:#75715e">// game on; toss the ball 
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Sleep</span>(<span style="color:#ae81ff">1</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span>)
+    <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">table</span> <span style="color:#75715e">//game over; grap the ball
+</span><span style="color:#75715e"></span>
+    panic(<span style="color:#e6db74">&#34;show me the stacks&#34;</span>)
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">player</span>(<span style="color:#a6e22e">name</span> <span style="color:#66d9ef">string</span>, <span style="color:#a6e22e">table</span> <span style="color:#66d9ef">chan</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Ball</span>) {
+    <span style="color:#66d9ef">for</span> {
+        <span style="color:#a6e22e">ball</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">table</span>
+        <span style="color:#a6e22e">ball</span>.<span style="color:#a6e22e">hits</span><span style="color:#f92672">++</span>
+        <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">name</span>, <span style="color:#a6e22e">ball</span>.<span style="color:#a6e22e">hits</span>)
+        <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Sleep</span>(<span style="color:#ae81ff">100</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Millisecond</span>)
+        <span style="color:#a6e22e">table</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">ball</span>
+    }
+}
+</code></pre></div><h4 id="its-easy-to-go-but-how-to-stop">It&rsquo;s easy to go, but how to stop?</h4>
+<p>Long-lived programs need to clean up. Let&rsquo;s look at how to write programs that handle communication, periodic events, and cancellation. The core is Go&rsquo;s select statement: like a switch, but the decision is made based on the ability to communicate.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#66d9ef">select</span> {
+<span style="color:#66d9ef">case</span> <span style="color:#a6e22e">xc</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">x</span>:
+    <span style="color:#75715e">//sent x on xc
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">case</span> <span style="color:#a6e22e">y</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">yc</span>:
+    <span style="color:#75715e">//received y from yc
+</span><span style="color:#75715e"></span>}
+</code></pre></div><h3 id="feed-reader-example">Feed Reader Example</h3>
+<p>My favorite feed reader disappeared. I need a new one. Why not write one? Where do we start?</p>
+<h4 id="find-an-rss-client">Find an RSS client</h4>
+<p>Searching godoc.org for &ldquo;rss&rdquo; turns up serveral hits, including one that provides:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#75715e">//Fetch fetches Items for uri and returns the time when the next fetch should be attempted. On failure, Fetch returns an error.
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">Fetch</span>(<span style="color:#a6e22e">uri</span> <span style="color:#66d9ef">string</span>) (<span style="color:#a6e22e">items</span> []<span style="color:#a6e22e">Item</span>, <span style="color:#a6e22e">next</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Time</span>, <span style="color:#a6e22e">err</span> <span style="color:#66d9ef">error</span>)
+
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Item</span> <span style="color:#66d9ef">struct</span> {
+    <span style="color:#a6e22e">Title</span>, <span style="color:#a6e22e">Channel</span>, <span style="color:#a6e22e">GUID</span> <span style="color:#66d9ef">string</span> <span style="color:#75715e">// a subset of RSS fields
+</span><span style="color:#75715e"></span>}
+</code></pre></div><p>But I want a stream:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#f92672">&lt;-</span><span style="color:#66d9ef">chan</span> <span style="color:#a6e22e">Item</span>
+</code></pre></div><p>And I want multiple subscriptions.</p>
+<h4 id="naive-implementation">Naive Implementation</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+
+<span style="color:#f92672">import</span> (
+    <span style="color:#e6db74">&#34;fmt&#34;</span>
+    <span style="color:#e6db74">&#34;time&#34;</span>
+)
+
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Item</span> <span style="color:#66d9ef">struct</span> {
+    <span style="color:#a6e22e">Title</span>, <span style="color:#a6e22e">Channel</span>, <span style="color:#a6e22e">GUID</span> <span style="color:#66d9ef">string</span>
+}
+
+<span style="color:#75715e">// sub implements the Subscription interface
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">sub</span> <span style="color:#66d9ef">struct</span> {
+    <span style="color:#a6e22e">fetcher</span> <span style="color:#a6e22e">Fetcher</span>   <span style="color:#75715e">// fetches items
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">updates</span> <span style="color:#66d9ef">chan</span> <span style="color:#a6e22e">Item</span> <span style="color:#75715e">// delivers items to the user
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">closed</span>  <span style="color:#66d9ef">bool</span>
+    <span style="color:#a6e22e">err</span>     <span style="color:#66d9ef">error</span>
+}
+
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Fetcher</span> <span style="color:#66d9ef">interface</span> {
+    <span style="color:#a6e22e">Fetch</span>() (<span style="color:#a6e22e">items</span> []<span style="color:#a6e22e">Item</span>, <span style="color:#a6e22e">next</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Time</span>, <span style="color:#a6e22e">err</span> <span style="color:#66d9ef">error</span>)
+}
+
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Subscription</span> <span style="color:#66d9ef">interface</span> {
+    <span style="color:#a6e22e">Updates</span>() <span style="color:#f92672">&lt;-</span><span style="color:#66d9ef">chan</span> <span style="color:#a6e22e">Item</span> <span style="color:#75715e">//stream of Items
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">Close</span>() <span style="color:#66d9ef">error</span>         <span style="color:#75715e">// shuts down the stream
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">loop</span>()
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#75715e">//Subscribe to some feeds, and create a merged update stream
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">merged</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">Merge</span>(
+        <span style="color:#a6e22e">Subscribe</span>(<span style="color:#a6e22e">Fetch</span>(<span style="color:#e6db74">&#34;blog.golang.org&#34;</span>)),
+        <span style="color:#a6e22e">Subscribe</span>(<span style="color:#a6e22e">Fetch</span>(<span style="color:#e6db74">&#34;googleblog.blogspot.com&#34;</span>)),
+        <span style="color:#a6e22e">Subscribe</span>(<span style="color:#a6e22e">Fetch</span>(<span style="color:#e6db74">&#34;googledevelopers.blogspot.com&#34;</span>)))
+
+    <span style="color:#75715e">// Close the subscriptions after some time
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">AfterFunc</span>(<span style="color:#ae81ff">3</span><span style="color:#f92672">*</span><span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span>, <span style="color:#66d9ef">func</span>() {
+        <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;closed:&#34;</span>, <span style="color:#a6e22e">merged</span>.<span style="color:#a6e22e">Close</span>())
+    })
+
+    <span style="color:#75715e">//Print the stream
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">it</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">merged</span>.<span style="color:#a6e22e">Updates</span>() {
+        <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">it</span>.<span style="color:#a6e22e">Channel</span>, <span style="color:#a6e22e">it</span>.<span style="color:#a6e22e">Title</span>)
+    }
+    panic(<span style="color:#e6db74">&#34;show me the stacks&#34;</span>)
+}
+
+<span style="color:#75715e">//Subscribe creates a new Subscription that repeatedly fetches items until Close is called.
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">Subscribe</span>(<span style="color:#a6e22e">fetcher</span> <span style="color:#a6e22e">Fetcher</span>) <span style="color:#a6e22e">Subscription</span> {
+    <span style="color:#75715e">//converts Fetchers to a stream
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">s</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">sub</span>{
+        <span style="color:#a6e22e">fetcher</span>: <span style="color:#a6e22e">fetcher</span>,
+        <span style="color:#a6e22e">updates</span>: make(<span style="color:#66d9ef">chan</span> <span style="color:#a6e22e">Item</span>), <span style="color:#75715e">//for Updates
+</span><span style="color:#75715e"></span>    }
+    <span style="color:#66d9ef">go</span> <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">loop</span>()
+    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">s</span>
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">Fetch</span>(<span style="color:#a6e22e">domain</span> <span style="color:#66d9ef">string</span>) <span style="color:#a6e22e">Fetcher</span> {
+    <span style="color:#75715e">// fetches Items from domain
+</span><span style="color:#75715e"></span>}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">Merge</span>(<span style="color:#a6e22e">subs</span> <span style="color:#f92672">...</span><span style="color:#a6e22e">Subscription</span>) <span style="color:#a6e22e">Subscription</span> {
+    <span style="color:#75715e">//merges several streams
+</span><span style="color:#75715e"></span>}
+
+<span style="color:#75715e">//Implementing Subscription: To implement the Subscription interface, define Updates and Close.
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">s</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">sub</span>) <span style="color:#a6e22e">Updates</span>() <span style="color:#f92672">&lt;-</span><span style="color:#66d9ef">chan</span> <span style="color:#a6e22e">Item</span> {
+    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">updates</span>
+}
+
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">s</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">sub</span>) <span style="color:#a6e22e">Close</span>() <span style="color:#66d9ef">error</span> {
+    <span style="color:#75715e">//make loop exit and find out about any error
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">closed</span> = <span style="color:#66d9ef">true</span>
+    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">err</span>
+}
+
+<span style="color:#75715e">// loop fetches items using s.fetcher and sends them on s.updates. loop exits when s.Close is called.
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">s</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">sub</span>) <span style="color:#a6e22e">loop</span>() {
+    <span style="color:#66d9ef">for</span> {
+        <span style="color:#75715e">//Bug 1: unsynchronized access to s.closed/s.err
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">closed</span> {
+            close(<span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">updates</span>)
+            <span style="color:#66d9ef">return</span>
+        }
+        <span style="color:#a6e22e">items</span>, <span style="color:#a6e22e">next</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">fetcher</span>.<span style="color:#a6e22e">Fetch</span>()
+        <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+            <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">err</span> = <span style="color:#a6e22e">err</span>
+            <span style="color:#75715e">//Bug 2: time.Sleep may keep loop runnig
+</span><span style="color:#75715e"></span>            <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Sleep</span>(<span style="color:#ae81ff">10</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span>)
+            <span style="color:#66d9ef">continue</span>
+        }
+        <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">item</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">items</span> {
+            <span style="color:#75715e">//Bug 3: loop may block forever on s.updates
+</span><span style="color:#75715e"></span>            <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">updates</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">item</span>
+        }
+
+        <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">now</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Now</span>(); <span style="color:#a6e22e">next</span>.<span style="color:#a6e22e">After</span>(<span style="color:#a6e22e">now</span>) {
+            <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Sleep</span>(<span style="color:#a6e22e">next</span>.<span style="color:#a6e22e">Sub</span>(<span style="color:#a6e22e">now</span>))
+        }
+    }
+}
+
+</code></pre></div><p>What does loop do?</p>
+<ul>
+<li>periodically call Fetch</li>
+<li>send fetched items on the Updates channel</li>
+<li>exit when close is called, reporting any error</li>
+</ul>
+<p>Race Detector: go run -race naivemain.go</p>
+<h4 id="solution">Solution</h4>
+<blockquote>
+<p>The cases interact via err, next, and pending.<br>
+No locks, no condition variables, no callbacks.</p>
+</blockquote>
+<p>Change the body of loop to a select with three cases:</p>
+<ul>
+<li>Close was called</li>
+<li>It&rsquo;s time to call Fetch</li>
+<li>send an item on s.updates</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+
+<span style="color:#f92672">import</span> (
+    <span style="color:#e6db74">&#34;fmt&#34;</span>
+    <span style="color:#e6db74">&#34;time&#34;</span>
+)
+
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Item</span> <span style="color:#66d9ef">struct</span> {
+    <span style="color:#a6e22e">Title</span>, <span style="color:#a6e22e">Channel</span>, <span style="color:#a6e22e">GUID</span> <span style="color:#66d9ef">string</span>
+}
+
+<span style="color:#75715e">// sub implements the Subscription interface
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">sub</span> <span style="color:#66d9ef">struct</span> {
+    <span style="color:#a6e22e">fetcher</span> <span style="color:#a6e22e">Fetcher</span>   <span style="color:#75715e">// fetches items
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">updates</span> <span style="color:#66d9ef">chan</span> <span style="color:#a6e22e">Item</span> <span style="color:#75715e">// delivers items to the user
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">closing</span> <span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">error</span>
+    <span style="color:#a6e22e">err</span>     <span style="color:#66d9ef">error</span>
+}
+
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Fetcher</span> <span style="color:#66d9ef">interface</span> {
+    <span style="color:#a6e22e">Fetch</span>() (<span style="color:#a6e22e">items</span> []<span style="color:#a6e22e">Item</span>, <span style="color:#a6e22e">next</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Time</span>, <span style="color:#a6e22e">err</span> <span style="color:#66d9ef">error</span>)
+}
+
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Subscription</span> <span style="color:#66d9ef">interface</span> {
+    <span style="color:#a6e22e">Updates</span>() <span style="color:#f92672">&lt;-</span><span style="color:#66d9ef">chan</span> <span style="color:#a6e22e">Item</span> <span style="color:#75715e">//stream of Items
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">Close</span>() <span style="color:#66d9ef">error</span>         <span style="color:#75715e">// shuts down the stream
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">loop</span>()
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#75715e">//Subscribe to some feeds, and create a merged update stream
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">merged</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">Merge</span>(
+        <span style="color:#a6e22e">Subscribe</span>(<span style="color:#a6e22e">Fetch</span>(<span style="color:#e6db74">&#34;blog.golang.org&#34;</span>)),
+        <span style="color:#a6e22e">Subscribe</span>(<span style="color:#a6e22e">Fetch</span>(<span style="color:#e6db74">&#34;googleblog.blogspot.com&#34;</span>)),
+        <span style="color:#a6e22e">Subscribe</span>(<span style="color:#a6e22e">Fetch</span>(<span style="color:#e6db74">&#34;googledevelopers.blogspot.com&#34;</span>)))
+
+    <span style="color:#75715e">// Close the subscriptions after some time
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">AfterFunc</span>(<span style="color:#ae81ff">3</span><span style="color:#f92672">*</span><span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span>, <span style="color:#66d9ef">func</span>() {
+        <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;closed:&#34;</span>, <span style="color:#a6e22e">merged</span>.<span style="color:#a6e22e">Close</span>())
+    })
+
+    <span style="color:#75715e">//Print the stream
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">it</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">merged</span>.<span style="color:#a6e22e">Updates</span>() {
+        <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">it</span>.<span style="color:#a6e22e">Channel</span>, <span style="color:#a6e22e">it</span>.<span style="color:#a6e22e">Title</span>)
+    }
+    panic(<span style="color:#e6db74">&#34;show me the stacks&#34;</span>)
+}
+
+<span style="color:#75715e">//Subscribe creates a new Subscription that repeatedly fetches items until Close is called.
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">Subscribe</span>(<span style="color:#a6e22e">fetcher</span> <span style="color:#a6e22e">Fetcher</span>) <span style="color:#a6e22e">Subscription</span> {
+    <span style="color:#75715e">//converts Fetchers to a stream
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">s</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">sub</span>{
+        <span style="color:#a6e22e">fetcher</span>: <span style="color:#a6e22e">fetcher</span>,
+        <span style="color:#a6e22e">updates</span>: make(<span style="color:#66d9ef">chan</span> <span style="color:#a6e22e">Item</span>), <span style="color:#75715e">//for Updates
+</span><span style="color:#75715e"></span>    }
+    <span style="color:#66d9ef">go</span> <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">loop</span>()
+    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">s</span>
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">Fetch</span>(<span style="color:#a6e22e">domain</span> <span style="color:#66d9ef">string</span>) <span style="color:#a6e22e">Fetcher</span> {
+    <span style="color:#75715e">// fetches Items from domain
+</span><span style="color:#75715e"></span>
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">Merge</span>(<span style="color:#a6e22e">subs</span> <span style="color:#f92672">...</span><span style="color:#a6e22e">Subscription</span>) <span style="color:#a6e22e">Subscription</span> {
+    <span style="color:#75715e">//merges several streams
+</span><span style="color:#75715e"></span>}
+
+<span style="color:#75715e">//Implementing Subscription: To implement the Subscription interface, define Updates and Close.
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">s</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">sub</span>) <span style="color:#a6e22e">Updates</span>() <span style="color:#f92672">&lt;-</span><span style="color:#66d9ef">chan</span> <span style="color:#a6e22e">Item</span> {
+    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">updates</span>
+}
+
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">s</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">sub</span>) <span style="color:#a6e22e">Close</span>() <span style="color:#66d9ef">error</span> {
+    <span style="color:#75715e">//Close asks loop to exit and waits for a response
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">errc</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">error</span>)
+    <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">closing</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">errc</span>
+    <span style="color:#66d9ef">return</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">errc</span>
+}
+
+<span style="color:#75715e">// loop fetches items using s.fetcher and sends them on s.updates. loop exits when s.Close is called.
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">s</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">sub</span>) <span style="color:#a6e22e">loop</span>() {
+    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">pending</span> []<span style="color:#a6e22e">Item</span> <span style="color:#75715e">// appended by fetch; consumed by send
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">next</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Time</span> <span style="color:#75715e">// initially January 1, year 0
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">err</span> <span style="color:#66d9ef">error</span>
+    <span style="color:#66d9ef">for</span> {
+        <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">fetchDelay</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Duration</span> <span style="color:#75715e">// initially 0 (no delay)
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">now</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Now</span>(); <span style="color:#a6e22e">next</span>.<span style="color:#a6e22e">After</span>(<span style="color:#a6e22e">now</span>) {
+            <span style="color:#a6e22e">fetchDelay</span> = <span style="color:#a6e22e">next</span>.<span style="color:#a6e22e">Sub</span>(<span style="color:#a6e22e">now</span>)
+        }
+        <span style="color:#a6e22e">startFetch</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">After</span>(<span style="color:#a6e22e">fetchDelay</span>)
+
+        <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">first</span> <span style="color:#a6e22e">Item</span>
+        <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">updates</span> <span style="color:#66d9ef">chan</span> <span style="color:#a6e22e">Item</span>
+        <span style="color:#66d9ef">if</span> len(<span style="color:#a6e22e">pending</span>) &gt; <span style="color:#ae81ff">0</span> {
+            <span style="color:#a6e22e">first</span> = <span style="color:#a6e22e">pending</span>[<span style="color:#ae81ff">0</span>]
+            <span style="color:#a6e22e">updates</span> = <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">updates</span> <span style="color:#75715e">//enable send case
+</span><span style="color:#75715e"></span>        }
+        <span style="color:#75715e">//Loop runs in its own goroutine. Select lets loop avoid blocking indefinitely in any one state. The cases interact via local state in loop.
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">select</span> {
+        <span style="color:#66d9ef">case</span> <span style="color:#a6e22e">errc</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">closing</span>:
+            <span style="color:#75715e">//loop handles Close by replying with the Fetch error and exiting.
+</span><span style="color:#75715e"></span>            <span style="color:#75715e">//The service(loop) listens for requests on its channel(s.closing).
+</span><span style="color:#75715e"></span>            <span style="color:#75715e">//The client(Close) sends a request on s.closing: exit and reply with the error.
+</span><span style="color:#75715e"></span>            <span style="color:#75715e">//In this case, the only thing in the request is the reply channel.
+</span><span style="color:#75715e"></span>            <span style="color:#a6e22e">errc</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">err</span>
+            close(<span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">updates</span>) <span style="color:#75715e">// tell receiver we&#39;re done
+</span><span style="color:#75715e"></span>            <span style="color:#66d9ef">return</span>
+
+        <span style="color:#66d9ef">case</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">startFetch</span>:
+            <span style="color:#75715e">//Schedule the next Fetch after some delay.
+</span><span style="color:#75715e"></span>            <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">fetched</span> []<span style="color:#a6e22e">Item</span>
+            <span style="color:#a6e22e">fetched</span>, <span style="color:#a6e22e">next</span>, <span style="color:#a6e22e">err</span> = <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">fetcher</span>.<span style="color:#a6e22e">Fetch</span>()
+            <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+                <span style="color:#a6e22e">next</span> = <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Now</span>().<span style="color:#a6e22e">Add</span>(<span style="color:#ae81ff">10</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span>)
+                <span style="color:#66d9ef">break</span>
+            }
+            <span style="color:#a6e22e">pending</span> = append(<span style="color:#a6e22e">pending</span>, <span style="color:#a6e22e">fetched</span><span style="color:#f92672">...</span>)
+        <span style="color:#66d9ef">case</span> <span style="color:#a6e22e">updates</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">first</span>:
+            <span style="color:#a6e22e">pending</span> = <span style="color:#a6e22e">pending</span>[<span style="color:#ae81ff">1</span>:]
+        }
+    }
+}
+</code></pre></div><p>Bug fixed:</p>
+<ul>
+<li>Bug 1: unsynchronized access to s.closed and s.err</li>
+<li>Bug 2: time.Sleep may keep loop running</li>
+<li>Bug 3: loop may block forever sending on s.updates</li>
+</ul>
+<h5 id="select-and-nil-channels">Select and nil channels</h5>
+<p>Select never selects a blocking case.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#75715e">//Sends and receives on nil channels block. 
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">a</span>, <span style="color:#a6e22e">b</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">string</span>), make(<span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">string</span>)
+    <span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>() { <span style="color:#a6e22e">a</span><span style="color:#f92672">&lt;-</span><span style="color:#e6db74">&#34;a&#34;</span> }()
+    <span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>() { <span style="color:#a6e22e">b</span><span style="color:#f92672">&lt;-</span><span style="color:#e6db74">&#34;b&#34;</span> }()
+    <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">rand</span>.<span style="color:#a6e22e">Intn</span>(<span style="color:#ae81ff">2</span>) <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span> {
+        <span style="color:#a6e22e">a</span> = <span style="color:#66d9ef">nil</span>
+        <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;nil a&#34;</span>)
+    }<span style="color:#66d9ef">else</span> {
+        <span style="color:#a6e22e">b</span> = <span style="color:#66d9ef">nil</span>
+        <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;nil b&#34;</span>)
+    }
+    <span style="color:#66d9ef">select</span> {
+    <span style="color:#66d9ef">case</span> <span style="color:#a6e22e">s</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">a</span> :
+        <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;got&#34;</span>, <span style="color:#a6e22e">s</span>)
+    <span style="color:#66d9ef">case</span> <span style="color:#a6e22e">s</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">b</span> :
+        <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;got&#34;</span>, <span style="color:#a6e22e">s</span>)
+    }
+}
+</code></pre></div><h4 id="improve-loop-further">Improve loop further</h4>
+<ul>
+<li>Issue1: Fetch may return duplicates - Fix: Filter items before adding to pending.</li>
+<li>Issue2: Pending queue grows without bound - Fix: Disable fetch case when too much pending.(Could instead drop order items from the head of pending.)</li>
+<li>Issue3: Loop blocks on Fetch - Fix: Run Fetch asynchronously</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+
+<span style="color:#f92672">import</span> (
+    <span style="color:#e6db74">&#34;fmt&#34;</span>
+    <span style="color:#e6db74">&#34;time&#34;</span>
+)
+
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Item</span> <span style="color:#66d9ef">struct</span> {
+    <span style="color:#a6e22e">Title</span>, <span style="color:#a6e22e">Channel</span>, <span style="color:#a6e22e">GUID</span> <span style="color:#66d9ef">string</span>
+}
+
+<span style="color:#75715e">// sub implements the Subscription interface
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">sub</span> <span style="color:#66d9ef">struct</span> {
+    <span style="color:#a6e22e">fetcher</span> <span style="color:#a6e22e">Fetcher</span>   <span style="color:#75715e">// fetches items
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">updates</span> <span style="color:#66d9ef">chan</span> <span style="color:#a6e22e">Item</span> <span style="color:#75715e">// delivers items to the user
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">closing</span> <span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">error</span>
+    <span style="color:#a6e22e">err</span>     <span style="color:#66d9ef">error</span>
+}
+
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">fetchResult</span> <span style="color:#66d9ef">struct</span> {
+    <span style="color:#a6e22e">fetched</span> []<span style="color:#a6e22e">Item</span>
+    <span style="color:#a6e22e">next</span>    <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Time</span>
+    <span style="color:#a6e22e">err</span>     <span style="color:#66d9ef">error</span>
+}
+
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Fetcher</span> <span style="color:#66d9ef">interface</span> {
+    <span style="color:#a6e22e">Fetch</span>() (<span style="color:#a6e22e">items</span> []<span style="color:#a6e22e">Item</span>, <span style="color:#a6e22e">next</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Time</span>, <span style="color:#a6e22e">err</span> <span style="color:#66d9ef">error</span>)
+}
+
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Subscription</span> <span style="color:#66d9ef">interface</span> {
+    <span style="color:#a6e22e">Updates</span>() <span style="color:#f92672">&lt;-</span><span style="color:#66d9ef">chan</span> <span style="color:#a6e22e">Item</span> <span style="color:#75715e">//stream of Items
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">Close</span>() <span style="color:#66d9ef">error</span>         <span style="color:#75715e">// shuts down the stream
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">loop</span>()
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#75715e">//Subscribe to some feeds, and create a merged update stream
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">merged</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">Merge</span>(
+        <span style="color:#a6e22e">Subscribe</span>(<span style="color:#a6e22e">Fetch</span>(<span style="color:#e6db74">&#34;blog.golang.org&#34;</span>)),
+        <span style="color:#a6e22e">Subscribe</span>(<span style="color:#a6e22e">Fetch</span>(<span style="color:#e6db74">&#34;googleblog.blogspot.com&#34;</span>)),
+        <span style="color:#a6e22e">Subscribe</span>(<span style="color:#a6e22e">Fetch</span>(<span style="color:#e6db74">&#34;googledevelopers.blogspot.com&#34;</span>)))
+
+    <span style="color:#75715e">// Close the subscriptions after some time
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">AfterFunc</span>(<span style="color:#ae81ff">3</span><span style="color:#f92672">*</span><span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span>, <span style="color:#66d9ef">func</span>() {
+        <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;closed:&#34;</span>, <span style="color:#a6e22e">merged</span>.<span style="color:#a6e22e">Close</span>())
+    })
+
+    <span style="color:#75715e">//Print the stream
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">it</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">merged</span>.<span style="color:#a6e22e">Updates</span>() {
+        <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">it</span>.<span style="color:#a6e22e">Channel</span>, <span style="color:#a6e22e">it</span>.<span style="color:#a6e22e">Title</span>)
+    }
+    panic(<span style="color:#e6db74">&#34;show me the stacks&#34;</span>)
+}
+
+<span style="color:#75715e">//Subscribe creates a new Subscription that repeatedly fetches items until Close is called.
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">Subscribe</span>(<span style="color:#a6e22e">fetcher</span> <span style="color:#a6e22e">Fetcher</span>) <span style="color:#a6e22e">Subscription</span> {
+    <span style="color:#75715e">//converts Fetchers to a stream
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">s</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">sub</span>{
+        <span style="color:#a6e22e">fetcher</span>: <span style="color:#a6e22e">fetcher</span>,
+        <span style="color:#a6e22e">updates</span>: make(<span style="color:#66d9ef">chan</span> <span style="color:#a6e22e">Item</span>), <span style="color:#75715e">//for Updates
+</span><span style="color:#75715e"></span>    }
+    <span style="color:#66d9ef">go</span> <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">loop</span>()
+    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">s</span>
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">Fetch</span>(<span style="color:#a6e22e">domain</span> <span style="color:#66d9ef">string</span>) <span style="color:#a6e22e">Fetcher</span> {
+    <span style="color:#75715e">// fetches Items from domain
+</span><span style="color:#75715e"></span>
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">Merge</span>(<span style="color:#a6e22e">subs</span> <span style="color:#f92672">...</span><span style="color:#a6e22e">Subscription</span>) <span style="color:#a6e22e">Subscription</span> {
+    <span style="color:#75715e">//merges several streams
+</span><span style="color:#75715e"></span>}
+
+<span style="color:#75715e">//Implementing Subscription: To implement the Subscription interface, define Updates and Close.
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">s</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">sub</span>) <span style="color:#a6e22e">Updates</span>() <span style="color:#f92672">&lt;-</span><span style="color:#66d9ef">chan</span> <span style="color:#a6e22e">Item</span> {
+    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">updates</span>
+}
+
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">s</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">sub</span>) <span style="color:#a6e22e">Close</span>() <span style="color:#66d9ef">error</span> {
+    <span style="color:#75715e">//Close asks loop to exit and waits for a response
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">errc</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">error</span>)
+    <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">closing</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">errc</span>
+    <span style="color:#66d9ef">return</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">errc</span>
+}
+
+<span style="color:#75715e">// loop fetches items using s.fetcher and sends them on s.updates. loop exits when s.Close is called.
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">s</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">sub</span>) <span style="color:#a6e22e">loop</span>() {
+    <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">maxPending</span> = <span style="color:#ae81ff">10</span>
+    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">pending</span> []<span style="color:#a6e22e">Item</span> <span style="color:#75715e">// appended by fetch; consumed by send
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">next</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Time</span> <span style="color:#75715e">// initially January 1, year 0
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">err</span> <span style="color:#66d9ef">error</span>
+    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">seen</span> = make(<span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">bool</span>) <span style="color:#75715e">//set of items.GUIDs
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">fetchDone</span> <span style="color:#66d9ef">chan</span> <span style="color:#a6e22e">fetchResult</span>   <span style="color:#75715e">//if non-nil, Fetch is running
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">for</span> {
+        <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">fetchDelay</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Duration</span> <span style="color:#75715e">// initially 0 (no delay)
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">now</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Now</span>(); <span style="color:#a6e22e">next</span>.<span style="color:#a6e22e">After</span>(<span style="color:#a6e22e">now</span>) {
+            <span style="color:#a6e22e">fetchDelay</span> = <span style="color:#a6e22e">next</span>.<span style="color:#a6e22e">Sub</span>(<span style="color:#a6e22e">now</span>)
+        }
+        <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">startFetch</span> <span style="color:#f92672">&lt;-</span><span style="color:#66d9ef">chan</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Time</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">fetchDone</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">nil</span> <span style="color:#f92672">&amp;&amp;</span> len(<span style="color:#a6e22e">pending</span>) &lt; <span style="color:#a6e22e">maxPending</span> {
+            <span style="color:#a6e22e">startFetch</span> = <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">After</span>(<span style="color:#a6e22e">fetchDelay</span>) <span style="color:#75715e">// enable fetch case
+</span><span style="color:#75715e"></span>        }
+        <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">first</span> <span style="color:#a6e22e">Item</span>
+        <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">updates</span> <span style="color:#66d9ef">chan</span> <span style="color:#a6e22e">Item</span>
+        <span style="color:#66d9ef">if</span> len(<span style="color:#a6e22e">pending</span>) &gt; <span style="color:#ae81ff">0</span> {
+            <span style="color:#a6e22e">first</span> = <span style="color:#a6e22e">pending</span>[<span style="color:#ae81ff">0</span>]
+            <span style="color:#a6e22e">updates</span> = <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">updates</span> <span style="color:#75715e">//enable send case
+</span><span style="color:#75715e"></span>        }
+
+        <span style="color:#75715e">//Loop runs in its own goroutine. Select lets loop avoid blocking indefinitely in any one state. The cases interact via local state in loop.
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">select</span> {
+        <span style="color:#66d9ef">case</span> <span style="color:#a6e22e">errc</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">closing</span>:
+            <span style="color:#75715e">//loop handles Close by replying with the Fetch error and exiting.
+</span><span style="color:#75715e"></span>            <span style="color:#75715e">//The service(loop) listens for requests on its channel(s.closing).
+</span><span style="color:#75715e"></span>            <span style="color:#75715e">//The client(Close) sends a request on s.closing: exit and reply with the error.
+</span><span style="color:#75715e"></span>            <span style="color:#75715e">//In this case, the only thing in the request is the reply channel.
+</span><span style="color:#75715e"></span>            <span style="color:#a6e22e">errc</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">err</span>
+            close(<span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">updates</span>) <span style="color:#75715e">// tell receiver we&#39;re done
+</span><span style="color:#75715e"></span>            <span style="color:#66d9ef">return</span>
+        <span style="color:#66d9ef">case</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">startFetch</span>:
+            <span style="color:#75715e">//Schedule the next Fetch after some delay.
+</span><span style="color:#75715e"></span>
+            <span style="color:#a6e22e">fetchDone</span> = make(<span style="color:#66d9ef">chan</span> <span style="color:#a6e22e">fetchResult</span>, <span style="color:#ae81ff">1</span>)
+            <span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>() {
+                <span style="color:#a6e22e">fetched</span>, <span style="color:#a6e22e">next</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">fetcher</span>.<span style="color:#a6e22e">Fetch</span>()
+                <span style="color:#a6e22e">fetchDone</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">fetchResult</span>{<span style="color:#a6e22e">fetched</span>, <span style="color:#a6e22e">next</span>, <span style="color:#a6e22e">err</span>}
+            }()
+        <span style="color:#66d9ef">case</span> <span style="color:#a6e22e">result</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">fetchDone</span>:
+            <span style="color:#a6e22e">fetchDone</span> = <span style="color:#66d9ef">nil</span>
+            <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">fetched</span> = <span style="color:#a6e22e">result</span>.<span style="color:#a6e22e">fetched</span>
+            <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+                <span style="color:#a6e22e">next</span> = <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Now</span>().<span style="color:#a6e22e">Add</span>(<span style="color:#ae81ff">10</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span>)
+                <span style="color:#66d9ef">break</span>
+            }
+            <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">item</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">fetched</span> {
+                <span style="color:#66d9ef">if</span> !<span style="color:#a6e22e">seen</span>[<span style="color:#a6e22e">item</span>.<span style="color:#a6e22e">GUID</span>] {
+                    <span style="color:#a6e22e">pending</span> = append(<span style="color:#a6e22e">pending</span>, <span style="color:#a6e22e">fetched</span><span style="color:#f92672">...</span>)
+                    <span style="color:#a6e22e">seen</span>[<span style="color:#a6e22e">item</span>.<span style="color:#a6e22e">GUID</span>] = <span style="color:#66d9ef">true</span>
+                }
+            }
+        <span style="color:#66d9ef">case</span> <span style="color:#a6e22e">updates</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">first</span>:
+            <span style="color:#a6e22e">pending</span> = <span style="color:#a6e22e">pending</span>[<span style="color:#ae81ff">1</span>:]
+        }
+    }
+}
+</code></pre></div><h4 id="implemented-subscribe">Implemented Subscribe</h4>
+<p>Responsive. Cleans up. Easy to read and change.<br>
+Three techniques:</p>
+<ul>
+<li>for -select loop</li>
+<li>service channel, reply channels(chan chan error)</li>
+<li>nil channel in select cases</li>
+</ul>
+<h4 id="conclusion">Conclusion</h4>
+<p>Concurrent programming can be tricky. Go makes it easier:</p>
+<ul>
+<li>Channels convey data, timer events, cancellation signals</li>
+<li>goroutines serialize access to local mutable state</li>
+<li>statck traces &amp; deadlock detector</li>
+<li>race detector</li>
+</ul>
+<h4 id="links">Links</h4>
+<p><a href="golang.org/doc/codewalk/sharemem">Share memory by communicating</a></p>
+
+</article>
+
+
+<p class="post-meta">
+    Tags:&nbsp;
+    
+    
+    <a href="https://w-yj.github.io/tags/Go">Go</a>
+    
+</p>
+
+
+
+            </div>
+        </div>
+    </div>
+    <footer class="center">
+    <div class="p2 wrap">
+        <div class="measure mt1 center">
+            <small>
+                Copyright &#169; 2017<br>
+                Powered by <a href="http://gohugo.io/" target="_blank">Hugo</a> &amp; <a
+                    href="https://github.com/azmelanar/hugo-theme-pixyll" target="_blank">Pixyll</a>
+            </small>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

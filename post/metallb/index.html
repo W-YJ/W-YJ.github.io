@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>MetalLB Investigate - WYJ&#39;s Notes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="keywords" content="">
+    <link rel="canonical" href="https://w-yj.github.io/post/metallb/">
+
+    
+    
+    <link rel="stylesheet" type="text/css" href="https://w-yj.github.io/sass/pixyll.min.30e55e9fcc01694c576be315e114e0449103a0df1fb91cec0c2ada477ba30f6b.css">
+
+    
+    <link rel='stylesheet' type='text/css' href='//fonts.googleapis.com/css?family=Merriweather:900,900italic,300,300italic' >
+    <link rel='stylesheet' type='text/css' href='//fonts.googleapis.com/css?family=Lato:900,300'>
+</head>
+
+<body class="site">
+    <div class="site-wrap">
+        <header class="site-header px2 px-responsive">
+    <div class="mt2 wrap">
+        <div class="measure">
+            <a href="https://w-yj.github.io" class="site-title">WYJ&#39;s Notes</a>
+            <nav class="site-nav">
+                
+<div class="right">
+<a href="https://w-yj.github.io/about/">About</a>
+<a href="https://w-yj.github.io/tags/">Tags</a>
+<a href="https://w-yj.github.io/contact/">Contact</a>
+</div>
+            </nav>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</header>
+
+        <div class="post p2 p-responsive wrap" role="main">
+            <div class="measure">
+                
+<div class="post-header mb2">
+    <h1 class="py2">MetalLB Investigate</h1>
+    <span class="post-meta">
+        Jul 12, 2020
+        
+    </span>
+    <br>
+    
+</div>
+<article class="post-content">
+    <h1 id="metallb-investigate">MetalLB Investigate</h1>
+<!-- raw HTML omitted -->
+<ul>
+<li>Load Balancer
+<ul>
+<li>External LB</li>
+<li>Service LB</li>
+</ul>
+</li>
+<li>MetalLB
+<ul>
+<li>Mode 1 - ARP</li>
+<li>Mode 2 - BGP</li>
+<li>Install &amp; Configuraration</li>
+</ul>
+</li>
+<li>Conclusion</li>
+</ul>
+<!-- raw HTML omitted -->
+<h2 id="load-balancer">Load Balancer</h2>
+<h3 id="external-lb">External LB</h3>
+<p><img src="https://w-yj.github.io/img/Metallb/externalLB.png" alt="External LB">
+Benefits:</p>
+<ul>
+<li>SSL termination</li>
+<li>Health checks</li>
+<li>Enables node mantenance</li>
+<li>Reduce downtime</li>
+</ul>
+<p>Options:</p>
+<ul>
+<li>Cloud provider solution</li>
+<li>Something commercial</li>
+<li>HAProxy</li>
+<li>Nginx</li>
+<li>Apache</li>
+<li>Multi-node w/ keepalived</li>
+</ul>
+<h3 id="service-lb">Service LB</h3>
+<p>On-prem installed k8s doesn&rsquo;t support LoadBalancer type service.
+<img src="https://w-yj.github.io/img/Metallb/pending.png" alt="pending.png"></p>
+<p>Service LB Features:</p>
+<ul>
+<li>Provisions provider LB</li>
+<li>Connects LB to NodePort</li>
+<li>Provider-specific</li>
+<li>Layer 4 only</li>
+</ul>
+<p>Service LB Requirements:</p>
+<ul>
+<li>Cluster configuration</li>
+<li>Node configuration</li>
+<li>Policy configuration</li>
+<li>Cloud-provider support</li>
+</ul>
+<h2 id="metallb">MetalLB</h2>
+<blockquote>
+<p>MetalLB is a load-balancer implementation for bare metal Kubernetes clusters, using standard routing protocols.</p>
+</blockquote>
+<p><strong>Prerequisites</strong>:</p>
+<ul>
+<li>Multiple IPs per node</li>
+<li>Dynamic IP assignment</li>
+<li>Layer2 or BGP support</li>
+</ul>
+<h3 id="mode-1---arp">Mode 1 - ARP</h3>
+<blockquote>
+<p>OSI layer2 router protocol - Address Resolution Protocol</p>
+</blockquote>
+<p><img src="https://w-yj.github.io/img/Metallb/OSI.png" alt="OSI">
+<img src="https://w-yj.github.io/img/Metallb/layer2.png" alt="layer2"></p>
+<ul>
+<li>ARP: Layer 2 mode does not require the IPs to be bound to the network interfaces of your worker nodes. It works by responding to ARP requests on your local network directly, to give the machine’s MAC address to clients.</li>
+<li>SSH into one or more of your nodes and use arping and tcpdump to verify the ARP requests pass through your network. We found out that the IP 192.168.1.240 is located at the mac FA:16:3E:5A:39:4C.</li>
+<li>Pros:
+<ul>
+<li>Universality - Work on any ethernet network, with no special hardware required, not even fancy routers;</li>
+<li>Similar failover mechanism of Keeplived, but more robust(All nodes in cluster involved) and more flexible(Support select nodes by label). Although not perfectly even load balancing，one node serve multiple external Services instead of all Services someway can ease the hotspot problem.</li>
+</ul>
+</li>
+<li>Cons:
+<ul>
+<li>Failover mechanism only thus single-node bottlenecking exists or potentially slow failover（based on the system）</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://w-yj.github.io/img/Metallb//HA-virtual-IP.png" alt="HA-virtual-IP"></p>
+<h3 id="mode-2---bgp">Mode 2 - BGP</h3>
+<blockquote>
+<p>Border Gateway Protocol</p>
+</blockquote>
+<p><img src="https://w-yj.github.io/img/Metallb/bgp.png" alt="bgp"></p>
+<ul>
+<li>Prerequisite - network routers support BGP and routers are configured to support multipath.</li>
+<li>Pros
+<ul>
+<li>Per-connection means that all the packets for a single TCP or UDP session will be directed to a single machine in your cluster. not for packets</li>
+<li>Use standard router hardware, rather than bespoke load-balancers.</li>
+<li>Using BGP allows for true load balancing across multiple nodes, and fine-grained traffic control thanks to BGP’s policy mechanisms.</li>
+</ul>
+</li>
+<li>Cons
+<ul>
+<li>Hardware dependent - BGP infrastructure(Routers hardware support BGP) required</li>
+<li>The biggest is that BGP-based load balancing does not react gracefully to changes in the backend set for an address.</li>
+<li>Your BGP routers might have an option to use a more stable ECMP hashing algorithm. This is sometimes called “resilient ECMP” or “resilient LAG”. Using such an algorithm hugely reduces the number of affected connections when the backend set changes.</li>
+</ul>
+</li>
+</ul>
+<p><strong>Configure BGP Peering</strong>:</p>
+<pre><code>R1#show ip bgp summary 
+BGP router identifier 192.168.143.2, local AS number 64500
+BGP table version is 23, main routing table version 23
+1 network entries using 144 bytes of memory
+1 path entries using 80 bytes of memory
+1/1 BGP path/bestpath attribute entries using 136 bytes of memory
+0 BGP route-map cache entries using 0 bytes of memory
+0 BGP filter-list cache entries using 0 bytes of memory
+BGP using 360 total bytes of memory
+BGP activity 5/4 prefixes, 13/12 paths, scan interval 60 secs
+
+Neighbor        V          AS    MsgRcvd MsgSent   TblVer InQ OutQ  Up/Down  State/PfxRcd
+192.168.121.72  4        64500       2       4       23    0    0   00:00:24        0
+192.168.121.170 4        64500       2       5       23    0    0   00:00:24        0
+192.168.121.224 4        64500       2       4       23    0    0   00:00:24        0
+</code></pre><p><strong>Speaker use BGP to advertise routing rules</strong>:</p>
+<pre><code>R1#show ip route bgp   
+Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area 
+       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+       E1 - OSPF external type 1, E2 - OSPF external type 2
+       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
+       ia - IS-IS inter area, * - candidate default, U - per-user static route
+       o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP
+       + - replicated route, % - next hop override
+
+Gateway of last resort is not set
+
+      192.168.143.0/32 is subnetted, 1 subnets
+B        192.168.143.230 [200/0] via 192.168.121.224, 00:00:15
+                         [200/0] via 192.168.121.170, 00:00:15
+                         [200/0] via 192.168.121.72, 00:00:15
+</code></pre><p>The main difference from the user’s point of view between the two is that the ARP solution requires each node to be in a single L2 network (subnet), while BGP requires dynamic routing configuration on the upstream router.</p>
+<h3 id="install--configuraration">Install &amp; Configuraration</h3>
+<ul>
+<li><a href="https://metallb.universe.tf/installation/">Installation By Manifest</a></li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.9.5/manifests/namespace.yaml
+kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.9.5/manifests/metallb.yaml
+<span style="color:#75715e"># On first install only</span>
+kubectl create secret generic -n metallb-system memberlist --from-literal<span style="color:#f92672">=</span>secretkey<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;</span><span style="color:#66d9ef">$(</span>openssl rand -base64 128<span style="color:#66d9ef">)</span><span style="color:#e6db74">&#34;</span>
+</code></pre></div><ul>
+<li><a href="https://metallb.universe.tf/configuration/#layer-2-configuration">Layer 2 Configuration</a></li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#66d9ef">apiVersion</span>: v1
+<span style="color:#66d9ef">data</span>:
+  <span style="color:#66d9ef">config</span>: <span style="color:#e6db74">|
+</span><span style="color:#e6db74">    address-pools:</span>
+    - <span style="color:#66d9ef">name</span>: default
+      <span style="color:#66d9ef">protocol</span>: layer2
+      <span style="color:#66d9ef">avoid-buggy-ips</span>: <span style="color:#66d9ef">true</span>
+      <span style="color:#66d9ef">addresses</span>:
+      - <span style="color:#ae81ff">16.186.72.2-16.186.79.254</span>
+<span style="color:#66d9ef">kind</span>: ConfigMap
+<span style="color:#66d9ef">metadata</span>:
+  <span style="color:#66d9ef">creationTimestamp</span>: <span style="color:#e6db74">&#34;2020-10-14T17:25:12Z&#34;</span>
+  <span style="color:#66d9ef">managedFields</span>:
+  - <span style="color:#66d9ef">apiVersion</span>: v1
+    <span style="color:#66d9ef">fieldsType</span>: FieldsV1
+    <span style="color:#66d9ef">fieldsV1</span>:
+      <span style="color:#66d9ef">f:data</span>:
+        <span style="color:#66d9ef">.</span>: {}
+        <span style="color:#66d9ef">f:config</span>: {}
+    <span style="color:#66d9ef">manager</span>: kubectl
+    <span style="color:#66d9ef">operation</span>: Update
+    <span style="color:#66d9ef">time</span>: <span style="color:#e6db74">&#34;2020-10-18T10:41:56Z&#34;</span>
+  <span style="color:#66d9ef">name</span>: config
+  <span style="color:#66d9ef">namespace</span>: metallb-system
+  <span style="color:#66d9ef">resourceVersion</span>: <span style="color:#e6db74">&#34;912253&#34;</span>
+  <span style="color:#66d9ef">selfLink</span>: /api/v1/namespaces/metallb-system/configmaps/config
+  <span style="color:#66d9ef">uid</span>: ce9d1583-8bc8-47b0-978f-547d08e20a98
+</code></pre></div><ul>
+<li><a href="https://metallb.universe.tf/configuration/#bgp-configuration">BGP Configuration</a></li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#66d9ef">apiVersion</span>: v1
+<span style="color:#66d9ef">data</span>:
+  <span style="color:#66d9ef">config</span>: <span style="color:#e6db74">|
+</span><span style="color:#e6db74">    peers:</span>
+    - <span style="color:#66d9ef">peer-address</span>: <span style="color:#ae81ff">16.186.72.1</span>
+      <span style="color:#66d9ef">peer-asn</span>: <span style="color:#ae81ff">64501</span>
+      <span style="color:#66d9ef">my-asn</span>: <span style="color:#ae81ff">64500</span>
+    <span style="color:#66d9ef">address-pools</span>:
+    - <span style="color:#66d9ef">name</span>: default
+      <span style="color:#66d9ef">protocol</span>: bgp
+      <span style="color:#66d9ef">avoid-buggy-ips</span>: <span style="color:#66d9ef">true</span>
+      <span style="color:#66d9ef">addresses</span>:
+      - <span style="color:#ae81ff">192.168.122.1</span>/<span style="color:#ae81ff">24</span>
+<span style="color:#66d9ef">kind</span>: ConfigMap
+<span style="color:#66d9ef">metadata</span>:
+  <span style="color:#66d9ef">creationTimestamp</span>: <span style="color:#e6db74">&#34;2020-10-14T17:25:12Z&#34;</span>
+  <span style="color:#66d9ef">managedFields</span>:
+  - <span style="color:#66d9ef">apiVersion</span>: v1
+    <span style="color:#66d9ef">fieldsType</span>: FieldsV1
+    <span style="color:#66d9ef">fieldsV1</span>:
+      <span style="color:#66d9ef">f:data</span>:
+        <span style="color:#66d9ef">.</span>: {}
+        <span style="color:#66d9ef">f:config</span>: {}
+    <span style="color:#66d9ef">manager</span>: kubectl
+    <span style="color:#66d9ef">operation</span>: Update
+    <span style="color:#66d9ef">time</span>: <span style="color:#e6db74">&#34;2020-10-18T10:41:56Z&#34;</span>
+  <span style="color:#66d9ef">name</span>: config
+  <span style="color:#66d9ef">namespace</span>: metallb-system
+  <span style="color:#66d9ef">resourceVersion</span>: <span style="color:#e6db74">&#34;912253&#34;</span>
+  <span style="color:#66d9ef">selfLink</span>: /api/v1/namespaces/metallb-system/configmaps/config
+  <span style="color:#66d9ef">uid</span>: ce9d1583-8bc8-47b0-978f-547d08e20a98
+</code></pre></div><ul>
+<li><a href="https://raw.githubusercontent.com/google/metallb/v0.9.3/manifests/example-config.yaml">FULL Example</a></li>
+</ul>
+<h2 id="conclusion">Conclusion</h2>
+<ul>
+<li>For maturity Consideration, although metallb currently is in beta stage thus cannot use in production, but we can using it for the local environment for testing due to its usability!</li>
+<li>Where metallb really shines is when you put an ingress controller behind it. By putting the ingress controller behind metallb you have metallb responsible for keeping the address alive and then it routes traffic directly to the cluster ip service for the ingress controller.</li>
+</ul>
+
+</article>
+
+
+<p class="post-meta">
+    Tags:&nbsp;
+    
+    
+    <a href="https://w-yj.github.io/tags/Kubernetes">Kubernetes</a>
+    
+</p>
+
+
+
+            </div>
+        </div>
+    </div>
+    <footer class="center">
+    <div class="p2 wrap">
+        <div class="measure mt1 center">
+            <small>
+                Copyright &#169; 2017<br>
+                Powered by <a href="http://gohugo.io/" target="_blank">Hugo</a> &amp; <a
+                    href="https://github.com/azmelanar/hugo-theme-pixyll" target="_blank">Pixyll</a>
+            </small>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>
