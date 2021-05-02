@@ -45,6 +45,15 @@
         </item>
         
         <item>
+            <title>Docker</title>
+            <link>https://w-yj.github.io/post/docker/</link>
+            <pubDate>Tue, 22 May 2018 16:42:15 UTC</pubDate>
+            
+            <guid>https://w-yj.github.io/post/docker/</guid>
+            <description>Docker Commands Notes.</description>
+        </item>
+        
+        <item>
             <title>正确实现看似简单的Singleton</title>
             <link>https://w-yj.github.io/post/singleton/</link>
             <pubDate>Mon, 12 Mar 2018 09:42:15 UTC</pubDate>
@@ -132,15 +141,6 @@
             
             <guid>https://w-yj.github.io/post/javacollection/</guid>
             <description>All kinds Maps implementation.</description>
-        </item>
-        
-        <item>
-            <title>Java String</title>
-            <link>https://w-yj.github.io/post/javastring/</link>
-            <pubDate>Sun, 19 Mar 2017 09:08:43 UTC</pubDate>
-            
-            <guid>https://w-yj.github.io/post/javastring/</guid>
-            <description>Objects backed by char array.</description>
         </item>
         
     </channel>

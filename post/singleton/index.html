@@ -121,7 +121,7 @@
     <span style="color:#f92672">}</span>
 <span style="color:#f92672">}</span>
 </code></pre></div><p>同一个instance：
-<img src="https://w-yj.github.io/img/singleton/implementation_test.png" alt="测试结果"></p>
+<img src="https://w-yj.github.io/img/Singleton/implementation_test.png" alt="测试结果"></p>
 <h2 id="vulnerability">⚠️Vulnerability</h2>
 <p>Singleton的实现似乎十分容易，其实不然，因为java中有许多潜在的因素很容易会破坏单例模式有且只有一个实例的原则，主要体现在以下几个方面：</p>
 <h3 id="reflection-mechanism">Reflection Mechanism</h3>
@@ -150,7 +150,7 @@
     <span style="color:#f92672">}</span>
 <span style="color:#f92672">}</span>
 </code></pre></div><p>单例已被破坏：
-<img src="https://w-yj.github.io/img/singleton/reflection_test.png" alt="测试结果"></p>
+<img src="https://w-yj.github.io/img/Singleton/reflection_test.png" alt="测试结果"></p>
 <p>利用反射机制破坏单例模式的原因在于<code>ctor.setAccessible(true);</code>方法，即把私有的构造器设置为accessible，所以优化的点在构造器，在constructor中检查soleInstance是否已被创建，如果已经创建，则不允许Reflection继续执行并抛出异常。</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Singleton</span> <span style="color:#f92672">{</span>
     <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> Singleton soleInstance <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
@@ -172,7 +172,7 @@
     <span style="color:#f92672">}</span>
 <span style="color:#f92672">}</span>
 </code></pre></div><p>结果如预期：
-<img src="https://w-yj.github.io/img/singleton/reflection_fix.png" alt="测试结果"></p>
+<img src="https://w-yj.github.io/img/Singleton/reflection_fix.png" alt="测试结果"></p>
 <p>但是如果在test类中修改执行顺序，单例模式依旧被破坏</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> Exception <span style="color:#f92672">{</span>
     <span style="color:#75715e">// reflection
@@ -192,7 +192,7 @@
     print<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;s2&#34;</span><span style="color:#f92672">,</span> s2<span style="color:#f92672">);</span>
 
 <span style="color:#f92672">}</span>
-</code></pre></div><p><img src="https://w-yj.github.io/img/singleton/reflection_fix_bug.png" alt="测试结果"></p>
+</code></pre></div><p><img src="https://w-yj.github.io/img/Singleton/reflection_fix_bug.png" alt="测试结果"></p>
 <h3 id="serializationdeserialization">Serialization/Deserialization</h3>
 <p>序列化是一个将对象的状态信息写入流的过程，反序列化则相反。</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">// 在Singleton类实现Serailizable接口，代码略
@@ -222,14 +222,14 @@
     <span style="color:#f92672">}</span>
 <span style="color:#f92672">}</span>
 </code></pre></div><p>单例已被破坏：      <br>
-<img src="https://w-yj.github.io/img/singleton/serialization_test.png" alt="测试结果"></p>
+<img src="https://w-yj.github.io/img/Singleton/serialization_test.png" alt="测试结果"></p>
 <p>此类问题可以通过在 Singleton 中实现 readResolver 方法解决。当反序列化操作完成时，Java 会在此基础上立即调用你重写的readResolve方法，通过这个机制可以改变反序列化的执行结果。</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">private</span> Object <span style="color:#a6e22e">readResolve</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> ObjectStreamException <span style="color:#f92672">{</span>
         System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;.. read resolve.&#34;</span><span style="color:#f92672">);</span>
         <span style="color:#75715e">// change the behavior of deserialization. this will overide deserialization
 </span><span style="color:#75715e"></span>        <span style="color:#66d9ef">return</span> soleInstance<span style="color:#f92672">;</span>
 <span style="color:#f92672">}</span>
-</code></pre></div><p><img src="https://w-yj.github.io/img/singleton/serialization_fix.png" alt="测试结果"></p>
+</code></pre></div><p><img src="https://w-yj.github.io/img/Singleton/serialization_fix.png" alt="测试结果"></p>
 <h3 id="cloneable">Cloneable</h3>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">// 在Singleton类实现Cloneable接口，并实现默认的clone方法，代码略
 </span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Singleton</span> <span style="color:#66d9ef">implements</span> Cloneable <span style="color:#f92672">{}</span>
@@ -253,13 +253,13 @@
     <span style="color:#f92672">}</span>
 <span style="color:#f92672">}</span>
 </code></pre></div><p>单例已被破坏：<br>
-<img src="https://w-yj.github.io/img/singleton/clone_test.png" alt="测试结果"></p>
+<img src="https://w-yj.github.io/img/Singleton/clone_test.png" alt="测试结果"></p>
 <p>在给单例添加clone机制时就添加了创建多个实例的特性，所以避免它最简单方法就是不支持它，即在clone方法中抛出CloneNotSupportedException。类似序列化与反序列化中可以通过返回soleInstance的方式解决，但是更加推荐抛出异常的方法，因为这两个设计思想本身就是相悖的。</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@Override</span>
 <span style="color:#66d9ef">protected</span> Object <span style="color:#a6e22e">clone</span><span style="color:#f92672">()</span>  <span style="color:#f92672">{</span>
     <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> CloneNotSupportedException<span style="color:#f92672">();</span>
 <span style="color:#f92672">}</span>
-</code></pre></div><p><img src="https://w-yj.github.io/img/singleton/clone_fix.png" alt="测试结果"></p>
+</code></pre></div><p><img src="https://w-yj.github.io/img/Singleton/clone_fix.png" alt="测试结果"></p>
 <h3 id="multi-thread-access">Multi-thread Access</h3>
 <p>当多个线程同时去创建实例时很容易造成混乱，尤其是出于性能考虑以延迟加载的方式创建时。延迟加载主要有两个优点：</p>
 <ul>
@@ -306,8 +306,8 @@
 </code></pre></div><p>从单线程应用程序的角度看延迟加载没有问题，但是在多线程环境下，getInstance 方法中的 if 语句形成一个 Check-Then-Act 操作，这不是一个原子操作并且代码中未使用任何同步机制，因此当多线程交错运行时可能出现竞态。</p>
 <p>当 soleInstance 值还是 null 的时候，T1 线程和 T2 线程同时执行到操作1，接着 T1 执行操作2前 T2 已率先执行完操作2，因此当 T1 执行到操作2时，尽管 soleInstance 实际已经不为 null，但是 T1 此时仍然会再创建一个实例，因为T1执行操作1时 soleInstance 为 null，这就导致了多个实例的创建，从而破坏单例模式。</p>
 <p>测试结果如预期有Work和Not Work两种情况：<br>
-<img src="https://w-yj.github.io/img/singleton/thread_work.png" alt="测试结果"><br>
-<img src="https://w-yj.github.io/img/singleton/thread_not.png" alt="测试结果"></p>
+<img src="https://w-yj.github.io/img/Singleton/thread_work.png" alt="测试结果"><br>
+<img src="https://w-yj.github.io/img/Singleton/thread_not.png" alt="测试结果"></p>
 <p>这类问题不难想到通过加同步锁可快速解决：当多个线程同时调用 getInstance 方法时会意识到该方法不可并发执行，所以当第一个线程获得该锁时，其他的线程只能等待并直到第一个线程执行完成，其他线程才可陆续获得该锁，但此时 soleInstance 已被初始化，所以给调用者返回唯一实例。</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> Singleton <span style="color:#a6e22e">getInstance</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
     <span style="color:#75715e">// 使用同步块相比同步方法可以缩小同步的范围
