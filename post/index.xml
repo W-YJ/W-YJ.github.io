@@ -48,15 +48,6 @@
     </item>
     
     <item>
-      <title>Docker</title>
-      <link>https://w-yj.github.io/post/docker/</link>
-      <pubDate>Tue, 22 May 2018 16:42:15 +0000</pubDate>
-      
-      <guid>https://w-yj.github.io/post/docker/</guid>
-      <description>Docker Commands Notes.</description>
-    </item>
-    
-    <item>
       <title>正确实现看似简单的Singleton</title>
       <link>https://w-yj.github.io/post/singleton/</link>
       <pubDate>Mon, 12 Mar 2018 09:42:15 +0000</pubDate>
@@ -153,15 +144,6 @@
       
       <guid>https://w-yj.github.io/post/javastring/</guid>
       <description>Objects backed by char array.</description>
-    </item>
-    
-    <item>
-      <title>Software Testing</title>
-      <link>https://w-yj.github.io/post/testing/</link>
-      <pubDate>Wed, 15 Mar 2017 13:55:16 +0000</pubDate>
-      
-      <guid>https://w-yj.github.io/post/testing/</guid>
-      <description>Software Testing Basic.</description>
     </item>
     
     <item>

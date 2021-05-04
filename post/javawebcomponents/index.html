@@ -26,12 +26,8 @@
         <div class="measure">
             <a href="https://w-yj.github.io" class="site-title">WYJ&#39;s Notes</a>
             <nav class="site-nav">
-                
-<div class="right">
+                <a href="https://w-yj.github.io/tags/">Tags</a>
 <a href="https://w-yj.github.io/about/">About</a>
-<a href="https://w-yj.github.io/tags/">Tags</a>
-<a href="https://w-yj.github.io/contact/">Contact</a>
-</div>
             </nav>
             <div class="clearfix"></div>
         </div>
@@ -41,21 +37,14 @@
         <div class="post p2 p-responsive wrap" role="main">
             <div class="measure">
                 
-<div class="post-header mb2">
-    <h1 class="py2">JavaWebComponents</h1>
-    <span class="post-meta">
-        Jul 10, 2017
-        
-    </span>
-    <br>
-    
-</div>
+
+<div class="post-header mb2"></div>
 <article class="post-content">
     <h1 id="javawebcomponents">JavaWebComponents</h1>
 <blockquote>
 <p>JavaWeb三大组件: Servlet、Filter、Listener</p>
 </blockquote>
-<!-- raw HTML omitted -->
+<!-- MarkdownTOC -->
 <ul>
 <li>Servlet
 <ul>
@@ -124,7 +113,7 @@
 </ul>
 </li>
 </ul>
-<!-- raw HTML omitted -->
+<!-- /MarkdownTOC -->
 <h2 id="servlet">Servlet</h2>
 <blockquote>
 <p>Server Applet是运行在web服务器端容器(tomcat)中一个特殊的java小应用程序，用来接收请求，处理请求，生成响应。</p>
@@ -968,7 +957,7 @@ request<span style="color:#f92672">.</span><span style="color:#a6e22e">getReques
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;Contxt</span> <span style="color:#a6e22e">docBase=</span><span style="color:#e6db74">&#34;d:\secondWeb&#34;</span> <span style="color:#f92672">/&gt;</span>
 </code></pre></div><ul>
 <li>此种方式不需要再配置path属性，因为文件名代表的就是path的内容，即虚拟目录。</li>
-<li>如果配置多级虚拟目录的话，使用#来区分多级目录名，例如：aaa#bbb#ccc.xml，该文件中的内容依然是<!-- raw HTML omitted -->，配置后可通过http://127.0.0.1:8080/aaa/bbb/ccc/a.html进行访问</li>
+<li>如果配置多级虚拟目录的话，使用#来区分多级目录名，例如：aaa#bbb#ccc.xml，该文件中的内容依然是<Context docBase="d:\secondWeb"/>，配置后可通过http://127.0.0.1:8080/aaa/bbb/ccc/a.html进行访问</li>
 </ul>
 <p>**方法3：**配置默认的web应用：在tomcat安装目录下的conf\Catalina\localhost目录中新建ROOT.xml文件，该文件的内容是：</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;Context</span> <span style="color:#a6e22e">docBase=</span><span style="color:#e6db74">&#34;d:\secondWeb&#34;</span> <span style="color:#f92672">/&gt;</span>
@@ -980,7 +969,7 @@ request<span style="color:#f92672">.</span><span style="color:#a6e22e">getReques
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;Host</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;主机名&#34;</span> <span style="color:#a6e22e">appBase=</span><span style="color:#e6db74">&#34;项目的绝对路径&#34;</span><span style="color:#f92672">&gt;</span>  
     <span style="color:#f92672">&lt;Context</span> <span style="color:#a6e22e">path=</span><span style="color:#e6db74">&#34;&#34;</span>   <span style="color:#a6e22e">docBase=</span><span style="color:#e6db74">&#34;.&#34;</span> <span style="color:#f92672">/&gt;</span>
 <span style="color:#f92672">&lt;/Host&gt;</span>
-</code></pre></div><p>注意：主机名一定要在本机C:\WINDOWS\system32\drivers\etc\hosts目录中进行映射过，也就是该主机名有一个对应IP地址，当服务器启动后，在URL输入一个在本机映射过的主机名，这时候会到server.xml文件中去查找有没有对应的主机名的<!-- raw HTML omitted -->元素，如果有就运行该元素中的<!-- raw HTML omitted -->元素指定的路径所对应的项目。</p>
+</code></pre></div><p>注意：主机名一定要在本机C:\WINDOWS\system32\drivers\etc\hosts目录中进行映射过，也就是该主机名有一个对应IP地址，当服务器启动后，在URL输入一个在本机映射过的主机名，这时候会到server.xml文件中去查找有没有对应的主机名的<Host>元素，如果有就运行该元素中的<Context>元素指定的路径所对应的项目。</p>
 <h3 id="javaweb路径问题">JavaWeb路径问题</h3>
 <p>路径分为两种：客户端路径和服务器端路径</p>
 <ol>
@@ -1129,7 +1118,7 @@ System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span>
     Tags:&nbsp;
     
     
-    <a href="https://w-yj.github.io/tags/JavaWeb">JavaWeb</a>
+    <a href="https://w-yj.github.io/tags/javaweb/">JavaWeb</a>
     
 </p>
 
@@ -1144,7 +1133,7 @@ System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span>
             <small>
                 Copyright &#169; 2017<br>
                 Powered by <a href="http://gohugo.io/" target="_blank">Hugo</a> &amp; <a
-                    href="https://github.com/azmelanar/hugo-theme-pixyll" target="_blank">Pixyll</a>
+                    href="https://github.com/johno/pixyll" target="_blank">Pixyll</a>
             </small>
         </div>
     </div>
